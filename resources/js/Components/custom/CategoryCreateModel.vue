@@ -76,7 +76,7 @@
                       class="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-lg appearance-none focus:outline-none focus:ring-2 focus:ring-slate-400 focus:border-slate-300 transition-all duration-200 cursor-pointer touch-manipulation"
                     >
                       <option value="0">Food</option>
-                      <option value="1">Bar</option>
+                      <option value="1">Beverages</option>
                     </select>
                     <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
                       <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">

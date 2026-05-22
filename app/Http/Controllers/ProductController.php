@@ -285,7 +285,7 @@ public function fetchParentCategories(Request $request)
                 $fileExtension = $request->file('image')->getClientOriginalExtension();
                 $fileName = 'product_' . date("YmdHis") . '.' . $fileExtension;
                 $path = $request->file('image')->storeAs('products', $fileName, 'public');
-                $validated['image'] = 'storage/' . $path;
+                $validated['image'] = '' . $path;
             }
 
             if (empty($validated['barcode'])) {

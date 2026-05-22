@@ -281,7 +281,7 @@ const handlePrintReceipt = () => {
   <body>
       <!-- Header -->
       <div class="header">
-          ${ companyInfo?.value?.name ? `<h1>${companyInfo.value.name}</h1>` : "" }
+          ${ companyInfo?.value?.name ? `<img src="/images/delicasy_logo.png" alt="${companyInfo.value.name}" style="max-width: 70mm; max-height: 50px; margin: 0 auto; display: block;">` : "" }
           ${ companyInfo?.value?.address ? `<p>${companyInfo.value.address}</p>` : "" }
           ${ (companyInfo?.value?.phone || companyInfo?.value?.phone2) ? `<p>${[companyInfo.value.phone, companyInfo.value.phone2].filter(Boolean).join(" | ")}</p>` : "" }
           ${ companyInfo?.value?.email ? `<p>${companyInfo.value.email}</p>` : "" }
@@ -296,7 +296,7 @@ const handlePrintReceipt = () => {
       <table class="meta">
           <tr><td>Date &amp; Time:</td><td>${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}</td></tr>
           <tr><td>Order No:</td><td>${props.orderId}</td></tr>
-          <tr><td>Customer:</td><td>${props.customer.name}</td></tr>
+          <tr><td>Customer:</td><td>${props.customer?.name || 'Walking Customer'}</td></tr>
           <tr><td>Cashier:</td><td>${props.cashier.name}</td></tr>
           <tr><td>Payment:</td><td>${props.selectedPaymentMethod}</td></tr>
       </table>
@@ -518,7 +518,9 @@ const handleKOTPrintReceipt = () => {
       <div class="receipt-container">
 
 
-<h1 style="text-align:center">KOT Note</h1>
+<h1 style="text-align:center">
+<img src="/images/delicasy_logo.png" alt="KOT" style="max-width: 70mm; max-height: 50px; display: block; margin: 0 auto;">
+</h1>
 
    <div style="font-weight: bold; border: 1px solid black; text-align: center; padding: 5px; margin: 8px 0;">
                 <small style="display: block;">
@@ -549,7 +551,7 @@ const handleKOTPrintReceipt = () => {
               <div class="info-row">
                   <div>
                       <p>Customer:</p>
-                      <small>${props.customer.name}</small>
+                      <small>${props.customer?.name || 'Walking Customer'}</small>
                   </div>
                   <div>
                       <p>Cashier:</p>

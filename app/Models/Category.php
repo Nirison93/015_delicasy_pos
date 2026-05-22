@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 
 
 class Category extends Model
@@ -37,6 +38,18 @@ class Category extends Model
     protected $casts = [
         'is_featured' => 'boolean'
     ];
+
+    /**
+     * Get the image URL attribute
+     */
+    protected function getImageAttribute($value)
+    {
+        if (!$value) {
+            return null;
+        }
+        // Convert relative path to full URL
+        return Storage::url($value);
+    }
 
     public function getHierarchyStringAttribute(): string
     {

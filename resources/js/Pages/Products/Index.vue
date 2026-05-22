@@ -211,7 +211,7 @@
             >
               <img
                 v-if="product.image"
-                :src="getImageUrl(product.image)"
+                :src="product.image"
                 :alt="product.name || 'Product Image'"
                 class="h-52 w-full object-cover transition-transform duration-500 group-hover:scale-110"
                 loading="lazy"
@@ -534,19 +534,6 @@ const navigateTo = (url) => {
       preserveScroll: true, // Prevent scroll reset
     }
   );
-};
-
-// Get correct image URL from database path
-const getImageUrl = (imagePath) => {
-  if (!imagePath) {
-    return null;
-  }
-  // If path already starts with /, use it as is
-  if (imagePath.startsWith('/')) {
-    return imagePath;
-  }
-  // Otherwise prepend /
-  return `/${imagePath}`;
 };
 </script>
 
