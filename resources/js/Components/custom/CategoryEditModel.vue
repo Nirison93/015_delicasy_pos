@@ -92,7 +92,7 @@
                         ]"
                       >
                         <input type="radio" v-model="form.category_type" value="1" class="hidden" />
-                        🍹 Bar
+                        🍹 Beverages
                       </label>
                     </div>
                     <p v-if="form.errors.category_type" class="mt-1.5 text-sm text-red-400">{{ form.errors.category_type }}</p>

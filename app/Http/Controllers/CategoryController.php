@@ -27,27 +27,27 @@ class CategoryController extends Controller
         $categoryType = $request->input('category_type', '0'); // 0 = Food (default), 1 = Bar
 
        $allcategories = Category::with('parent')
-    ->where('category_type', $categoryType)
-    ->orderBy('id', 'desc')
-    ->get()
-    ->map(function ($category) {
-        return [
-            'id'    => $category->id,
-            'name'  => $category->name,
-            'category_type'  => $category->category_type,
+        ->where('category_type', $categoryType)
+        ->orderBy('id', 'desc')
+        ->get()
+        ->map(function ($category) {
+            return [
+                'id'    => $category->id,
+                'name'  => $category->name,
+                'category_type'  => $category->category_type,
 
-            // 🔹 Public URL for the image (or null if not set)
-            'image' => $category->image ? Storage::url($category->image) : null,
+                // 🔹 Image path from database (already contains /storage/ if set)
+                'image' => $category->image ?? null,
 
-            'parent' => $category->parent ? [
-                'id'   => $category->parent->id,
-                'name' => $category->parent->name,
-                // Optional: include parent's image too
-                // 'image' => $category->parent->image ? Storage::url($category->parent->image) : null,
-            ] : null,
+                'parent' => $category->parent ? [
+                    'id'   => $category->parent->id,
+                    'name' => $category->parent->name,
+                    // Optional: include parent's image too
+                    // 'image' => $category->parent->image ?? null,
+                ] : null,
 
-            'hierarchy_string' => $category->hierarchy_string,
-        ];
+                'hierarchy_string' => $category->hierarchy_string,
+            ];
     });
 
 
@@ -218,13 +218,13 @@ public function update(Request $request, Category $category)
             return [
                 'id' => $category->id,
                 'name' => $category->name,
-                'image' => $category->image ? Storage::url($category->image) : null,
+                'image' => $category->image ?? null,
                 'hierarchy_string' => $category->hierarchy_string, // Include hierarchy_string for parent
                 'children' => $category->children->map(function ($child) {
                     return [
                         'id' => $child->id,
                         'name' => $child->name,
-                        'image' => $child->image ? Storage::url($child->image) : null,
+                        'image' => $child->image ?? null,
                         'hierarchy_string' => $child->hierarchy_string, // Include hierarchy_string for children
                     ];
                 }),
