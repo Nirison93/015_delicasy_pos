@@ -2661,14 +2661,20 @@ const printBillOnly = () => {
             }
             th, td { 
               padding: 4px 2px; 
-              border-bottom: 2px solid #000; 
               color: #000 !important;
               font-weight: 700;
             }
             th { 
               text-align: left;
               font-weight: 800;
-              border-bottom: 2px solid #000;
+              border-bottom: 1px solid #999;
+              padding-bottom: 5px;
+            }
+            tbody tr { 
+              border-bottom: 1px solid #ddd;
+            }
+            tbody tr:last-child {
+              border-bottom: none;
             }
             td { 
               text-align: right; 
@@ -2682,7 +2688,7 @@ const printBillOnly = () => {
             }
             .totals { 
               margin-top: 6px; 
-              border-top: 2px solid #000; 
+              border-top: 1px solid #999; 
               padding-top: 6px;
               font-size: 12px;
               font-weight: 600;
@@ -2690,7 +2696,7 @@ const printBillOnly = () => {
             .grand { 
               font-weight: 900; 
               font-size: 13px; 
-              border-top: 3px solid #000; 
+              border-top: 1px solid #999; 
               padding-top: 6px; 
               margin-top: 4px;
               color: #000 !important;
@@ -2704,7 +2710,7 @@ const printBillOnly = () => {
               color: #000 !important;
             }
             .divider {
-              border-top: 2px solid #000;
+              border-top: 1px solid #999;
               margin: 6px 0;
             }
             b { 

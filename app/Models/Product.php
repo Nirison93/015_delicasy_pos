@@ -5,7 +5,7 @@ namespace App\Models;
 use App\Traits\GeneratesUniqueCode;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
- 
+use Illuminate\Support\Facades\Storage;
 
 class Product extends Model
 {
@@ -47,6 +47,18 @@ class Product extends Model
     protected $casts = [
         'is_promotion' => 'boolean', // Automatically cast is_promotion as boolean
     ];
+
+    /**
+     * Get the image URL attribute
+     */
+    protected function getImageAttribute($value)
+    {
+        if (!$value) {
+            return null;
+        }
+        // Convert relative path to full URL
+        return Storage::url($value);
+    }
 
     public function promotionItems()
     {

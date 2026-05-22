@@ -69,7 +69,7 @@
         <span class="font-medium text-gray-600">Image:</span>
         <div v-if="product.image">
           <img
-            :src="`/${product.image}`"
+            :src="product.image"
             alt="Product Image"
             class="w-full max-w-sm mt-2 rounded-lg"
           />
