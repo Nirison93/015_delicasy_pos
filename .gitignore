@@ -1,0 +1,73 @@
+# Laravel
+/vendor
+/.idea
+/.vscode
+.env
+.env.local
+.env.*.local
+.DS_Store
+Thumbs.db
+
+# Node/npm
+node_modules/
+npm-debug.log
+yarn-error.log
+package-lock.json
+
+# Build artifacts
+/public/build
+/public/hot
+/storage/logs
+/storage/app/uploads/*
+!/storage/app/uploads/.gitkeep
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+.env.backup
+
+# Testing
+/tests/CreatesApplication.php
+.phpunit.result.cache
+
+# Logs
+storage/logs/*.log
+laravel.log
+
+# Composer lock (optional - uncomment if you want to commit it)
+# composer.lock
+
+# Vite
+.vite
+
+# Public uploads
+/public/CompanyInfos/*
+!/public/CompanyInfos/.gitkeep
+/public/storage/products/*
+!/public/storage/products/.gitkeep
+
+# Session files
+storage/framework/sessions/*
+!storage/framework/sessions/.gitkeep
+
+# Cache
+storage/framework/cache/*
+!storage/framework/cache/.gitkeep
+
+# Compiled assets
+public/css/*
+public/js/*
+!public/css/.gitkeep
+!public/js/.gitkeep
+
+# Temporary files
+*.tmp
+*.temp
+.prettierignore
