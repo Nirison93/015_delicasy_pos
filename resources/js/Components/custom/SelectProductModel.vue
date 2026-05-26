@@ -230,7 +230,6 @@
                                        <!-- Product Image -->
                                        <div class="h-[130px] w-full bg-zinc-700 overflow-hidden">
                                           <img
-                                             :src="group.image ? `${group.image}` : '/images/placeholder.jpg'"
                                              alt="Product Image"
                                              class="w-full h-full object-cover"
                                           />
