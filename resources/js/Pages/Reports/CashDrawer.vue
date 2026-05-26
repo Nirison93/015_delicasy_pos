@@ -71,6 +71,10 @@
           <p class="text-base font-semibold text-white/80 uppercase tracking-wider">Total Closing</p>
           <p class="text-2xl font-bold text-white">{{ fmt(statistics.total_closing_balance) }} LKR</p>
         </div>
+        <div class="rounded-2xl bg-gradient-to-br from-red-500 to-red-600 p-5 flex flex-col gap-1 shadow-md">
+          <p class="text-base font-semibold text-white/80 uppercase tracking-wider">Total Expenses</p>
+          <p class="text-2xl font-bold text-white">{{ fmt(statistics.total_expenses) }} LKR</p>
+        </div>
         <div class="rounded-2xl bg-gradient-to-br from-slate-600 to-slate-800 p-5 flex flex-col gap-1 shadow-md">
           <p class="text-base font-semibold text-white/80 uppercase tracking-wider">Total Variance</p>
           <p class="text-2xl font-bold text-white">{{ fmt(statistics.total_variance) }} LKR</p>
@@ -170,6 +174,7 @@ const props = defineProps({
   cashDrawers: { type: Array, default: () => [] },
   statistics: { type: Object, default: () => ({}) },
   varianceByUser: { type: Array, default: () => [] },
+  expenses: { type: Array, default: () => [] },
   startDate: { type: String, default: "" },
   endDate: { type: String, default: "" },
   companyInfo: { type: Object, default: () => ({}) },
@@ -256,10 +261,34 @@ const printCashDrawerReport = () => {
       const varClass = var_val >= 0 ? '' : 'negative';
       const openedByName = row.openedByUser?.name || row.opened_by || "-";
       const closedByName = row.closedByUser?.name || row.closed_by || "-";
-      const openedTime = row.opened_at ? new Date(row.opened_at).toLocaleString(undefined, {month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit'}) : "-";
-      const closedTime = row.closed_at ? new Date(row.closed_at).toLocaleString(undefined, {month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit'}) : "-";
+      const openedTime = row.opened_at
+        ? new Date(row.opened_at).toLocaleString(undefined, { month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit' })
+        : "-";
+      const closedTime = row.closed_at
+        ? new Date(row.closed_at).toLocaleString(undefined, { month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit' })
+        : "-";
       return `<tr><td>${idx + 1}</td><td>${openedByName}</td><td>${openedTime}</td><td>${f(row.opening_balance)}</td><td>${closedByName}</td><td>${closedTime}</td><td>${f(row.closing_balance)}</td><td class="${varClass}">${f(var_val)}</td></tr>`;
     }).join('');
+
+    const allExpenses = (props.expenses || []).map((exp) => {
+      const rawDate = exp.date || exp.created_at;
+      const expDate = rawDate ? new Date(rawDate).toLocaleString(undefined, { month: 'short', day: '2-digit' }) : '-';
+      return {
+        date: expDate,
+        reason: exp.reason || '-',
+        amount: exp.amount,
+        user: exp.user?.name || exp.user_role || 'Unknown'
+      };
+    });
+
+    let expenseHtml = '';
+    if (allExpenses.length > 0) {
+      expenseHtml = '<h2>EXPENSES DETAILS</h2><table style="width:100%; border-collapse:collapse; margin:4px 0; font-size:14px;"><thead><tr style="font-weight:800; border-bottom:1px solid #999;"><th style="width:20%; text-align:left; padding:2px;">Date</th><th style="width:40%; text-align:left; padding:2px;">Reason</th><th style="width:20%; text-align:right; padding:2px;">Amount</th><th style="width:20%; text-align:left; padding:2px; font-size:12px;">User</th></tr></thead><tbody>';
+      allExpenses.forEach((exp) => {
+        expenseHtml += `<tr style="border-bottom:1px solid #ddd;"><td style="padding:2px; text-align:left;">${exp.date}</td><td style="padding:2px; text-align:left;">${exp.reason}</td><td style="padding:2px; text-align:right;">${f(exp.amount)}</td><td style="padding:2px; text-align:left; font-size:12px;">${exp.user}</td></tr>`;
+      });
+      expenseHtml += '</tbody></table>';
+    }
 
     const reportHTML = `<!doctype html>
 <html>
@@ -394,10 +423,21 @@ h2 {
     </div>
 
     <div class="summary-row">
+        <span>Expenses:</span>
+        <span>${f(props.statistics.total_expenses)}</span>
+    </div>
+
+    <div class="summary-row">
         <span>Variance:</span>
         <span>${f(props.statistics.total_variance)}</span>
     </div>
 
+</div>
+
+${expenseHtml}
+
+<div style="border:2px solid #000; padding:4px 5px; margin:4px 0; text-align:center; font-size:16px; font-weight:900;">
+Final Balance: ${f(Number(props.statistics.total_closing_balance) - Number(props.statistics.total_expenses))}
 </div>
 
 <div class="footer">

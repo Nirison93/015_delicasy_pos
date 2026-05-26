@@ -22,6 +22,7 @@ use App\Http\Controllers\ServiceChargeController;
 use App\Http\Controllers\TransactionHistoryController;
 use App\Http\Controllers\StockTransactionController;
 use App\Http\Controllers\BankServiceChargeController;
+use App\Http\Controllers\ExpenseController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -108,6 +109,8 @@ Route::middleware([
     Route::post('/waiter/orders/{orderId}/cancel', [WaiterController::class, 'cancelOrder'])->name('waiter.cancelOrder');
 
     Route::resource('payment', PaymentController::class);
+    Route::resource('expenses', ExpenseController::class);
+    Route::get('/expenses/current-drawer', [ExpenseController::class, 'getCurrentDrawerExpenses'])->name('expenses.currentDrawer');
     Route::resource('cash-drawer', CashDrawerController::class)->names([
         'index' => 'cashDrawer.index',
         'create' => 'cashDrawer.create',

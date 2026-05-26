@@ -8,6 +8,7 @@ use App\Models\Report;
 use App\Models\Sale;
 use App\Models\CashDrawer;
 use App\Models\SaleItem;
+use App\Models\Expense;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -186,8 +187,8 @@ class ReportController extends Controller
         $from = $startDateRaw ? Carbon::parse($startDateRaw)->startOfDay() : null;
         $to = $endDateRaw ? Carbon::parse($endDateRaw)->endOfDay() : null;
 
-        // Query cash drawers
-        $query = CashDrawer::with(['openedByUser', 'closedByUser']);
+        // Query cash drawers with expenses
+        $query = CashDrawer::with(['openedByUser', 'closedByUser', 'expenses']);
 
         if ($from && $to) {
             $query->whereBetween('opened_at', [$from, $to]);
@@ -205,6 +206,20 @@ class ReportController extends Controller
 
         $cashDrawers = $query->orderBy('opened_at', 'desc')->get();
 
+        // Query expenses directly (some expenses may not be linked to a drawer)
+        $expenseQuery = Expense::with('user');
+        if ($from && $to) {
+            $expenseQuery->whereBetween('created_at', [$from, $to]);
+        } elseif ($from) {
+            $expenseQuery->where('created_at', '>=', $from);
+        } elseif ($to) {
+            $expenseQuery->where('created_at', '<=', $to);
+        }
+        if ($userId) {
+            $expenseQuery->where('user_id', $userId);
+        }
+        $expenses = $expenseQuery->orderBy('created_at', 'desc')->get();
+
         // Calculate statistics
         $totalDrawers = $cashDrawers->count();
         $openDrawers = $cashDrawers->where('status', 'open')->count();
@@ -213,13 +228,17 @@ class ReportController extends Controller
         $totalOpeningBalance = (float) $cashDrawers->sum('opening_balance');
         $totalClosingBalance = (float) $cashDrawers->where('status', 'closed')->sum('closing_balance');
         
-        // Variance calculation
+        // Calculate total expenses
+        $totalExpenses = (float) $expenses->sum('amount');
+        
+        // Variance calculation (including expenses)
         $totalVariance = 0;
         $varianceByUser = [];
         
         foreach ($cashDrawers as $drawer) {
             if ($drawer->status === 'closed') {
-                $variance = $drawer->closing_balance - $drawer->opening_balance;
+                $expenses = $drawer->expenses->sum('amount');
+                $variance = $drawer->closing_balance - $drawer->opening_balance - $expenses;
                 $totalVariance += $variance;
                 
                 $userId = $drawer->opened_by;
@@ -231,23 +250,27 @@ class ReportController extends Controller
                         'total_variance' => 0,
                         'total_opened' => 0,
                         'total_closed' => 0,
+                        'total_expenses' => 0,
                     ];
                 }
                 $varianceByUser[$userId]['count']++;
                 $varianceByUser[$userId]['total_variance'] += $variance;
                 $varianceByUser[$userId]['total_opened'] += $drawer->opening_balance;
                 $varianceByUser[$userId]['total_closed'] += $drawer->closing_balance;
+                $varianceByUser[$userId]['total_expenses'] += $expenses;
             }
         }
 
         return Inertia::render('Reports/CashDrawer', [
             'cashDrawers' => $cashDrawers,
+            'expenses' => $expenses,
             'statistics' => [
                 'total_drawers' => $totalDrawers,
                 'open_drawers' => $openDrawers,
                 'closed_drawers' => $closedDrawers,
                 'total_opening_balance' => round($totalOpeningBalance, 2),
                 'total_closing_balance' => round($totalClosingBalance, 2),
+                'total_expenses' => round($totalExpenses, 2),
                 'total_variance' => round($totalVariance, 2),
             ],
             'varianceByUser' => array_values($varianceByUser),

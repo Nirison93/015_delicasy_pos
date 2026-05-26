@@ -42,6 +42,14 @@ class CashDrawer extends Model
     }
 
     /**
+     * Get expenses for this cash drawer.
+     */
+    public function expenses()
+    {
+        return $this->hasMany(Expense::class);
+    }
+
+    /**
      * Scope to get open drawers.
      */
     public function scopeOpen($query)
