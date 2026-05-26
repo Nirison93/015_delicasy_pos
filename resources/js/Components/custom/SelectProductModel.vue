@@ -202,18 +202,18 @@
                                  <!-- Product Grid -->
                                  <div class="grid gap-3 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 2xl:grid-cols-6 pb-4">
                                     <div
-                                       v-for="product in products.data.filter((product) => !(hidePromotions && product.is_promotion))"
-                                       :key="product.id"
-                                       @click="product.stock_quantity > 0 && selectProduct(product)"
+                                       v-for="group in groupedProducts"
+                                       :key="group.key"
+                                       @click="group.totalStock > 0 && handleGroupClick(group)"
                                        class="relative bg-zinc-800 rounded-2xl border border-white/10 hover:border-amber-500/40 hover:shadow-lg hover:shadow-amber-500/5 transition-all duration-200 cursor-pointer flex flex-col overflow-hidden active:scale-[0.97]"
                                        :class="{
-                                          'border-amber-500 bg-amber-500/10 ring-1 ring-amber-500/60': selectedProducts.find((p) => p.id === product.id),
-                                          'opacity-40 cursor-not-allowed': product.stock_quantity <= 0
+                                          'border-amber-500 bg-amber-500/10 ring-1 ring-amber-500/60': isGroupSelected(group),
+                                          'opacity-40 cursor-not-allowed': group.totalStock <= 0
                                        }"
                                     >
                                        <!-- Selected Checkmark -->
                                        <span
-                                          v-if="selectedProducts.find((p) => p.id === product.id)"
+                                          v-if="isGroupSelected(group)"
                                           class="absolute top-2 right-2 flex items-center justify-center w-6 h-6 bg-amber-500 text-zinc-900 text-xs font-bold rounded-full shadow-md z-10"
                                        >
                                           <i class="ri-check-line"></i>
@@ -221,7 +221,7 @@
 
                                        <!-- Out of Stock Badge -->
                                        <span
-                                          v-if="product.stock_quantity <= 0"
+                                          v-if="group.totalStock <= 0"
                                           class="absolute top-2 left-2 px-2 py-0.5 bg-red-500/90 text-white text-sm font-bold rounded-lg z-10"
                                        >
                                           Out of Stock
@@ -230,7 +230,7 @@
                                        <!-- Product Image -->
                                        <div class="h-[130px] w-full bg-zinc-700 overflow-hidden">
                                           <img
-                                             :src="product.image ? `${product.image}` : '/images/placeholder.jpg'"
+                                             :src="group.image ? `${group.image}` : '/images/placeholder.jpg'"
                                              alt="Product Image"
                                              class="w-full h-full object-cover"
                                           />
@@ -240,25 +240,28 @@
                                        <div class="p-3 flex-1 flex flex-col justify-between">
                                           <div>
                                              <h3 class="text-xl font-semibold text-white line-clamp-2 leading-snug">
-                                                {{ product.name || "N/A" }}
+                                                {{ group.name || "N/A" }}
                                              </h3>
-                                             <p class="text-lg text-zinc-500 mt-0.5">
-                                                Size: {{ product.size?.name || "N/A" }}
+                                             <p class="text-sm text-zinc-500 mt-0.5 line-clamp-2">
+                                                <span v-if="group.sizeNames.length">Sizes: {{ group.sizeNames.join(', ') }}</span>
+                                                <span v-else>Size: N/A</span>
                                              </p>
                                           </div>
                                           <div class="flex items-center justify-between mt-2">
                                              <p class="text-2xl font-bold text-amber-400">
-                                                Rs {{ product.selling_price || "N/A" }}
+                                                <span v-if="group.minPrice === group.maxPrice">Rs {{ group.minPrice }}</span>
+                                                <span v-else>Rs {{ group.minPrice }} - {{ group.maxPrice }}</span>
                                              </p>
-                                             <div v-if="product.is_promotion">
+                                             <div v-if="group.is_promotion">
                                                 <p
-                                                   @click.stop="viewPromotion(product)"
+                                                   @click.stop="viewPromotion(group.variants[0])"
                                                    class="text-sm font-semibold text-amber-400 bg-amber-500/15 ring-1 ring-amber-500/40 px-2 py-0.5 rounded-lg hover:bg-amber-500/25 transition"
                                                 >
                                                    Promo
                                                 </p>
                                              </div>
                                           </div>
+                                          <p v-if="group.hasMultipleSizes" class="text-xs text-zinc-400 mt-2">Tap to choose size</p>
                                        </div>
                                     </div>
                                  </div>
@@ -298,7 +301,7 @@
                            @click.prevent="closeModal(true)"
                         >
                            <i class="ri-download-line text-lg"></i>
-                           Import
+                           Add to Order
                         </button>
                      </div>
                   </div>
@@ -308,6 +311,50 @@
                      @update:open="itemModalOpen = $event"
                      :product="selectedPromotion"
                   />
+
+                  <!-- Size Selection Modal -->
+                  <div v-if="isSizeModalOpen" class="fixed inset-0 z-50 flex items-center justify-center">
+                     <div class="absolute inset-0 bg-black/70" @click="closeSizeModal"></div>
+                     <div class="relative w-full max-w-[520px] bg-zinc-900 border border-white/10 rounded-2xl shadow-2xl overflow-hidden">
+                        <div class="flex items-center justify-between px-6 py-5 border-b border-white/10">
+                           <div>
+                              <p class="text-base text-zinc-500">Select Size</p>
+                              <h4 class="text-2xl font-bold text-white">{{ sizeModalGroup?.name || "Item" }}</h4>
+                           </div>
+                           <button
+                              class="w-11 h-11 flex items-center justify-center rounded-xl bg-white/10 text-zinc-300 hover:bg-white/20 hover:text-white transition"
+                              @click="closeSizeModal"
+                           >
+                              <i class="ri-close-line text-2xl"></i>
+                           </button>
+                        </div>
+                        <div class="p-6 space-y-4 max-h-[65vh] overflow-y-auto">
+                           <button
+                              v-for="variant in sizeModalGroup?.variants || []"
+                              :key="variant.id"
+                              @click="selectSizeVariant(variant)"
+                              :class="[
+                                 'w-full flex items-center justify-between px-6 py-5 rounded-3xl border text-left transition min-h-[72px]',
+                                 isVariantSelected(variant)
+                                    ? 'bg-amber-500/15 border-amber-500/40 text-amber-300'
+                                    : 'bg-zinc-800 border-white/10 text-zinc-300 hover:border-white/20',
+                                 variant.stock_quantity <= 0 ? 'opacity-50 cursor-not-allowed' : ''
+                              ]"
+                              :disabled="variant.stock_quantity <= 0"
+                           >
+                              <div>
+                                 <p class="text-xl font-semibold">
+                                    {{ variant.size?.name || 'Standard' }}
+                                 </p>
+                                 <p class="text-sm text-zinc-500" v-if="variant.stock_quantity <= 0">Out of stock</p>
+                              </div>
+                              <div class="text-right">
+                                 <p class="text-xl font-bold text-amber-400">Rs {{ variant.selling_price }}</p>
+                              </div>
+                           </button>
+                        </div>
+                     </div>
+                  </div>
 
                </DialogPanel>
             </TransitionChild>
@@ -341,6 +388,8 @@ const allcategoriesFiltered = ref([]);
 
 const selectedPromotion = ref(null);
 const selectedProducts = ref([]);
+const isSizeModalOpen = ref(false);
+const sizeModalGroup = ref(null);
 
 const nextPageUrl = ref(null);
 const scrollAreaRef = ref(null);
@@ -354,6 +403,39 @@ const selectProduct = (product) => {
   } else {
     selectedProducts.value.splice(index, 1);
   }
+};
+
+const isGroupSelected = (group) => {
+   return group.variants.some((variant) => selectedProducts.value.find((p) => p.id === variant.id));
+};
+
+const isVariantSelected = (variant) => {
+   return !!selectedProducts.value.find((p) => p.id === variant.id);
+};
+
+const openSizeModal = (group) => {
+   sizeModalGroup.value = group;
+   isSizeModalOpen.value = true;
+};
+
+const closeSizeModal = () => {
+   isSizeModalOpen.value = false;
+   sizeModalGroup.value = null;
+};
+
+const handleGroupClick = (group) => {
+   if (group.hasMultipleSizes) {
+      openSizeModal(group);
+      return;
+   }
+   const fallbackVariant = group.variants[0];
+   if (fallbackVariant) selectProduct(fallbackVariant);
+};
+
+const selectSizeVariant = (variant) => {
+   if (variant.stock_quantity <= 0) return;
+   selectProduct(variant);
+   closeSizeModal();
 };
 
 const viewPromotion = (product) => {
@@ -396,6 +478,7 @@ const closeModal = (triggerImport = false) => {
     emit("selected-products", selectedProducts.value);
   }
   selectedProducts.value = [];
+   closeSizeModal();
 };
 
 // When category type changes, reset selections and fetch
@@ -444,6 +527,51 @@ const fetchProducts = async (url = "/api/products", append = false) => {
     isAppending.value = false;
   }
 };
+
+const groupedProducts = computed(() => {
+   const groups = new Map();
+   const items = products.value.data || [];
+
+   items.forEach((product) => {
+      if (hidePromotions && product.is_promotion) return;
+      const key = `${product.name || 'item'}__${product.category_id || ''}__${product.is_promotion ? 'promo' : 'std'}`;
+      if (!groups.has(key)) {
+         groups.set(key, {
+            key,
+            name: product.name,
+            image: product.image,
+            is_promotion: product.is_promotion,
+            category_id: product.category_id,
+            variants: [],
+            totalStock: 0,
+         });
+      }
+      const group = groups.get(key);
+      group.variants.push(product);
+      group.totalStock += Number(product.stock_quantity || 0);
+      if (!group.image && product.image) group.image = product.image;
+   });
+
+   return Array.from(groups.values()).map((group) => {
+      const prices = group.variants
+         .map((variant) => Number(variant.selling_price || 0))
+         .filter((val) => !isNaN(val));
+      const minPrice = prices.length ? Math.min(...prices) : 0;
+      const maxPrice = prices.length ? Math.max(...prices) : 0;
+      const sizeNames = group.variants
+         .map((variant) => variant.size?.name)
+         .filter((name) => !!name);
+      const uniqueSizes = Array.from(new Set(sizeNames));
+      const hasMultipleSizes = uniqueSizes.length > 1 || group.variants.length > 1;
+      return {
+         ...group,
+         minPrice: minPrice.toFixed(2),
+         maxPrice: maxPrice.toFixed(2),
+         sizeNames: uniqueSizes,
+         hasMultipleSizes,
+      };
+   });
+});
 
 const fetchParentCategories = async (url = "/api/top-categories") => {
   try {

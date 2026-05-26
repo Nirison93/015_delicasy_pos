@@ -16,11 +16,11 @@ class DatabaseSeeder extends Seeder
 
 
         \App\Models\User::updateOrCreate(
-            ['email' => 'onemaxweb@gmail.com'],
+            ['email' => 'delicasy@gmail.com'],
             [
-                'name' => 'admin',
+                'name' => 'Delicasy Admin',
                 'role_type' => 'Admin',
-                'password' => Hash::make('12345678'),
+                'password' => Hash::make('Deli@267575'),
             ]
         );
 
@@ -29,7 +29,7 @@ class DatabaseSeeder extends Seeder
             [
                 'name' => 'manager',
                 'role_type' => 'Manager',
-                'password' => Hash::make('12345678'),
+                'password' => Hash::make('Deli@7575'),
             ]
         );
 
@@ -38,7 +38,7 @@ class DatabaseSeeder extends Seeder
             [
                 'name' => 'cashier',
                 'role_type' => 'Cashier',
-                'password' => Hash::make('12345678'),
+                'password' => Hash::make('Deli@7575'),
             ]
         );
 
@@ -47,7 +47,7 @@ class DatabaseSeeder extends Seeder
             [
                 'name' => 'waiter',
                 'role_type' => 'Waiter',
-                'password' => Hash::make('12345678'),
+                'password' => Hash::make('Deli@7575'),
             ]
         );
 
