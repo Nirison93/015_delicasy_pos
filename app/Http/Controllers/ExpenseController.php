@@ -12,7 +12,26 @@ class ExpenseController extends Controller
      */
     public function index()
     {
-        //
+        $expenses = Expense::with('user')->latest()->get();
+        return response()->json($expenses);
+    }
+
+    /**
+     * Get expenses for current cash drawer
+     */
+    public function getCurrentDrawerExpenses()
+    {
+        $cashDrawer = \App\Models\CashDrawer::where('status', 'open')
+            ->where('opened_by', auth()->id())
+            ->latest()
+            ->first();
+
+        if (!$cashDrawer) {
+            return response()->json(['expenses' => []]);
+        }
+
+        $expenses = $cashDrawer->expenses()->with('user')->get();
+        return response()->json(['expenses' => $expenses]);
     }
 
     /**
@@ -28,7 +47,26 @@ class ExpenseController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'reason' => 'required|string|max:255',
+            'amount' => 'required|numeric|min:0.01',
+            'cash_drawer_id' => 'nullable|exists:cash_drawers,id',
+        ]);
+
+        $expense = Expense::create([
+            'reason' => $validated['reason'],
+            'amount' => $validated['amount'],
+            'cash_drawer_id' => $validated['cash_drawer_id'] ?? null,
+            'user_id' => auth()->id(),
+            'user_role' => auth()->user()?->role ?? 'unknown',
+            'created_at' => now(),
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Expense recorded successfully',
+            'expense' => $expense,
+        ], 201);
     }
 
     /**

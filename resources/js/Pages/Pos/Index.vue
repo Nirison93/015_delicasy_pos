@@ -21,6 +21,14 @@
 
           <!-- Last Order List button -->
           <button
+            @click="openExpensesModal"
+            class="flex items-center gap-2 px-4 py-2.5 bg-zinc-800 rounded-xl border border-white/10 text-zinc-300 hover:bg-zinc-700 hover:text-white transition text-[14px] font-semibold"
+          >
+            <i class="ri-money-dollar-circle-line text-lg"></i>
+            Expenses
+          </button>
+
+          <button
             @click="openLastOrders"
             class="flex items-center gap-2 px-4 py-2.5 bg-zinc-800 rounded-xl border border-white/10 text-zinc-300 hover:bg-zinc-700 hover:text-white transition text-[14px] font-semibold"
           >
@@ -1144,6 +1152,108 @@
     </Transition>
   </Teleport>
 
+  <!-- ===== Expenses Modal ===== -->
+  <Teleport to="body">
+    <Transition
+      enter-active-class="transition duration-200 ease-out"
+      enter-from-class="opacity-0"
+      enter-to-class="opacity-100"
+      leave-active-class="transition duration-150 ease-in"
+      leave-from-class="opacity-100"
+      leave-to-class="opacity-0"
+    >
+      <div v-if="isExpensesModalOpen" class="fixed inset-0 z-[1100] flex items-center justify-center p-4">
+        <!-- Backdrop -->
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="isExpensesModalOpen = false"></div>
+
+        <!-- Panel -->
+        <div class="relative bg-zinc-900 rounded-3xl border border-white/10 shadow-2xl w-full max-w-[500px] overflow-hidden">
+
+          <!-- Header -->
+          <div class="flex items-center justify-between px-6 py-5 bg-gradient-to-r from-zinc-900 via-zinc-800 to-zinc-900 border-b border-white/10 rounded-t-3xl">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 flex items-center justify-center rounded-xl bg-rose-500/20 ring-1 ring-rose-500/40">
+                <i class="ri-money-dollar-circle-line text-rose-400 text-xl"></i>
+              </div>
+              <div>
+                <h3 class="text-lg font-bold text-white leading-none">Record Expense</h3>
+                <p class="text-[12px] text-zinc-400 mt-0.5">From cash drawer</p>
+              </div>
+            </div>
+            <button @click="isExpensesModalOpen = false"
+              class="w-9 h-9 flex items-center justify-center rounded-xl bg-white/10 text-zinc-400 hover:bg-white/20 hover:text-white transition">
+              <i class="ri-close-line text-xl"></i>
+            </button>
+          </div>
+
+          <!-- Form -->
+          <div class="px-6 py-6 space-y-5">
+
+            <!-- Expense Reason -->
+            <div>
+              <label class="block text-sm font-semibold text-zinc-300 mb-2">Expense Reason <span class="text-rose-400">*</span></label>
+              <input
+                v-model="newExpense.reason"
+                type="text"
+                placeholder="e.g., Cleaning supplies, Miscellaneous, etc."
+                class="w-full px-4 py-3 bg-zinc-800 border border-white/10 rounded-xl text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent transition"
+              />
+            </div>
+
+            <!-- Amount -->
+            <div>
+              <label class="block text-sm font-semibold text-zinc-300 mb-2">Amount (LKR) <span class="text-rose-400">*</span></label>
+              <input
+                v-model="newExpense.amount"
+                type="number"
+                placeholder="0.00"
+                step="0.01"
+                min="0"
+                class="w-full px-4 py-3 bg-zinc-800 border border-white/10 rounded-xl text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent transition"
+              />
+            </div>
+
+            <!-- Display Info -->
+            <div class="bg-zinc-800/50 rounded-xl p-4 border border-white/5 space-y-2 text-[13px]">
+              <div class="flex justify-between text-zinc-400">
+                <span>Date:</span>
+                <span class="text-white font-medium">{{ new Date().toLocaleDateString() }}</span>
+              </div>
+              <div class="flex justify-between text-zinc-400">
+                <span>Time:</span>
+                <span class="text-white font-medium">{{ new Date().toLocaleTimeString() }}</span>
+              </div>
+              <div class="flex justify-between text-zinc-400">
+                <span>User:</span>
+                <span class="text-white font-medium">{{ loggedInUser?.name ?? 'Unknown' }}</span>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Actions -->
+          <div class="px-6 py-5 bg-zinc-800/30 border-t border-white/10 flex gap-3 rounded-b-3xl">
+            <button
+              @click="isExpensesModalOpen = false"
+              class="flex-1 px-4 py-3 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-semibold transition"
+            >
+              Cancel
+            </button>
+            <button
+              @click="submitExpense"
+              :disabled="!newExpense.reason || !newExpense.amount || isExpenseSubmitting"
+              class="flex-1 px-4 py-3 rounded-xl bg-rose-600 hover:bg-rose-500 disabled:bg-zinc-700 disabled:text-zinc-500 disabled:cursor-not-allowed text-white font-semibold transition flex items-center justify-center gap-2"
+            >
+              <i v-if="isExpenseSubmitting" class="ri-loader-4-line animate-spin"></i>
+              <span>{{ isExpenseSubmitting ? 'Saving...' : 'Save Expense' }}</span>
+            </button>
+          </div>
+
+        </div>
+      </div>
+    </Transition>
+  </Teleport>
+
   <!-- ===== Ongoing Takeaway Orders Modal ===== -->
   <Teleport to="body">
     <Transition
@@ -1488,6 +1598,11 @@ const isLastOrdersOpen = ref(false);
 const lastOrders = ref([]);
 const lastOrdersLoading = ref(false);
 
+// Expenses panel
+const isExpensesModalOpen = ref(false);
+const newExpense = ref({ reason: '', amount: '' });
+const isExpenseSubmitting = ref(false);
+
 // ===== Ongoing Takeaway Orders (Hold / Ongoing) =====
 const HELD_TAKEAWAY_KEY = 'heldTakeawayOrders';
 const heldTakeawayOrders = ref(JSON.parse(localStorage.getItem(HELD_TAKEAWAY_KEY) || '[]'));
@@ -1624,6 +1739,40 @@ const openLastOrders = async () => {
     lastOrders.value = [];
   } finally {
     lastOrdersLoading.value = false;
+  }
+};
+
+const openExpensesModal = () => {
+  isExpensesModalOpen.value = true;
+  newExpense.value = { reason: '', amount: '' };
+};
+
+const submitExpense = async () => {
+  if (!newExpense.value.reason || !newExpense.value.amount) {
+    alert('Please fill in all fields');
+    return;
+  }
+
+  isExpenseSubmitting.value = true;
+  try {
+    const response = await axios.post('/expenses', {
+      reason: newExpense.value.reason,
+      amount: parseFloat(newExpense.value.amount),
+      cash_drawer_id: null,
+    });
+
+    if (response.status === 201) {
+      isAlertModalOpen.value = true;
+      message.value = 'Expense recorded successfully';
+      isExpensesModalOpen.value = false;
+      newExpense.value = { reason: '', amount: '' };
+    }
+  } catch (err) {
+    console.error('Error recording expense:', err);
+    isAlertModalOpen.value = true;
+    message.value = 'Failed to record expense';
+  } finally {
+    isExpenseSubmitting.value = false;
   }
 };
 
