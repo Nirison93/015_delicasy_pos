@@ -15,8 +15,9 @@
           </h1>
         </div>
         <div class="flex items-center gap-4">
+
           <!-- Waiter Orders Alert -->
-          <WaiterOrderAlert />
+          <!-- <WaiterOrderAlert /> -->
 
           <!-- Last Order List button -->
           <button
@@ -428,6 +429,30 @@
                 </select>
               </div>
 
+              <!-- Shopping Bag Charge -->
+              <div class="flex items-center justify-between px-2 pb-3 border-b border-white/10">
+                <div class="flex items-center gap-2">
+                  <p class="text-[15px] text-zinc-400">Shopping Bag</p>
+                  <button
+                    @click="selectedTable.shopping_bag_charge_enabled = !selectedTable.shopping_bag_charge_enabled"
+                    :class="[
+                      'relative w-11 h-6 rounded-full transition-colors duration-200',
+                      selectedTable.shopping_bag_charge_enabled ? 'bg-amber-500' : 'bg-zinc-700'
+                    ]"
+                  >
+                    <div
+                      :class="[
+                        'absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform duration-200',
+                        selectedTable.shopping_bag_charge_enabled ? 'translate-x-5' : 'translate-x-0'
+                      ]"
+                    />
+                  </button>
+                </div>
+                <p :class="['text-[15px] font-semibold', selectedTable.shopping_bag_charge_enabled ? 'text-amber-400' : 'text-zinc-500 line-through']">
+                  {{ selectedTable.shopping_bag_charge_enabled ? '10.00' : '0.00' }} LKR
+                </p>
+              </div>
+
               <div class="flex items-center justify-between px-2 pt-2">
                 <p class="text-xl font-bold text-white">Total</p>
                 <p class="text-xl font-bold text-amber-400">{{ total }} LKR</p>
@@ -803,6 +828,7 @@
     :delivery_charge="selectedTable.delivery_charge"
     :service_charge="selectedTable.service_charge"
     :bank_service_charge="selectedTable.bank_service_charge"
+    :shopping_bag_charge="selectedTable.shopping_bag_charge_enabled ? 10.00 : 0"
     :selectedTable="selectedTable"
     :kitchen_note="selectedTable.kitchen_note"
     :selectedPaymentMethod="selectedPaymentMethod"
@@ -1820,6 +1846,7 @@ const _defaultTable = _defaultSaved || {
   delivery_charge: "",
   service_charge: "",
   bank_service_charge: "",
+  shopping_bag_charge_enabled: true,
   lastKotSnapshot: null,
 };
 // Build initial table list from the DB (restaurant_tables) + restore any saved cart state
@@ -1840,6 +1867,7 @@ const _dbTables = (props.restaurantTables || []).map(dbTable => {
     delivery_charge: "",
     service_charge: "",
     bank_service_charge: "",
+    shopping_bag_charge_enabled: true,
     lastKotSnapshot: null,
     kotStatus: "pending",
   };
@@ -2198,6 +2226,7 @@ const submitOrder = async () => {
       delivery_charge: selectedTable.value.delivery_charge,
       service_charge: selectedTable.value.service_charge,
       bank_service_charge: selectedTable.value.bank_service_charge,
+      shopping_bag_charge: selectedTable.value.shopping_bag_charge_enabled ? 10.00 : 0,
       order_type: selectedTable.value.order_type,
       total: total.value,
       owner_id: ownerForm.owner_id || null,
@@ -2257,7 +2286,9 @@ const total = computed(() => {
   const serviceChargeRate = parseFloat(selectedTable.value.service_charge) || 0;
   const serviceChargeValue = (subtotalValue * serviceChargeRate) / 100;
 
-  const preBankTotal = subtotalValue - discountValue - customValue + deliveryChargeValue + serviceChargeValue;
+  const shoppingBagChargeValue = selectedTable.value.shopping_bag_charge_enabled ? 10.00 : 0;
+
+  const preBankTotal = subtotalValue - discountValue - customValue + deliveryChargeValue + serviceChargeValue + shoppingBagChargeValue;
 
   const bankServiceChargeRate = parseFloat(selectedTable.value.bank_service_charge) || 0;
   const bankServiceChargeAmount = (preBankTotal * bankServiceChargeRate) / 100;

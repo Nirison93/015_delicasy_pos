@@ -24,6 +24,7 @@ class Sale extends Model
         'delivery_charge',
         'service_charge',
         'bank_service_charge',
+        'shopping_bag_charge',
         'cash',
         'order_type',
         'bank_name',

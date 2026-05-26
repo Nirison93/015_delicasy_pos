@@ -135,7 +135,10 @@ const props = defineProps({
   service_charge : String,
   order_type : String,
   selectedPaymentMethod : String,
-
+  shopping_bag_charge: {
+    type: Number,
+    default: 0
+  },
 
    owner_discount_value: {
     type: Number,
@@ -333,6 +336,8 @@ const handlePrintReceipt = () => {
               ? `<tr><td>Service Charge</td><td>${(Number(props.service_charge)||0).toFixed(2)} %</td></tr>` : ""}
           ${props.bank_service_charge
               ? `<tr><td>Bank Service Charge</td><td>${(Number(props.bank_service_charge)||0).toFixed(2)} %</td></tr>` : ""}
+          ${Number(props.shopping_bag_charge) !== 0
+              ? `<tr><td>Shopping Bag</td><td>${(Number(props.shopping_bag_charge)||0).toFixed(2)} LKR</td></tr>` : ""}
           ${Number(props.total) !== 0
               ? `<tr class="grand"><td>TOTAL</td><td>${(Number(props.total)||0).toFixed(2)} LKR</td></tr>` : ""}
           ${Number(props.cash) !== 0
@@ -587,23 +592,23 @@ const handleKOTPrintReceipt = () => {
   </html>
   `;
 
-  // Open a new window
-  const printWindow = window.open("", "_blank");
-  if (!printWindow) {
-    alert("Failed to open print window. Please check your browser settings.");
-    return;
-  }
+  // Create a hidden iframe for printing
+  const iframe = document.createElement("iframe");
+  iframe.style.display = "none";
+  document.body.appendChild(iframe);
 
-  // Write the content to the new window
-  printWindow.document.open();
-  printWindow.document.write(receiptHTML);
-  printWindow.document.close();
+  // Write content to iframe
+  iframe.contentDocument.open();
+  iframe.contentDocument.write(receiptHTML);
+  iframe.contentDocument.close();
 
-  // Wait for the content to load before triggering print
-  printWindow.onload = () => {
-    printWindow.focus();
-    printWindow.print();
-    printWindow.close();
+  // Wait for content to load and then print
+  iframe.onload = () => {
+    iframe.contentWindow.print();
+    // Remove iframe after a short delay to ensure print command is sent
+    setTimeout(() => {
+      document.body.removeChild(iframe);
+    }, 250);
   };
 };
 
