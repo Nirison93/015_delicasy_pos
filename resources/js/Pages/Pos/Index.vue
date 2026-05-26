@@ -299,7 +299,7 @@
                 <!-- Product Image -->
                 <div class="w-[72px] h-[72px] flex-shrink-0 rounded-xl overflow-hidden ring-1 ring-white/10">
                   <img
-                    :src="item.image ? `/${item.image}` : '/images/placeholder.jpg'"
+                    :src="item.image ? `${item.image}` : '/images/placeholder.jpg'"
                     alt="Product Image"
                     class="object-cover w-full h-full"
                   />
