@@ -1,58 +1,56 @@
 <template>
   <TransitionRoot as="template" :show="open">
     <Dialog class="relative z-50" @close="$emit('update:open', false)">
-      <!-- Overlay -->
+
+      <!-- Backdrop -->
       <TransitionChild
         as="template"
-        enter="ease-out duration-300"
-        enter-from="opacity-0"
-        enter-to="opacity-100"
-        leave="ease-in duration-200"
-        leave-from="opacity-100"
-        leave-to="opacity-0"
+        enter="ease-out duration-300" enter-from="opacity-0" enter-to="opacity-100"
+        leave="ease-in duration-200" leave-from="opacity-100" leave-to="opacity-0"
       >
-        <div class="fixed inset-0 bg-black/40 backdrop-blur-sm transition-opacity" />
+        <div class="fixed inset-0 bg-black/70 backdrop-blur-sm transition-opacity" />
       </TransitionChild>
 
-      <!-- Modal Container -->
       <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
         <TransitionChild
           as="template"
-          enter="ease-out duration-300"
-          enter-from="opacity-0 scale-95 translate-y-4"
-          enter-to="opacity-100 scale-100 translate-y-0"
-          leave="ease-in duration-200"
-          leave-from="opacity-100 scale-100 translate-y-0"
-          leave-to="opacity-0 scale-95 translate-y-4"
+          enter="ease-out duration-300" enter-from="opacity-0 translate-y-4 scale-95" enter-to="opacity-100 translate-y-0 scale-100"
+          leave="ease-in duration-200" leave-from="opacity-100 translate-y-0 scale-100" leave-to="opacity-0 translate-y-4 scale-95"
         >
-          <DialogPanel class="relative w-full max-w-xl transform transition-all">
-            <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
+          <DialogPanel class="relative w-full max-w-lg overflow-hidden rounded-2xl shadow-2xl">
 
-              <!-- Header -->
-              <div class="flex items-center justify-between px-8 pt-8 pb-2">
-                <div>
-                  <DialogTitle class="text-2xl font-bold text-slate-800">Add Category</DialogTitle>
-                  <p class="text-base text-slate-400 mt-1">Create a new product category</p>
-                </div>
-                <button
-                  @click="handleClose"
-                  class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-xl transition-all duration-200 touch-manipulation"
-                >
-                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            <!-- Gradient header strip -->
+            <div class="bg-gradient-to-r from-zinc-900 via-zinc-800 to-zinc-900 px-7 pt-7 pb-6 border-b border-white/10">
+              <button
+                type="button"
+                @click="handleClose"
+                class="absolute top-4 right-4 flex h-8 w-8 items-center justify-center rounded-full bg-white/10 text-zinc-400 hover:bg-white/20 hover:text-white transition"
+              >
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+
+              <div class="flex items-center gap-4">
+                <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-500/20 ring-1 ring-emerald-500/40">
+                  <svg class="h-6 w-6 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
                   </svg>
-                </button>
+                </div>
+                <div>
+                  <DialogTitle class="text-2xl font-bold tracking-tight text-white">Add Category</DialogTitle>
+                  <p class="mt-0.5 text-base text-zinc-400">Create a new product category</p>
+                </div>
               </div>
+            </div>
 
-              <!-- Divider -->
-              <div class="mx-8 my-4 border-t border-slate-100"></div>
-
-              <!-- Form -->
-              <div class="px-8 pb-8 space-y-6">
+            <!-- Form body -->
+            <div class="bg-zinc-900 px-7 py-6">
+              <div class="space-y-5">
 
                 <!-- Category Name -->
-                <div class="space-y-2">
-                  <label class="block text-base font-semibold text-slate-700">
+                <div>
+                  <label class="mb-1.5 block text-base font-semibold uppercase tracking-widest text-zinc-400">
                     Category Name
                   </label>
                   <input
@@ -60,116 +58,123 @@
                     type="text"
                     placeholder="Enter category name..."
                     required
-                    class="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-lg placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:border-slate-300 transition-all duration-200 touch-manipulation"
+                    class="w-full rounded-xl border border-white/10 bg-zinc-800 px-5 py-4 text-lg font-medium text-white placeholder-zinc-500 transition focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
                   />
-                  <p v-if="form.errors.name" class="text-red-500 text-sm mt-1">{{ form.errors.name }}</p>
+                  <p v-if="form.errors.name" class="mt-1.5 text-sm text-red-400">{{ form.errors.name }}</p>
                 </div>
 
                 <!-- Category Type -->
-                <div class="space-y-2">
-                  <label class="block text-base font-semibold text-slate-700">
+                <div>
+                  <label class="mb-1.5 block text-base font-semibold uppercase tracking-widest text-zinc-400">
                     Category Type
                   </label>
-                  <div class="relative">
-                    <select
-                      v-model="form.category_type"
-                      class="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-lg appearance-none focus:outline-none focus:ring-2 focus:ring-slate-400 focus:border-slate-300 transition-all duration-200 cursor-pointer touch-manipulation"
+                  <div class="grid grid-cols-2 gap-3">
+                    <label
+                      :class="[
+                        'flex cursor-pointer items-center justify-center gap-2 rounded-xl border px-5 py-4 text-base font-semibold transition',
+                        form.category_type === '0' || form.category_type === 0
+                          ? 'border-emerald-500 bg-emerald-500/15 text-emerald-400'
+                          : 'border-white/10 bg-zinc-800 text-zinc-400 hover:border-zinc-600'
+                      ]"
                     >
-                      <option value="0">Food</option>
-                      <option value="1">Beverages</option>
-                    </select>
-                    <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
-                      <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                      </svg>
-                    </div>
+                      <input type="radio" v-model="form.category_type" value="0" class="hidden" />
+                      🍽️ Food
+                    </label>
+                    <label
+                      :class="[
+                        'flex cursor-pointer items-center justify-center gap-2 rounded-xl border px-5 py-4 text-base font-semibold transition',
+                        form.category_type === '1' || form.category_type === 1
+                          ? 'border-emerald-500 bg-emerald-500/15 text-emerald-400'
+                          : 'border-white/10 bg-zinc-800 text-zinc-400 hover:border-zinc-600'
+                      ]"
+                    >
+                      <input type="radio" v-model="form.category_type" value="1" class="hidden" />
+                      🍹 Beverages
+                    </label>
                   </div>
-                  <p v-if="form.errors.category_type" class="text-red-500 text-sm mt-1">{{ form.errors.category_type }}</p>
+                  <p v-if="form.errors.category_type" class="mt-1.5 text-sm text-red-400">{{ form.errors.category_type }}</p>
                 </div>
 
                 <!-- Parent Category -->
-                <div class="space-y-2">
-                  <label class="block text-base font-semibold text-slate-700">
+                <div>
+                  <label class="mb-1.5 block text-base font-semibold uppercase tracking-widest text-zinc-400">
                     Parent Category
                   </label>
-                  <div class="relative">
-                    <select
-                      v-model="form.parent_id"
-                      class="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-lg appearance-none focus:outline-none focus:ring-2 focus:ring-slate-400 focus:border-slate-300 transition-all duration-200 cursor-pointer touch-manipulation"
+                  <select
+                    v-model="form.parent_id"
+                    class="w-full rounded-xl border border-white/10 bg-zinc-800 px-5 py-4 text-lg font-medium text-white transition focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
+                  >
+                    <option value="" class="bg-zinc-800">— No Parent —</option>
+                    <option
+                      v-for="category in categories"
+                      :key="category.id"
+                      :value="category.id"
+                      class="bg-zinc-800"
                     >
-                      <option value="">No Parent Category</option>
-                      <option
-                        v-for="category in categories"
-                        :key="category.id"
-                        :value="category.id"
-                      >
-                        {{
-                          category.hierarchy_string
-                            ? category.hierarchy_string + " → " + category.name
-                            : category.name
-                        }}
-                      </option>
-                    </select>
-                    <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
-                      <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                      </svg>
-                    </div>
-                  </div>
-                  <p v-if="form.errors.parent_id" class="text-red-500 text-sm mt-1">{{ form.errors.parent_id }}</p>
+                      {{
+                        category.hierarchy_string
+                          ? category.hierarchy_string + " → " + category.name
+                          : category.name
+                      }}
+                    </option>
+                  </select>
+                  <p v-if="form.errors.parent_id" class="mt-1.5 text-sm text-red-400">{{ form.errors.parent_id }}</p>
                 </div>
 
                 <!-- Category Image -->
-                <div class="space-y-2">
-                  <label class="block text-base font-semibold text-slate-700">
+                <div>
+                  <label class="mb-1.5 block text-base font-semibold uppercase tracking-widest text-zinc-400">
                     Category Image
                   </label>
                   <input
                     type="file"
                     accept="image/*"
                     @change="e => form.image = e.target.files[0]"
-                    class="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-xl text-slate-700 text-base file:mr-4 file:py-2 file:px-5 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-slate-800 file:text-white hover:file:bg-slate-700 cursor-pointer focus:outline-none focus:ring-2 focus:ring-slate-400 focus:border-slate-300 transition-all duration-200"
+                    class="w-full rounded-xl border border-white/10 bg-zinc-800 px-4 py-3.5 text-lg text-zinc-300 transition file:mr-3 file:rounded-lg file:border-0 file:bg-emerald-500 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-zinc-900 hover:file:bg-emerald-400 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
                   />
-                  <p v-if="form.errors.image" class="text-red-500 text-sm mt-1">{{ form.errors.image }}</p>
+                  <p v-if="form.errors.image" class="mt-1.5 text-sm text-red-400">{{ form.errors.image }}</p>
 
-                  <!-- Preview -->
-                  <div v-if="form.image" class="mt-3">
+                  <div v-if="form.image" class="mt-4 flex items-center gap-4 rounded-xl border border-white/10 bg-zinc-800 p-3">
                     <img
                       :src="URL.createObjectURL(form.image)"
                       alt="Preview"
-                      class="w-28 h-28 object-cover rounded-xl border border-slate-200 shadow-sm"
+                      class="h-16 w-16 rounded-lg object-cover ring-1 ring-white/10"
                     />
+                    <div>
+                      <p class="text-base font-medium text-zinc-300">Selected image</p>
+                      <p class="text-sm text-zinc-500">Ready to upload</p>
+                    </div>
                   </div>
                 </div>
+              </div>
 
-                <!-- Divider -->
-                <div class="border-t border-slate-100"></div>
-
-                <!-- Action Buttons -->
-                <div class="flex gap-3 pt-2">
-                  <button
-                    @click="handleSubmit"
-                    :disabled="isSubmitting"
-                    class="flex-1 bg-slate-800 hover:bg-slate-900 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-4 px-8 rounded-xl text-base transition-all duration-200 active:scale-[0.98] touch-manipulation flex items-center justify-center gap-3"
-                    type="button"
-                  >
-                    <div v-if="isSubmitting" class="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                    <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                    </svg>
-                    {{ isSubmitting ? 'Creating...' : 'Create Category' }}
-                  </button>
-
-                  <button
-                    @click="handleClose"
-                    class="px-8 py-4 bg-slate-100 hover:bg-slate-200 text-slate-600 font-semibold rounded-xl text-base transition-all duration-200 active:scale-[0.98] touch-manipulation"
-                    type="button"
-                  >
-                    Cancel
-                  </button>
-                </div>
+              <!-- Action Buttons -->
+              <div class="mt-7 flex items-center justify-end gap-3 border-t border-white/10 pt-6">
+                <button
+                  @click="handleClose"
+                  class="rounded-xl border border-white/10 bg-zinc-800 px-6 py-3 text-lg font-semibold text-zinc-300 transition hover:border-zinc-600 hover:text-white active:scale-95"
+                  type="button"
+                >
+                  Cancel
+                </button>
+                <button
+                  @click="handleSubmit"
+                  :disabled="isSubmitting"
+                  class="inline-flex items-center gap-2 rounded-xl bg-emerald-500 px-7 py-3 text-lg font-bold text-zinc-900 shadow-lg shadow-emerald-500/20 transition hover:bg-emerald-400 active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed"
+                  type="button"
+                >
+                  <svg v-if="isSubmitting" class="h-5 w-5 animate-spin" viewBox="0 0 24 24" fill="none">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
+                  </svg>
+                  <svg v-else class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+                  </svg>
+                  {{ isSubmitting ? 'Creating...' : 'Create Category' }}
+                </button>
               </div>
             </div>
+
           </DialogPanel>
         </TransitionChild>
       </div>
