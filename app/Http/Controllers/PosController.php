@@ -382,6 +382,7 @@ class PosController extends Controller
                 'delivery_charge'     => $toDecimal($request->input('delivery_charge')),
                 'service_charge'      => $toDecimal($request->input('service_charge')),
                 'bank_service_charge' => $toDecimal($request->input('bank_service_charge')) ?? 0,
+                'shopping_bag_charge' => $toDecimal($request->input('shopping_bag_charge')) ?? 0,
                 'bank_name'           => $toStr($request->input('bank_name')),
                 'card_last4'          => $toStr($request->input('card_last4')),
                 'owner_id'            => $request->input('owner_id') ?: null,

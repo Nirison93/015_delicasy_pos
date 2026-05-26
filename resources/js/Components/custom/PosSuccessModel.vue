@@ -135,7 +135,10 @@ const props = defineProps({
   service_charge : String,
   order_type : String,
   selectedPaymentMethod : String,
-
+  shopping_bag_charge: {
+    type: Number,
+    default: 0
+  },
 
    owner_discount_value: {
     type: Number,
@@ -333,6 +336,8 @@ const handlePrintReceipt = () => {
               ? `<tr><td>Service Charge</td><td>${(Number(props.service_charge)||0).toFixed(2)} %</td></tr>` : ""}
           ${props.bank_service_charge
               ? `<tr><td>Bank Service Charge</td><td>${(Number(props.bank_service_charge)||0).toFixed(2)} %</td></tr>` : ""}
+          ${Number(props.shopping_bag_charge) !== 0
+              ? `<tr><td>Shopping Bag</td><td>${(Number(props.shopping_bag_charge)||0).toFixed(2)} LKR</td></tr>` : ""}
           ${Number(props.total) !== 0
               ? `<tr class="grand"><td>TOTAL</td><td>${(Number(props.total)||0).toFixed(2)} LKR</td></tr>` : ""}
           ${Number(props.cash) !== 0
