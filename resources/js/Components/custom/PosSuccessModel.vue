@@ -592,23 +592,23 @@ const handleKOTPrintReceipt = () => {
   </html>
   `;
 
-  // Open a new window
-  const printWindow = window.open("", "_blank");
-  if (!printWindow) {
-    alert("Failed to open print window. Please check your browser settings.");
-    return;
-  }
+  // Create a hidden iframe for printing
+  const iframe = document.createElement("iframe");
+  iframe.style.display = "none";
+  document.body.appendChild(iframe);
 
-  // Write the content to the new window
-  printWindow.document.open();
-  printWindow.document.write(receiptHTML);
-  printWindow.document.close();
+  // Write content to iframe
+  iframe.contentDocument.open();
+  iframe.contentDocument.write(receiptHTML);
+  iframe.contentDocument.close();
 
-  // Wait for the content to load before triggering print
-  printWindow.onload = () => {
-    printWindow.focus();
-    printWindow.print();
-    printWindow.close();
+  // Wait for content to load and then print
+  iframe.onload = () => {
+    iframe.contentWindow.print();
+    // Remove iframe after a short delay to ensure print command is sent
+    setTimeout(() => {
+      document.body.removeChild(iframe);
+    }, 250);
   };
 };
 

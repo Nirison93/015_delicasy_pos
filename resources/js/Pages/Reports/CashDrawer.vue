@@ -17,8 +17,11 @@
           </div>
         </div>
 
-        <!-- Date filters -->
+        <!-- Date filters & Print -->
         <div class="flex flex-wrap items-center gap-2">
+          <button @click="printCashDrawerReport" class="h-12 px-5 inline-flex items-center gap-2 text-lg font-semibold text-white bg-emerald-600 ring-1 ring-emerald-700 rounded-xl hover:bg-emerald-700 transition select-none">
+            <i class="ri-printer-line"></i> Print Report
+          </button>
           <div class="relative">
                 <button @click="showQuickFilter = !showQuickFilter"
                   class="h-12 px-5 inline-flex items-center gap-2 text-lg font-semibold text-indigo-700 bg-indigo-50 ring-1 ring-indigo-200 rounded-xl hover:bg-indigo-100 transition select-none">
@@ -239,5 +242,185 @@ const variance = (row) => {
   const open = Number(row?.opening_balance || 0);
   const close = Number(row?.closing_balance || 0);
   return close - open;
+};
+
+const printCashDrawerReport = () => {
+  try {
+    const f = (val) => {
+      const n = Number(val || 0);
+      return n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    };
+
+    const drawerRows = props.cashDrawers.map((row, idx) => {
+      const var_val = variance(row);
+      const varClass = var_val >= 0 ? '' : 'negative';
+      const openedByName = row.openedByUser?.name || row.opened_by || "-";
+      const closedByName = row.closedByUser?.name || row.closed_by || "-";
+      const openedTime = row.opened_at ? new Date(row.opened_at).toLocaleString(undefined, {month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit'}) : "-";
+      const closedTime = row.closed_at ? new Date(row.closed_at).toLocaleString(undefined, {month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit'}) : "-";
+      return `<tr><td>${idx + 1}</td><td>${openedByName}</td><td>${openedTime}</td><td>${f(row.opening_balance)}</td><td>${closedByName}</td><td>${closedTime}</td><td>${f(row.closing_balance)}</td><td class="${varClass}">${f(var_val)}</td></tr>`;
+    }).join('');
+
+    const reportHTML = `<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Cash Drawer Report</title>
+
+<style>
+@page {
+    size: 80mm auto;
+    margin: 0;
+}
+
+@media print {
+    body {
+        margin: 0;
+        padding: 0;
+        -webkit-print-color-adjust: exact !important;
+        width: 80mm;
+    }
+
+    * {
+        -webkit-print-color-adjust: exact !important;
+        color-adjust: exact !important;
+    }
+}
+
+body {
+    background: #fff;
+    font-size: 18px;
+    font-family: 'Courier New', monospace;
+    margin: 0;
+    padding: 10px 6px;
+    color: #000 !important;
+    width: 80mm;
+    box-sizing: border-box;
+    font-weight: 600;
+}
+
+h1 {
+    text-align: center;
+    margin: 0 0 8px 0;
+    font-size: 24px;
+    font-weight: 900;
+}
+
+h2 {
+    font-size: 18px;
+    font-weight: 800;
+    margin: 8px 0 4px 0;
+    border-bottom: 2px solid #000;
+    padding-bottom: 4px;
+}
+
+.header-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 16px;
+    margin: 4px 0;
+}
+
+.summary-box {
+    border: 1px solid #000;
+    padding: 4px 5px;
+    margin: 4px 0;
+    font-size: 14px;
+}
+
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    padding: 3px 0;
+    font-weight: 700;
+}
+
+.footer {
+    text-align: center;
+    margin-top: 8px;
+    font-size: 13px;
+    padding-top: 4px;
+    border-top: 1px solid #000;
+}
+</style>
+</head>
+
+<body>
+
+<h1>CASH DRAWER REPORT</h1>
+
+<div class="header-row">
+    <span><b>From:</b> ${startDate.value || 'All'}</span>
+</div>
+
+<div class="header-row">
+    <span><b>To:</b> ${endDate.value || 'All'}</span>
+</div>
+
+<div class="header-row">
+    <span><b>Date:</b> ${new Date().toLocaleDateString()}</span>
+</div>
+
+<h2>SUMMARY</h2>
+
+<div class="summary-box">
+
+    <div class="summary-row">
+        <span>Total:</span>
+        <span>${props.statistics.total_drawers ?? 0}</span>
+    </div>
+
+    <div class="summary-row">
+        <span>Open:</span>
+        <span>${props.statistics.open_drawers ?? 0}</span>
+    </div>
+
+    <div class="summary-row">
+        <span>Closed:</span>
+        <span>${props.statistics.closed_drawers ?? 0}</span>
+    </div>
+
+    <div style="border-top:1px solid #999; margin-top:2px;"></div>
+
+    <div class="summary-row">
+        <span>Opening:</span>
+        <span>${f(props.statistics.total_opening_balance)}</span>
+    </div>
+
+    <div class="summary-row">
+        <span>Closing:</span>
+        <span>${f(props.statistics.total_closing_balance)}</span>
+    </div>
+
+    <div class="summary-row">
+        <span>Variance:</span>
+        <span>${f(props.statistics.total_variance)}</span>
+    </div>
+
+</div>
+
+<div class="footer">
+    <div>${new Date().toLocaleString()}</div>
+    <div>${props.companyInfo?.name || 'Delicasy POS'}</div>
+</div>
+
+</body>
+</html>`;
+
+    const iframe = document.createElement('iframe');
+    iframe.style.display = 'none';
+    document.body.appendChild(iframe);
+    iframe.contentDocument.open();
+    iframe.contentDocument.write(reportHTML);
+    iframe.contentDocument.close();
+    iframe.onload = () => {
+      iframe.contentWindow.print();
+      setTimeout(() => { document.body.removeChild(iframe); }, 250);
+    };
+  } catch (err) {
+    console.error('Cash drawer print error:', err);
+    alert('Failed to print the report.');
+  }
 };
 </script>
