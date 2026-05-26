@@ -2540,7 +2540,7 @@ const getKotDelta = (table) => {
     const before = Number(prev[p.id] || 0);
     const now = Number(curr[p.id] || 0);
     const diff = now - before;
-    if (diff > 0) deltas.push({ id: p.id, name: p.name, delta: diff });
+    if (diff > 0) deltas.push({ id: p.id, name: p.name, delta: diff, size: p.size?.name || "" });
   });
   return deltas;
 };
@@ -2565,6 +2565,7 @@ const sendKOT = (table) => {
       <tr>
         <td>${d.name}</td>
         <td style="text-align:center;">${d.delta}</td>
+        <td style="text-align:center;">${d.size || "N/A"}</td>
       </tr>
     `).join("");
 
@@ -2582,16 +2583,16 @@ const sendKOT = (table) => {
           <title>KOT</title>
           <style>
             @media print { body { margin:0; padding:0; -webkit-print-color-adjust: exact; print-color-adjust: exact; } @page { size: 80mm auto; margin:0; } }
-            body { background:#fff; font-size:12px; font-family:Arial,sans-serif; margin:0; padding:10px; color:#000; }
-            h1 { text-align:center; margin:0 0 10px 0; font-size:18px; }
-            .kot-head { display:flex; justify-content:space-between; gap:8px; flex-wrap:wrap; margin-bottom:10px; font-size:12px; }
+            body { background:#fff; font-size:13px; font-weight:bold; font-family:Arial,sans-serif; margin:0; padding:10px; color:#000; }
+            h1 { text-align:center; margin:0 0 10px 0; font-size:18px; font-weight:bold; }
+            .kot-head { display:flex; justify-content:space-between; gap:8px; flex-wrap:wrap; margin-bottom:10px; font-size:12px; font-weight:bold; }
             .kot-head .cell { padding:4px 6px; }
             .note { border:1px dashed #000; padding:8px; margin:10px 0; font-weight:bold; font-size:12px; }
-            table { width:100%; border-collapse:collapse; margin-top:8px; font-size:12px; }
-            thead th { text-align:left; padding:6px 8px; font-size:12px; border-bottom:2px solid #000; }
-            thead th:last-child { text-align:center; width:40px; }
+            table { width:100%; border-collapse:collapse; margin-top:8px; font-size:13px; font-weight:bold; }
+            thead th { text-align:left; padding:6px 8px; font-size:12px; border-bottom:2px solid #000; font-weight:bold; }
+            thead th:last-child { text-align:center; width:70px; }
             tbody tr { border-bottom:1px dashed #000; }
-            tbody td { padding:6px 8px; font-size:13px; vertical-align:top; }
+            tbody td { padding:6px 8px; font-size:13px; vertical-align:top; font-weight:bold; }
             tbody td:first-child { text-align:left; }
             tbody td:last-child { text-align:center; }
           </style>
@@ -2607,7 +2608,7 @@ const sendKOT = (table) => {
           </div>
           ${noteBlock}
           <table>
-            <thead><tr><th>Product</th><th style="text-align:center;">Qty</th></tr></thead>
+            <thead><tr><th>Product</th><th style="text-align:center;">Qty</th><th style="text-align:center;">Size</th></tr></thead>
             <tbody>${productRows}</tbody>
           </table>
         </body>
@@ -2653,6 +2654,7 @@ const sendTakeawayKOT = () => {
       <tr>
         <td>${p.name || ""}</td>
         <td style="text-align:center;">${Number(p.quantity || 1)}</td>
+        <td style="text-align:center;">${p.size?.name || "N/A"}</td>
       </tr>
     `).join("");
 
@@ -2668,16 +2670,16 @@ const sendTakeawayKOT = () => {
           <title>KOT</title>
           <style>
             @media print { body { margin:0; padding:0; -webkit-print-color-adjust: exact; print-color-adjust: exact; } @page { size: 80mm auto; margin:0; } }
-            body { background:#fff; font-size:12px; font-family:Arial,sans-serif; margin:0; padding:10px; color:#000; }
-            h1 { text-align:center; margin:0 0 10px 0; font-size:18px; }
-            .kot-head { display:flex; justify-content:space-between; gap:8px; flex-wrap:wrap; margin-bottom:10px; font-size:12px; }
+            body { background:#fff; font-size:13px; font-weight:bold; font-family:Arial,sans-serif; margin:0; padding:10px; color:#000; }
+            h1 { text-align:center; margin:0 0 10px 0; font-size:18px; font-weight:bold; }
+            .kot-head { display:flex; justify-content:space-between; gap:8px; flex-wrap:wrap; margin-bottom:10px; font-size:12px; font-weight:bold; }
             .kot-head .cell { padding:4px 6px; }
             .note { border:1px dashed #000; padding:8px; margin:10px 0; font-weight:bold; font-size:12px; }
-            table { width:100%; border-collapse:collapse; margin-top:8px; font-size:12px; }
-            thead th { text-align:left; padding:6px 8px; font-size:12px; border-bottom:2px solid #000; }
-            thead th:last-child { text-align:center; width:40px; }
+            table { width:100%; border-collapse:collapse; margin-top:8px; font-size:13px; font-weight:bold; }
+            thead th { text-align:left; padding:6px 8px; font-size:12px; border-bottom:2px solid #000; font-weight:bold; }
+            thead th:last-child { text-align:center; width:70px; }
             tbody tr { border-bottom:1px dashed #000; }
-            tbody td { padding:6px 8px; font-size:13px; vertical-align:top; }
+            tbody td { padding:6px 8px; font-size:13px; vertical-align:top; font-weight:bold; }
             tbody td:first-child { text-align:left; }
             tbody td:last-child { text-align:center; }
           </style>
@@ -2692,7 +2694,7 @@ const sendTakeawayKOT = () => {
           </div>
           ${noteBlock}
           <table>
-            <thead><tr><th>Product</th><th style="text-align:center;">Qty</th></tr></thead>
+            <thead><tr><th>Product</th><th style="text-align:center;">Qty</th><th style="text-align:center;">Size</th></tr></thead>
             <tbody>${productRows}</tbody>
           </table>
         </body>
