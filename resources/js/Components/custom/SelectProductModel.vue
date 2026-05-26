@@ -170,7 +170,7 @@
                                  ]"
                               >
                                  <img
-                                    :src="category.image ? `/storage/${category.image}` : '/images/category-placeholder.png'"
+                                    :src="category.image ? `${category.image}` : '/images/category-placeholder.png'"
                                     alt="category image"
                                     class="w-16 h-16 object-cover rounded-full mb-1 ring-1 ring-white/10"
                                  />
@@ -230,7 +230,7 @@
                                        <!-- Product Image -->
                                        <div class="h-[130px] w-full bg-zinc-700 overflow-hidden">
                                           <img
-                                             :src="product.image ? `/${product.image}` : '/images/placeholder.jpg'"
+                                             :src="product.image ? `${product.image}` : '/images/placeholder.jpg'"
                                              alt="Product Image"
                                              class="w-full h-full object-cover"
                                           />
