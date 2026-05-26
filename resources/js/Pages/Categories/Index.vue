@@ -139,8 +139,7 @@
               ? 'bg-blue-600 hover:bg-blue-700 shadow-blue-200'
               : 'bg-blue-400 cursor-not-allowed opacity-60'
           ]"
-          :title="HasRole(['Admin']) ? '' : 'You do not have permission to add categories'"
-        >
+          :title="HasRole(['Admin']) ? '' : 'You do not have permission to add categories'">
           <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
           </svg>
