@@ -602,8 +602,9 @@ const printKOTReceipt = (history) => {
   const saleItems = history.sale_items || []
   const productRows = saleItems.map(item => `
     <tr>
-      <td>${getSafeValue(item, 'product.name') || 'N/A'}</td>
-      <td class="text-right">${asNumber(item.quantity)}</td>
+      <td><strong>${getSafeValue(item, 'product.name') || 'N/A'}</strong></td>
+      <td class="text-right"><strong>${asNumber(item.quantity)}</strong></td>
+      <td><strong>${getSafeValue(item, 'product.size.name') || 'N/A'}</strong></td>
     </tr>
   `).join('')
 
@@ -615,12 +616,13 @@ const printKOTReceipt = (history) => {
     <title>KOT</title>
     <style>
       @media print { body { margin:0; padding:0; -webkit-print-color-adjust: exact; } @page { size: 80mm auto; margin: 0; } }
-      body { background:#fff; font-size:12px; font-family:Arial, sans-serif; margin:0; padding:10px; color:#000; }
+      body { background:#fff; font-size:13px; font-weight:bold; font-family:Arial, sans-serif; margin:0; padding:10px; color:#000; }
+      h1 { font-weight:bold; font-size:16px; margin:8px 0; }
       .section { margin-bottom:16px; padding-top:8px; border-top:1px solid #000; }
-      .info-row { display:flex; justify-content:space-between; font-size:12px; margin-top:8px; }
-      table { width:100%; font-size:12px; border-collapse:collapse; margin-top:8px; }
-      table th, table td { padding:6px 8px; border-bottom:1px solid #ddd; }
-      table th { text-align:left; } table td { text-align:right; } table td:first-child { text-align:left; }
+      .info-row { display:flex; justify-content:space-between; font-size:13px; font-weight:bold; margin-top:8px; }
+      table { width:100%; font-size:13px; font-weight:bold; border-collapse:collapse; margin-top:8px; }
+      table th, table td { padding:8px 8px; border-bottom:1px solid #000; font-weight:bold; }
+      table th { text-align:left; font-weight:bold; } table td { text-align:right; font-weight:bold; } table td:first-child { text-align:left; font-weight:bold; }
     </style>
   </head>
   <body>
@@ -648,7 +650,7 @@ const printKOTReceipt = (history) => {
 
     <div class="section">
       <table>
-        <thead><tr><th>Product</th><th class="text-right">Qty</th></tr></thead>
+        <thead><tr><th>Product</th><th class="text-right">Qty</th><th>Size</th></tr></thead>
         <tbody>${productRows}</tbody>
       </table>
     </div>
