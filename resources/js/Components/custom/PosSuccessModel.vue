@@ -190,7 +190,7 @@ const handlePrintReceipt = () => {
 
       return `
         <tr>
-          <td class="name" colspan="3" style="padding:4px 2px 1px;">${product.name}</td>
+          <td class="name" colspan="3" style="padding:4px 2px 1px;">${product.name}${product.size?.name ? ` (${product.size.name})` : ""}</td>
         </tr>
         <tr style="border-bottom: 1px dashed #aaa;">
           <td></td>

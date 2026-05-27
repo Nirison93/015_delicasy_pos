@@ -867,7 +867,7 @@
   <Teleport to="body">
     <div v-if="isBankModalOpen" class="fixed inset-0 z-[999] flex items-center justify-center">
       <div class="absolute inset-0 bg-black/75 backdrop-blur-sm" @click="isBankModalOpen = false"></div>
-      <div class="relative bg-zinc-900 rounded-2xl border border-white/10 shadow-2xl w-[420px] max-h-[85vh] flex flex-col overflow-hidden">
+      <div class="relative bg-zinc-900 rounded-2xl border border-white/10 shadow-2xl w-full max-w-[680px] max-h-[85vh] flex flex-col overflow-hidden">
         <!-- Modal Header -->
         <div class="flex items-center justify-between px-5 py-4 bg-gradient-to-r from-zinc-900 via-zinc-800 to-zinc-900 border-b border-white/10">
           <div class="flex items-center gap-3">
@@ -882,7 +882,7 @@
           </button>
         </div>
         <!-- Search -->
-        <div class="px-4 py-3 border-b border-white/10">
+        <div class="px-5 py-3 border-b border-white/10">
           <input
             v-model="bankQuery"
             type="text"
@@ -891,23 +891,51 @@
             class="w-full h-11 px-4 bg-zinc-800 border border-white/10 rounded-xl text-[15px] text-white placeholder-zinc-500 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30 transition"
           />
         </div>
-        <!-- Bank List -->
-        <div class="overflow-y-auto flex-1 p-2 bg-zinc-900">
-          <button
-            v-for="bank in filteredBanksModal"
-            :key="bank"
-            @click="selectBank(bank)"
-            :class="[
-              'w-full text-left px-4 py-3 text-[15px] rounded-xl transition',
-              selectedTable.bank_name === bank
-                ? 'bg-amber-500/15 text-amber-400 font-semibold ring-1 ring-amber-500/40'
-                : 'text-zinc-300 hover:bg-zinc-800'
-            ]"
-          >
-            <i v-if="selectedTable.bank_name === bank" class="ri-check-line mr-2 text-amber-400"></i>
-            {{ bank }}
-          </button>
-          <p v-if="filteredBanksModal.length === 0" class="text-center text-zinc-500 py-8 text-sm">No banks found</p>
+        <!-- Bank Grid -->
+        <div class="overflow-y-auto flex-1 p-4 bg-zinc-950/40">
+          <div v-if="filteredBanksModal.length > 0" class="space-y-6">
+            <!-- Group by First Letter -->
+            <div v-for="(banks, letter) in groupedBanksByLetter" :key="letter" class="space-y-3">
+              <!-- Letter Header -->
+              <div class="sticky top-0 bg-zinc-950/80 backdrop-blur-sm px-4 py-2 rounded-lg border border-white/10">
+                <h3 class="text-lg font-bold text-amber-400">{{ letter }}</h3>
+              </div>
+              <!-- Banks Grid for this Letter -->
+              <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+                <button
+                  v-for="bank in banks"
+                  :key="bank"
+                  @click="selectBank(bank)"
+                  :class="[
+                    'flex flex-col items-center justify-center p-5 rounded-2xl border-2 transition duration-200 active:scale-95 h-auto min-h-[200px]',
+                    'hover:bg-zinc-800/50',
+                    selectedTable.bank_name === bank
+                      ? 'bg-amber-500/20 border-amber-500 ring-2 ring-amber-500/40'
+                      : 'bg-zinc-800 border-white/10 hover:border-amber-500/30'
+                  ]"
+                  :title="bank"
+                >
+                  <!-- Bank Logo -->
+                  <div class="w-28 h-28 flex items-center justify-center mb-4 bg-white/5 rounded-lg flex-shrink-0">
+                    <img
+                      :src="`/images/banks/${getBankLogoName(bank)}`"
+                      :alt="bank"
+                      class="w-24 h-24 object-contain"
+                      @error="$event.target.style.display = 'none'"
+                    />
+                  </div>
+                  <!-- Bank Name -->
+                  <span class="text-center text-base font-bold text-white leading-snug line-clamp-3">{{ bank }}</span>
+                  <!-- Check Icon -->
+                  <i v-if="selectedTable.bank_name === bank" class="ri-check-circle-fill text-amber-400 text-2xl absolute top-2 right-2"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+          <div v-else class="flex flex-col items-center justify-center py-12">
+            <i class="ri-search-line text-4xl text-zinc-700 mb-3"></i>
+            <p class="text-center text-zinc-500 text-sm">No banks found</p>
+          </div>
         </div>
       </div>
     </div>
@@ -1837,10 +1865,85 @@ const filteredBanksModal = computed(() =>
     ? bankOptions.value.filter(b => b.toLowerCase().includes(bankQuery.value.toLowerCase()))
     : bankOptions.value
 );
+
+const groupedBanksByLetter = computed(() => {
+  const grouped = {};
+  filteredBanksModal.value.forEach(bank => {
+    const letter = bank.charAt(0).toUpperCase();
+    if (!grouped[letter]) grouped[letter] = [];
+    grouped[letter].push(bank);
+  });
+  return Object.keys(grouped).sort().reduce((acc, letter) => {
+    acc[letter] = grouped[letter];
+    return acc;
+  }, {});
+});
+
 const selectBank = (bank) => {
   if (selectedTable.value) selectedTable.value.bank_name = bank;
   isBankModalOpen.value = false;
   bankQuery.value = "";
+};
+
+const getBankLogoName = (bankName) => {
+  // Convert bank name to filename format
+  // Examples: "Bank of Ceylon" -> "bank_of_ceylon_logo.jpg"
+  const logoMap = {
+    "Alliance Finance Co PLC": "alliance_finance_logo.jpg",
+    "Amana Bank": "amana_bank_logo.jpg",
+    "American Express Bank Ltd": "amex_bank_logo.jpg",
+    "Asia Asset Finance PLC": "asia_asset_finance_logo.jpg",
+    "Bank of Ceylon": "boc_bank_logo_001.jpg",
+    "Bank of China": "bank_of_china_logo.jpg",
+    "CDB": "cdb_logo.jpg",
+    "Cargils Bank Ltd": "cargils_bank_logo.jpg",
+    "Central Bank of Sri Lanka": "central_bank_logo.jpg",
+    "Central Finance PLC": "central_finance_logo.jpg",
+    "City Bank": "city_bank_logo.jpg",
+    "Commercial Bank": "commercial_bank_logo.jpg",
+    "Commercial Credit": "commercial_credit_logo.jpg",
+    "Cooperative Regional Rural Bank LTD": "cooperative_rural_bank_logo.jpg",
+    "DFCC Bank PLC": "dfcc_bank_logo.jpg",
+    "Deutsche Bank": "deutsche_bank_logo.jpg",
+    "Dialog Finance PLC": "dialog_finance_logo.jpg",
+    "Fintrex Finance Limited": "fintrex_finance_logo.jpg",
+    "HDFC Bank": "hdfc_bank_logo.jpg",
+    "HNB Finance PLC": "hnb_finance_logo.jpg",
+    "HSBC": "hsbc_logo.jpg",
+    "Hatton National Bank": "hatton_national_bank_logo.jpg",
+    "Indian Bank": "indian_bank_logo.jpg",
+    "Indian Overseas Bank": "indian_overseas_bank_logo.jpg",
+    "Kanrich Finance Bank": "kanrich_finance_logo.jpg",
+    "LB Finance": "lb_finance_logo.jpg",
+    "LOLC Development Finance Plc": "lolc_dev_finance_logo.jpg",
+    "LOLC Finance Plc": "lolc_finance_logo.jpg",
+    "Lanka Credit and Business Finance Limited": "lanka_credit_business_finance_logo.jpg",
+    "MBSL": "mbsl_logo.jpg",
+    "MCB": "mcb_logo.jpg",
+    "Mercantile Investment": "mercantile_investment_logo.jpg",
+    "NDB Bank": "ndb_bank_logo.jpg",
+    "NSB": "nsb_logo.jpg",
+    "Nations Trust Bank": "nations_trust_bank_logo.jpg",
+    "Peoples Leasing and Finance PLC": "peoples_leasing_finance_logo.jpg",
+    "Pan Asia Bank": "pan_asia_bank_logo.jpg",
+    "Peoples Bank": "peoples_bank_logo.jpg",
+    "Public Bank Berhad": "public_bank_logo.jpg",
+    "RDB": "rdb_logo.jpg",
+    "Richard Pieris Finance": "richard_pieris_finance_logo.jpg",
+    "SDB": "sdb_logo.jpg",
+    "SENKADAGALA FINANCE": "senkadagala_finance_logo.jpg",
+    "SMIB": "smib_logo.jpg",
+    "Sampath Bank": "sampath_bank_logo.jpg",
+    "Sarvodaya Development Finace LTD": "sarvodaya_dev_finance_logo.jpg",
+    "Seylan Bank": "seylan_bank_logo.jpg",
+    "Singer Finance(Lanka) Bank": "singer_finance_logo.jpg",
+    "Siyapatha Finance PLC": "siyapatha_finance_logo.jpg",
+    "Softlogic Finance PLC": "softlogic_finance_logo.jpg",
+    "Standard Charted Bank": "standard_chartered_bank_logo.jpg",
+    "State Bank of India": "state_bank_india_logo.jpg",
+    "Union Bank": "union_bank_logo.jpg",
+  };
+  return logoMap[bankName] || "bank_default_logo.jpg";
 };
 
 const checkOpenCashDrawer = async () => {
@@ -2735,10 +2838,11 @@ const printBillOnly = () => {
       const qty   = Number(p.quantity || 1);
       const discP = Number(p.discount || 0);
       const line  = p.apply_discount ? (price * qty * (100 - discP)) / 100 : price * qty;
+      const sizeText = p.size?.name ? ` (${p.size.name})` : "";
       const discText = p.apply_discount ? ` (${discP}% off)` : "";
       return `
         <tr>
-          <td>${p.name || ""}${discText}</td>
+          <td>${p.name || ""}${sizeText}${discText}</td>
           <td style="text-align:center;">${qty}</td>
           <td style="text-align:right;">${fmt(price)}</td>
           <td style="text-align:right;">${fmt(line)}</td>
@@ -2800,57 +2904,58 @@ const printBillOnly = () => {
             }
             body { 
               background: #fff; 
-              font-size: 12px; 
+              font-size: 16px; 
               font-family: 'Courier New', monospace;
               margin: 0; 
               padding: 8px 6px;
               color: #000 !important; 
               width: 80mm;
               box-sizing: border-box;
-              font-weight: 600;
+              font-weight: 900;
             }
             h1 { 
               text-align: center; 
-              margin: 0 0 8px 0; 
-              font-size: 14px;
+              margin: 0 0 12px 0; 
+              font-size: 19px;
               font-weight: 900;
               color: #000 !important;
             }
             .row { 
               display: flex; 
               justify-content: space-between; 
-              margin: 5px 0;
+              margin: 7px 0;
               word-break: break-word;
               color: #000 !important;
-              font-weight: 600;
-              font-size: 12px;
+              font-weight: 900;
+              font-size: 15px;
             }
             .badge { 
               border: 2px solid #000; 
-              padding: 4px 5px; 
+              padding: 6px 8px; 
               text-align: center; 
-              margin: 6px 0; 
+              margin: 10px 0; 
               font-weight: 900;
-              font-size: 11px;
+              font-size: 14px;
               color: #000 !important;
             }
             table { 
               width: 100%; 
               border-collapse: collapse; 
-              margin: 6px 0;
-              font-size: 11px;
-              font-weight: 600;
+              margin: 10px 0;
+              font-size: 14px;
+              font-weight: 900;
             }
             th, td { 
-              padding: 4px 2px; 
+              padding: 6px 3px; 
               color: #000 !important;
-              font-weight: 700;
+              font-weight: 900;
             }
             th { 
               text-align: left;
-              font-weight: 800;
-              border-bottom: 1px solid #999;
-              padding-bottom: 5px;
+              font-weight: 900;
+              border-bottom: 2px solid #000;
+              padding-bottom: 8px;
+              font-size: 14px;
             }
             tbody tr { 
               border-bottom: 1px solid #ddd;
@@ -2869,31 +2974,31 @@ const printBillOnly = () => {
               font-weight: 700;
             }
             .totals { 
-              margin-top: 6px; 
+              margin-top: 10px; 
               border-top: 1px solid #999; 
-              padding-top: 6px;
-              font-size: 12px;
-              font-weight: 600;
+              padding-top: 10px;
+              font-size: 15px;
+              font-weight: 900;
             }
             .grand { 
               font-weight: 900; 
-              font-size: 13px; 
-              border-top: 1px solid #999; 
-              padding-top: 6px; 
-              margin-top: 4px;
+              font-size: 16px; 
+              border-top: 2px solid #000; 
+              padding-top: 10px; 
+              margin-top: 8px;
               color: #000 !important;
             }
             .note { 
               border-top: 1px solid #000; 
-              padding-top: 6px; 
-              margin-top: 8px; 
-              font-weight: 800;
-              font-size: 11px;
+              padding-top: 10px; 
+              margin-top: 12px; 
+              font-weight: 900;
+              font-size: 14px;
               color: #000 !important;
             }
             .divider {
-              border-top: 1px solid #999;
-              margin: 6px 0;
+              border-top: 2px solid #000;
+              margin: 10px 0;
             }
             b { 
               font-weight: 900;
@@ -2901,14 +3006,14 @@ const printBillOnly = () => {
             }
             span {
               color: #000 !important;
-              font-weight: 600;
+              font-weight: 900;
             }
           </style>
         </head>
         <body>
           <h1>Customer Bill</h1>
           <div class="badge">
-            ${t.id === 'default' ? 'Live Bill' : `Table: ${t.number}`} | ${orderType}
+            ${t.id === 'default' ? 'Temporary Bill' : `Table: ${t.number}`} | ${orderType}
           </div>
           <div class="row">
             <span><b>Date:</b> ${new Date().toLocaleDateString()}</span>
