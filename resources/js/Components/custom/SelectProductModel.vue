@@ -229,10 +229,9 @@
 
                                        <!-- Product Image -->
                                        <div class="h-[130px] w-full bg-zinc-700 overflow-hidden">
-                                          <img
-                                             alt="Product Image"
-                                             class="w-full h-full object-cover"
-                                          />
+                                          <img :src="group.image.replace('/storage/storage/', '/storage/')"
+     alt="Product Image"
+     class="w-full h-full object-cover" />
                                        </div>
 
                                        <!-- Product Info -->
