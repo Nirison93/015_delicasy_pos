@@ -144,9 +144,10 @@
                   <!-- Image -->
                   <div class="p-4 bg-zinc-800/50 border border-white/10 rounded-2xl">
                     <label class="block text-base font-semibold text-zinc-300 mb-3">Product Image</label>
-                    <div v-if="selectedProduct?.image" class="mb-3">
+                    <div v-if="form.image" class="mb-3">
                       <p class="text-sm text-zinc-500 mb-2">Current image</p>
-                      <img :src="`/${selectedProduct.image}`" alt="Product Image"
+                      <img :src="form.image.replace('/storage/storage/', '/storage/')"
+                        alt="Product Image"
                         class="w-20 h-20 object-cover rounded-xl ring-1 ring-white/10" />
                     </div>
                     <p v-else-if="selectedProduct" class="text-sm text-zinc-500 mb-3">No image uploaded</p>
