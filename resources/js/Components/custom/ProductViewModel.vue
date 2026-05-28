@@ -45,10 +45,12 @@
                 <div class="lg:w-2/5 flex-shrink-0">
                   <div class="relative rounded-2xl overflow-hidden bg-zinc-800 ring-1 ring-white/10">
                     <img
-                      :src="selectedProduct.image ? `/${selectedProduct.image}` : '/images/placeholder.jpg'"
-                      alt="Product Image"
-                      class="w-full h-72 lg:h-full object-cover"
-                    />
+  :src="selectedProduct.image
+    ? selectedProduct.image.replace('/storage/storage/', '/storage/')
+    : '/images/placeholder.jpg'"
+  alt="Product Image"
+  class="w-full h-72 lg:h-full object-cover"
+/>
                     <!-- Discount badge -->
                     <div v-if="selectedProduct.discount && selectedProduct.discount > 0"
                       class="absolute top-3 right-3 bg-red-500 text-white text-base font-bold px-3 py-1.5 rounded-xl shadow-lg">
