@@ -149,8 +149,12 @@
                     <label class="block text-base font-semibold text-zinc-300 mb-3">Product Image</label>
                     <div class="mb-3">
                       <p class="text-sm text-zinc-500 mb-2">Current image</p>
-                      <img v-if="selectedProduct.image" :src="`/${selectedProduct.image}`" alt="Product Image"
-                        class="w-20 h-20 object-cover rounded-xl ring-1 ring-white/10" />
+                      <img
+  v-if="selectedProduct.image"
+  :src="selectedProduct.image.replace('/storage/storage/', '/storage/')"
+  alt="Product Image"
+  class="w-20 h-20 object-cover rounded-xl ring-1 ring-white/10"
+/>
                       <p v-else class="text-sm text-zinc-500">No image available</p>
                     </div>
                     <input type="file" @change="handleImageUpload"
