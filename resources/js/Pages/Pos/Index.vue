@@ -97,25 +97,69 @@
         <!-- Left: Categories -->
         <div class="flex flex-col w-[22%] min-h-0">
           <div class="flex flex-col h-full bg-zinc-900 rounded-2xl border border-white/10 overflow-hidden">
-            <div class="p-5 border-b border-white/10 flex-shrink-0">
+            <div class="p-5 border-b border-white/10 flex-shrink-0 space-y-3">
               <h2 class="text-xl font-bold text-white flex items-center gap-2">
                 <i class="ri-menu-line text-zinc-500"></i> Categories
               </h2>
+              <!-- Menu Type Filter Buttons -->
+              <div class="flex gap-2">
+                <button
+                  @click="selectedMenuType = 'food'; selectedCategory = null"
+                  :class="[
+                    'flex-1 px-3 py-2.5 rounded-lg font-semibold text-[13px] transition border ring-1',
+                    selectedMenuType === 'food'
+                      ? 'bg-orange-500/20 border-orange-500/50 ring-orange-500/30 text-orange-400'
+                      : 'bg-zinc-800 border-white/10 ring-white/5 text-zinc-300 hover:bg-zinc-700'
+                  ]"
+                >
+                  <i class="ri-restaurant-2-line mr-1.5"></i>Food Menu
+                </button>
+                <button
+                  @click="selectedMenuType = 'beverage'; selectedCategory = null"
+                  :class="[
+                    'flex-1 px-3 py-2.5 rounded-lg font-semibold text-[13px] transition border ring-1',
+                    selectedMenuType === 'beverage'
+                      ? 'bg-blue-500/20 border-blue-500/50 ring-blue-500/30 text-blue-400'
+                      : 'bg-zinc-800 border-white/10 ring-white/5 text-zinc-300 hover:bg-zinc-700'
+                  ]"
+                >
+                  <i class="ri-drink-2-line mr-1.5"></i>Beverages
+                </button>
+              </div>
             </div>
-            <div class="overflow-y-auto flex-1 p-3 space-y-2">
+            <div class="flex-1 overflow-y-auto p-3 space-y-2">
+              <!-- Show All Button -->
               <button
-                v-for="category in allcategories"
+                @click="selectedCategory = null"
+                :class="[
+                  'w-full text-left px-4 py-3 rounded-xl border transition font-semibold',
+                  !selectedCategory
+                    ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-400 ring-1 ring-emerald-500/30'
+                    : 'bg-zinc-800 border-white/10 text-zinc-300 hover:bg-emerald-500/15 hover:border-emerald-500/40 hover:text-emerald-400'
+                ]"
+              >
+                <div class="flex items-center justify-between">
+                  <span class="text-[14px] font-semibold">Show All</span>
+                  <span class="text-[12px] text-zinc-500">{{ categoryProducts?.length || 0 }}</span>
+                </div>
+              </button>
+
+              <!-- Category Buttons -->
+              <button
+                v-for="category in filteredCategories"
                 :key="category.id"
                 @click="selectedCategory = category"
                 :class="[
                   'w-full text-left px-4 py-3 rounded-xl border transition',
                   selectedCategory?.id === category.id
-                    ? 'bg-amber-500/20 border-amber-500/50 text-amber-400'
+                    ? 'bg-amber-500/20 border-amber-500/50 text-amber-400 ring-1 ring-amber-500/30'
                     : 'bg-zinc-800 border-white/10 text-zinc-300 hover:bg-amber-500/15 hover:border-amber-500/40 hover:text-amber-400'
                 ]"
               >
-                <p class="text-[14px] font-semibold truncate">{{ category.name }}</p>
-                <p class="text-[12px] text-zinc-500 mt-0.5">{{ category.products?.length || 0 }} items</p>
+                <div class="flex items-center justify-between">
+                  <p class="text-[14px] font-semibold truncate">{{ category.name }}</p>
+                  <span class="text-[12px] text-zinc-500 flex-shrink-0 ml-2">{{ category.products?.length || 0 }}</span>
+                </div>
               </button>
             </div>
           </div>
@@ -2293,11 +2337,35 @@ const employee_id = ref("");
 const selectedPaymentMethod = ref("cash");
 const selectedCategory = ref(null);
 
+// Watch selectedMenuType to reset category when menu type changes
+watch(() => selectedMenuType.value, () => {
+  selectedCategory.value = null;
+});
+
+const filteredCategories = computed(() => {
+  if (!selectedMenuType.value) return props.allcategories || [];
+
+  return (props.allcategories || []).filter(category => {
+    // Check if category has a type field matching the selected menu type
+    if (category.type) {
+      return category.type.toLowerCase() === selectedMenuType.value.toLowerCase();
+    }
+    // Fallback: check category name for keywords
+    const name = (category.name || '').toLowerCase();
+    if (selectedMenuType.value === 'food') {
+      return !name.includes('beverage') && !name.includes('drink') && !name.includes('wine') && !name.includes('beer');
+    } else if (selectedMenuType.value === 'beverage') {
+      return name.includes('beverage') || name.includes('drink') || name.includes('wine') || name.includes('beer');
+    }
+    return true;
+  });
+});
+
 const categoryProducts = computed(() => {
   if (!selectedCategory.value) {
-    // Show all products from all categories
+    // Show all products from filtered categories
     const allProducts = [];
-    props.allcategories?.forEach(category => {
+    filteredCategories.value?.forEach(category => {
       if (category.products && Array.isArray(category.products)) {
         allProducts.push(...category.products);
       }
@@ -2305,7 +2373,7 @@ const categoryProducts = computed(() => {
     return allProducts;
   }
   // Show products from selected category
-  const category = props.allcategories?.find(c => c.id === selectedCategory.value.id);
+  const category = filteredCategories.value?.find(c => c.id === selectedCategory.value.id);
   if (!category || !category.products) return [];
   return category.products;
 });
