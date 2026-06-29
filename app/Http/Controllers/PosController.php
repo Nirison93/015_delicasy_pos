@@ -37,7 +37,7 @@ class PosController extends Controller
         }
 
         // Your existing data…
-        $allcategories = Category::with('parent')->get()->map(function ($category) {
+        $allcategories = Category::with(['parent', 'products'])->get()->map(function ($category) {
             $category->hierarchy_string = $category->hierarchy_string;
             return $category;
         });
