@@ -94,101 +94,126 @@
       </div>
 
       <div class="flex gap-4 flex-1 overflow-hidden min-h-0">
-        <!-- Left: Categories -->
-        <div class="flex flex-col w-[22%] min-h-0">
+        <!-- Left: Tables -->
+        <div class="flex flex-col w-[38%] min-h-0">
           <div class="flex flex-col h-full bg-zinc-900 rounded-2xl border border-white/10 overflow-hidden">
-            <div class="p-5 border-b border-white/10 flex-shrink-0">
+            <div class="p-5 overflow-y-auto flex-1">
+            <!-- Header -->
+            <div class="flex items-center justify-between pb-4">
               <h2 class="text-xl font-bold text-white flex items-center gap-2">
-                <i class="ri-menu-line text-zinc-500"></i> Categories
+                <i class="ri-layout-grid-line text-zinc-500"></i> Tables
               </h2>
-            </div>
-            <div class="overflow-y-auto flex-1 p-3 space-y-2">
-              <button
-                v-for="category in allcategories"
-                :key="category.id"
-                @click="selectedMenuType = category.id; isSelectModalOpen = true"
-                class="w-full text-left px-4 py-3 rounded-xl bg-zinc-800 border border-white/10 text-zinc-300 hover:bg-amber-500/15 hover:border-amber-500/40 hover:text-amber-400 transition"
-              >
-                <p class="text-[14px] font-semibold truncate">{{ category.name }}</p>
-                <p class="text-[12px] text-zinc-500 mt-0.5">Click to browse</p>
+
+              <!-- Add More Tables Button -->
+              <button @click="addTable"
+                class="flex items-center gap-2 px-5 py-2.5 bg-amber-500 tracking-wide text-zinc-900 text-[15px] font-bold rounded-xl hover:bg-amber-400 active:scale-[0.97] shadow-lg shadow-amber-500/20 transition">
+                <i class="ri-add-circle-fill"></i>
+                Add Table
               </button>
             </div>
-          </div>
-        </div>
 
-        <!-- Middle: Products Grid -->
-        <div class="flex flex-col w-[28%] min-h-0">
-          <div class="flex flex-col h-full bg-zinc-900 rounded-2xl border border-white/10 overflow-hidden">
-            <div class="p-5 border-b border-white/10 flex-shrink-0">
-              <h2 class="text-xl font-bold text-white flex items-center gap-2">
-                <i class="ri-shopping-cart-line text-zinc-500"></i>
-                {{ selectedCategory?.name || 'Products' }}
-              </h2>
-            </div>
-
-            <!-- Empty State -->
-            <div v-if="!selectedCategory" class="overflow-y-auto flex-1 p-5 flex flex-col items-center justify-center">
-              <div class="text-center space-y-4">
-                <div class="w-16 h-16 mx-auto flex items-center justify-center rounded-2xl bg-amber-500/15 ring-1 ring-amber-500/30">
-                  <i class="ri-add-circle-line text-3xl text-amber-400"></i>
-                </div>
-                <div>
-                  <p class="text-[15px] font-semibold text-zinc-300 mb-2">Select a category</p>
-                  <p class="text-[13px] text-zinc-500">Choose from the left menu to see products</p>
-                </div>
+            <!-- Live Bill -->
+            <div
+              :class="[
+                'w-full flex items-center justify-center rounded-xl px-4 py-4 cursor-pointer ring-1 transition-all duration-200 mb-4',
+                (selectedTable && tables[0] && tables[0].id === selectedTable.id)
+                  ? 'bg-amber-500/15 ring-amber-500/50 shadow-sm'
+                  : 'bg-zinc-800 ring-white/10 hover:bg-amber-500/10 hover:ring-amber-500/30',
+              ]"
+              @click="selectTable(tables[0])"
+            >
+              <div class="flex items-center gap-2">
+                <i class="ri-file-list-3-line text-amber-400 text-xl"></i>
+                <span class="text-lg font-bold text-white">Live Bill</span>
               </div>
             </div>
 
-            <!-- Products List (all products) -->
-            <div v-else class="overflow-y-auto flex-1 p-3 space-y-2">
-              <div v-if="categoryProducts.length === 0" class="flex flex-col items-center justify-center h-full py-10">
-                <i class="ri-inbox-line text-3xl text-zinc-600 mb-2"></i>
-                <p class="text-xs text-zinc-500">No products</p>
-              </div>
-              <div v-else class="space-y-2">
+            <!-- Fixed 25 tables (1..25) -->
+            <!-- <div class="grid grid-cols-5 gap-3">
+              <div
+                v-for="table in fixedTables"
+                :key="table.id"
+                :class="[
+                  'relative w-full flex flex-col justify-center items-center rounded-xl px-2 py-4 border border-[#2563EB] text-center',
+                  (selectedTable && table.id === selectedTable.id) ? 'bg-blue-100'
+                    : (table.products && table.products.length > 0 ? 'bg-yellow-100' : ''),
+                  'hover:bg-blue-50',
+                ]"
+                @click="selectTable(table)"
+              >
+                <div class="text-lg text-black font-bold">Table</div>
+                <div class="text-4xl text-black font-bold">
+                  {{ table.number - 1 }}
+                </div>
+
                 <button
-                  v-for="product in categoryProducts"
-                  :key="product.id"
-                  @click="addProductToCart(product)"
-                  :disabled="product.is_sold_out"
-                  class="relative w-full flex items-center gap-3 p-2 rounded-lg transition-all duration-200"
+                  @click.stop="sendKOT(table)"
+                  :disabled="isKOTDisabled(table)"
                   :class="[
-                    product.is_sold_out
-                      ? 'bg-zinc-700 border border-red-500/30 cursor-not-allowed opacity-50'
-                      : 'bg-zinc-800 border border-white/10 hover:border-amber-500/50 hover:bg-zinc-700 active:scale-95'
+                    'mt-2 px-3 py-1 tracking-wide text-white text-sm font-semibold rounded-lg',
+                    isKOTDisabled(table) ? 'bg-gray-400 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700'
                   ]"
                 >
-                  <!-- Product Image (Small) -->
-                  <div class="w-14 h-14 flex-shrink-0 rounded-md overflow-hidden bg-zinc-700">
-                    <img
-                      v-if="product.image"
-                      :src="product.image.replace('/storage/storage/', '/storage/')"
-                      :alt="product.name"
-                      class="w-full h-full object-cover"
-                    />
-                    <div v-else class="w-full h-full flex items-center justify-center text-zinc-600 text-sm">
-                      <i class="ri-image-line"></i>
-                    </div>
-                  </div>
-
-                  <!-- Product Info (Compact) -->
-                  <div class="flex-1 min-w-0">
-                    <p class="text-[12px] font-semibold text-white truncate">{{ product.name }}</p>
-                    <p class="text-[11px] text-amber-400 font-bold mt-0.5">{{ product.selling_price }} LKR</p>
-                  </div>
-
-                  <!-- Sold Out Badge -->
-                  <div v-if="product.is_sold_out" class="absolute inset-0 flex items-center justify-center bg-zinc-900/70 rounded-lg">
-                    <span class="text-[10px] font-bold text-red-400">SOLD OUT</span>
-                  </div>
+                  {{ table.kotStatus === 'sent' ? 'KOT Sent' : 'KOT' }}
                 </button>
               </div>
+            </div> -->
+
+            <!-- Added Tables (dynamic beyond 25) -->
+            <div v-if="addedTables.length" class="mt-5">
+              <div class="flex items-center justify-between mb-3">
+                <p class="text-[15px] font-semibold text-zinc-300">Added Tables</p>
+                <p class="text-xs text-zinc-500">Tap table to select</p>
+              </div>
+              <div class="grid grid-cols-4 gap-3">
+                <div
+                  v-for="table in addedTables"
+                  :key="table.id"
+                  :class="[
+                    'relative flex flex-col items-center justify-center rounded-xl px-2 py-4 cursor-pointer ring-1 transition-all duration-200',
+                    (selectedTable && table.id === selectedTable.id)
+                      ? 'bg-amber-500/15 ring-amber-500/100 shadow-sm'
+                      : (table.products && table.products.length > 0
+                        ? 'bg-amber-500/10 ring-red-500/100'
+                        : 'bg-zinc-800 ring-white/10 hover:bg-amber-500/10 hover:ring-amber-500/30'),
+                  ]"
+                  @click="selectTable(table)"
+                >
+                  <!-- Remove icon for added tables -->
+                  <button
+                    @click.stop="removeAddedTable(table.id)"
+                    class="absolute -right-1.5 -top-1.5 w-6 h-6 flex items-center justify-center rounded-full bg-red-500 text-white hover:bg-red-600 shadow-sm transition"
+                    title="Remove table"
+                  >
+                    <i class="ri-close-line text-xs"></i>
+                  </button>
+
+                  <span class="text-xs font-medium text-zinc-500 uppercase tracking-wider">Table</span>
+                  <span class="text-2xl font-bold text-white leading-tight">
+                    {{ table.number }}
+                  </span>
+
+                  <button
+                    @click.stop="sendKOT(table)"
+                    :disabled="isKOTDisabled(table)"
+                    :class="[
+                      'mt-2 px-3 py-1 text-xl font-semibold rounded-lg transition',
+                      isKOTDisabled(table)
+                        ? 'bg-zinc-700 text-zinc-500 cursor-not-allowed'
+                        : 'bg-emerald-500 text-white hover:bg-emerald-600 active:scale-95'
+                    ]"
+                  >
+                    {{ table.kotStatus === 'sent' ? 'KOT Sent' : 'KOT' }}
+                  </button>
+                </div>
+              </div>
+            </div>
             </div>
           </div>
         </div>
 
         <!-- Right: Bill -->
-        <div class="flex flex-col w-[50%] min-h-0">
+        <div class="flex flex-col flex-1 min-h-0">
           <div class="flex flex-col h-full bg-zinc-900 rounded-2xl border border-white/10 overflow-hidden">
 
             <!-- Bill Header — fixed -->
@@ -196,48 +221,70 @@
             <div class="flex flex-wrap items-center justify-between w-full gap-3">
               <!-- Left: title + customer button -->
               <div class="flex items-center gap-3">
-                <h2 class="text-2xl font-bold text-white flex items-center gap-2">
-                  <i class="ri-file-list-3-line text-amber-400"></i>
-                  Bill
+                <h2 class="text-2xl font-bold text-white">
+                  {{
+                    selectedTable?.id === 'default'
+                      ? 'Live Bill'
+                      : `Table ${selectedTable?.number}`
+                  }}
                 </h2>
                 <button
                   @click="() => { openEditModal(color); }"
                   class="flex items-center gap-2 px-4 py-2.5 bg-zinc-800 text-zinc-300 border border-white/10 rounded-xl hover:bg-zinc-700 hover:text-white transition text-[15px] font-medium"
-                  title="Customer details"
                 >
                   <i class="ri-user-line text-lg text-zinc-400"></i>
                 </button>
               </div>
 
-              <!-- Right: order type buttons -->
+              <!-- Right: order type buttons (Live Bill only) + Food & Bar -->
               <div class="flex items-center gap-2">
-                <!-- Takeaway -->
-                <button
-                  @click="selectedTable.order_type = 'takeaway'"
-                  :class="[
-                    'flex items-center gap-2 px-4 py-2.5 rounded-xl ring-1 text-[15px] font-semibold transition active:scale-95',
-                    selectedTable.order_type === 'takeaway'
-                      ? 'bg-amber-500 ring-amber-500 text-zinc-900 shadow-md shadow-amber-500/20'
-                      : 'bg-zinc-800 ring-white/10 text-zinc-300 hover:bg-amber-500/15 hover:ring-amber-500/40 hover:text-amber-400'
-                  ]"
-                >
-                  <i class="ri-shopping-bag-3-line text-lg"></i>
-                  <span>Takeaway</span>
-                </button>
+                <template v-if="selectedTable?.id === 'default'">
+                  <!-- Takeaway -->
+                  <button
+                    @click="selectedTable.order_type = 'takeaway'"
+                    :class="[
+                      'flex items-center gap-2 px-4 py-2.5 rounded-xl ring-1 text-[15px] font-semibold transition active:scale-95',
+                      selectedTable.order_type === 'takeaway'
+                        ? 'bg-amber-500 ring-amber-500 text-zinc-900 shadow-md shadow-amber-500/20'
+                        : 'bg-zinc-800 ring-white/10 text-zinc-300 hover:bg-amber-500/15 hover:ring-amber-500/40 hover:text-amber-400'
+                    ]"
+                  >
+                    <i class="ri-shopping-bag-3-line text-lg"></i>
+                    <span>Takeaway</span>
+                  </button>
 
-                <!-- In-Room Dining -->
-                <button
-                  @click="selectedTable.order_type = 'pickup'"
-                  :class="[
-                    'flex items-center gap-2 px-4 py-2.5 rounded-xl ring-1 text-[15px] font-semibold transition active:scale-95',
-                    selectedTable.order_type === 'pickup'
-                      ? 'bg-violet-600 ring-violet-600 text-white shadow-md'
-                      : 'bg-zinc-800 ring-white/10 text-zinc-300 hover:bg-violet-500/15 hover:ring-violet-500/40 hover:text-violet-400'
-                  ]"
+                  <!-- In-Room Dining -->
+                  <button
+                    @click="selectedTable.order_type = 'pickup'"
+                    :class="[
+                      'flex items-center gap-2 px-4 py-2.5 rounded-xl ring-1 text-[15px] font-semibold transition active:scale-95',
+                      selectedTable.order_type === 'pickup'
+                        ? 'bg-violet-600 ring-violet-600 text-white shadow-md'
+                        : 'bg-zinc-800 ring-white/10 text-zinc-300 hover:bg-violet-500/15 hover:ring-violet-500/40 hover:text-violet-400'
+                    ]"
+                  >
+                    <i class="ri-hotel-bed-line text-lg"></i>
+                    <span>Delivery</span>
+                  </button>
+                </template>
+
+                <!-- Food Menu -->
+                <span
+                  class="flex items-center gap-2 cursor-pointer px-4 py-2.5 bg-amber-500/15 ring-1 ring-amber-500/40 rounded-xl hover:bg-amber-500/25 transition"
+                  @click="selectedMenuType = '0'; isSelectModalOpen = true"
                 >
-                  <i class="ri-hotel-bed-line text-lg"></i>
-                  <span>Delivery</span>
-                </button>
+                  <i class="ri-restaurant-line text-amber-400"></i>
+                  <span class="text-[15px] text-amber-400 font-semibold">Food Menu</span>
+                </span>
+
+                <!-- Bar Menu -->
+                <span
+                  class="flex items-center gap-2 cursor-pointer px-4 py-2.5 bg-amber-500/15 ring-1 ring-amber-500/40 rounded-xl hover:bg-amber-500/25 transition"
+                  @click="selectedMenuType = '1'; isSelectModalOpen = true"
+                >
+                  <i class="ri-goblet-line text-amber-400"></i>
+                  <span class="text-[15px] text-amber-400 font-semibold">Beverages Menu</span>
+                </span>
               </div>
             </div>
             </div>
@@ -1476,7 +1523,7 @@ const props = defineProps({
 
 const openEditModal = (color) => {
   console.log("Opening edit modal for Colors:", color);
-
+  
   isEditModalOpen.value = true;
 };
 const isEditModalOpen = ref(false);
@@ -2112,20 +2159,20 @@ onMounted(async () => {
   // Listen for waiter order selection from notification panel
   window.addEventListener('loadWaiterOrder', (event) => {
     const { tableId, products, orderId } = event.detail;
-
+    
     // Find and select the table
     const table = tables.value.find(t => t.id === tableId);
     if (table) {
       // Clear existing products if this is a new order
       if (table.products.length === 0 || confirm('Replace existing items with waiter order?')) {
         table.products = [];
-
+        
         // Load the waiter order products into the table
         if (products) {
           const foodItems = products.food || [];
           const barItems = products.bar || [];
           const allItems = [...foodItems, ...barItems];
-
+          
           // Add all items with full product details
           allItems.forEach(item => {
             if (item && item.id) {
@@ -2138,7 +2185,7 @@ onMounted(async () => {
           });
         }
       }
-
+      
       // Update selected table reference to trigger reactivity
       selectedTable.value = table;
       localStorage.setItem("tables", JSON.stringify(tables.value));
@@ -2841,15 +2888,15 @@ const printBillOnly = () => {
           <meta charset="utf-8" />
           <title>Bill</title>
           <style>
-            @page {
+            @page { 
               size: 80mm auto;
               margin: 0;
             }
-            @media print {
-              body {
-                margin: 0;
-                padding: 0;
-                -webkit-print-color-adjust: exact !important;
+            @media print { 
+              body { 
+                margin: 0; 
+                padding: 0; 
+                -webkit-print-color-adjust: exact !important; 
                 width: 80mm;
               }
               * {
@@ -2857,96 +2904,96 @@ const printBillOnly = () => {
                 color-adjust: exact !important;
               }
             }
-            body {
-              background: #fff;
-              font-size: 16px;
+            body { 
+              background: #fff; 
+              font-size: 16px; 
               font-family: 'Courier New', monospace;
-              margin: 0;
+              margin: 0; 
               padding: 8px 6px;
-              color: #000 !important;
+              color: #000 !important; 
               width: 80mm;
               box-sizing: border-box;
               font-weight: 900;
             }
-            h1 {
-              text-align: center;
-              margin: 0 0 12px 0;
+            h1 { 
+              text-align: center; 
+              margin: 0 0 12px 0; 
               font-size: 19px;
               font-weight: 900;
               color: #000 !important;
             }
-            .row {
-              display: flex;
-              justify-content: space-between;
+            .row { 
+              display: flex; 
+              justify-content: space-between; 
               margin: 7px 0;
               word-break: break-word;
               color: #000 !important;
               font-weight: 900;
               font-size: 15px;
             }
-            .badge {
-              border: 2px solid #000;
-              padding: 6px 8px;
-              text-align: center;
-              margin: 10px 0;
+            .badge { 
+              border: 2px solid #000; 
+              padding: 6px 8px; 
+              text-align: center; 
+              margin: 10px 0; 
               font-weight: 900;
               font-size: 14px;
               color: #000 !important;
             }
-            table {
-              width: 100%;
-              border-collapse: collapse;
+            table { 
+              width: 100%; 
+              border-collapse: collapse; 
               margin: 10px 0;
               font-size: 14px;
               font-weight: 900;
             }
-            th, td {
-              padding: 6px 3px;
+            th, td { 
+              padding: 6px 3px; 
               color: #000 !important;
               font-weight: 900;
             }
-            th {
+            th { 
               text-align: left;
               font-weight: 900;
               border-bottom: 2px solid #000;
               padding-bottom: 8px;
               font-size: 14px;
             }
-            tbody tr {
+            tbody tr { 
               border-bottom: 1px solid #ddd;
             }
             tbody tr:last-child {
               border-bottom: none;
             }
-            td {
-              text-align: right;
+            td { 
+              text-align: right; 
               color: #000 !important;
             }
-            td:first-child {
+            td:first-child { 
               text-align: left;
               max-width: 35mm;
               word-wrap: break-word;
               font-weight: 700;
             }
-            .totals {
-              margin-top: 10px;
-              border-top: 1px solid #999;
+            .totals { 
+              margin-top: 10px; 
+              border-top: 1px solid #999; 
               padding-top: 10px;
               font-size: 15px;
               font-weight: 900;
             }
-            .grand {
-              font-weight: 900;
-              font-size: 16px;
-              border-top: 2px solid #000;
-              padding-top: 10px;
+            .grand { 
+              font-weight: 900; 
+              font-size: 16px; 
+              border-top: 2px solid #000; 
+              padding-top: 10px; 
               margin-top: 8px;
               color: #000 !important;
             }
-            .note {
-              border-top: 1px solid #000;
-              padding-top: 10px;
-              margin-top: 12px;
+            .note { 
+              border-top: 1px solid #000; 
+              padding-top: 10px; 
+              margin-top: 12px; 
               font-weight: 900;
               font-size: 14px;
               color: #000 !important;
@@ -2955,7 +3002,7 @@ const printBillOnly = () => {
               border-top: 2px solid #000;
               margin: 10px 0;
             }
-            b {
+            b { 
               font-weight: 900;
               color: #000 !important;
             }

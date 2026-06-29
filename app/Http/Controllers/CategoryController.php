@@ -77,6 +77,9 @@ class CategoryController extends Controller
 
 public function store(Request $request)
 {
+
+
+
     if (!Gate::allows('hasRole', ['Admin'])) {
         abort(403, 'Unauthorized');
     }
@@ -93,8 +96,8 @@ public function store(Request $request)
     if (empty($validated['parent_id'])) {
         $validated['parent_id'] = null;
     }
- 
-    if ($request->hasFile('image')) { 
+
+    if ($request->hasFile('image')) {
         $path = $request->file('image')->store('categories', 'public');
         $validated['image'] = $path;
     }
