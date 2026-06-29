@@ -106,11 +106,16 @@
               <button
                 v-for="category in allcategories"
                 :key="category.id"
-                @click="selectedMenuType = category.id; isSelectModalOpen = true"
-                class="w-full text-left px-4 py-3 rounded-xl bg-zinc-800 border border-white/10 text-zinc-300 hover:bg-amber-500/15 hover:border-amber-500/40 hover:text-amber-400 transition"
+                @click="selectedCategory = category"
+                :class="[
+                  'w-full text-left px-4 py-3 rounded-xl border transition',
+                  selectedCategory?.id === category.id
+                    ? 'bg-amber-500/20 border-amber-500/50 text-amber-400'
+                    : 'bg-zinc-800 border-white/10 text-zinc-300 hover:bg-amber-500/15 hover:border-amber-500/40 hover:text-amber-400'
+                ]"
               >
                 <p class="text-[14px] font-semibold truncate">{{ category.name }}</p>
-                <p class="text-[12px] text-zinc-500 mt-0.5">Click to browse</p>
+                <p class="text-[12px] text-zinc-500 mt-0.5">{{ category.products?.length || 0 }} items</p>
               </button>
             </div>
           </div>
@@ -122,30 +127,17 @@
             <div class="p-5 border-b border-white/10 flex-shrink-0">
               <h2 class="text-xl font-bold text-white flex items-center gap-2">
                 <i class="ri-shopping-cart-line text-zinc-500"></i>
-                {{ selectedCategory?.name || 'Products' }}
+                {{ selectedCategory?.name || 'All Products' }}
               </h2>
             </div>
 
-            <!-- Empty State -->
-            <div v-if="!selectedCategory" class="overflow-y-auto flex-1 p-5 flex flex-col items-center justify-center">
-              <div class="text-center space-y-4">
-                <div class="w-16 h-16 mx-auto flex items-center justify-center rounded-2xl bg-amber-500/15 ring-1 ring-amber-500/30">
-                  <i class="ri-add-circle-line text-3xl text-amber-400"></i>
-                </div>
-                <div>
-                  <p class="text-[15px] font-semibold text-zinc-300 mb-2">Select a category</p>
-                  <p class="text-[13px] text-zinc-500">Choose from the left menu to see products</p>
-                </div>
-              </div>
-            </div>
-
             <!-- Products List (all products) -->
-            <div v-else class="overflow-y-auto flex-1 p-3 space-y-2">
-              <div v-if="categoryProducts.length === 0" class="flex flex-col items-center justify-center h-full py-10">
+            <div class="flex-1 flex flex-col min-h-0 p-3">
+              <div v-if="categoryProducts.length === 0" class="flex flex-col items-center justify-center h-full">
                 <i class="ri-inbox-line text-3xl text-zinc-600 mb-2"></i>
                 <p class="text-xs text-zinc-500">No products</p>
               </div>
-              <div v-else class="space-y-2">
+              <div v-else class="space-y-2 overflow-y-auto flex-1">
                 <button
                   v-for="product in categoryProducts"
                   :key="product.id"
@@ -192,54 +184,106 @@
           <div class="flex flex-col h-full bg-zinc-900 rounded-2xl border border-white/10 overflow-hidden">
 
             <!-- Bill Header — fixed -->
-            <div class="flex-shrink-0 px-5 pt-5 pb-4 border-b border-white/10">
-            <div class="flex flex-wrap items-center justify-between w-full gap-3">
-              <!-- Left: title + customer button -->
-              <div class="flex items-center gap-3">
-                <h2 class="text-2xl font-bold text-white flex items-center gap-2">
-                  <i class="ri-file-list-3-line text-amber-400"></i>
-                  Bill
-                </h2>
-                <button
-                  @click="() => { openEditModal(color); }"
-                  class="flex items-center gap-2 px-4 py-2.5 bg-zinc-800 text-zinc-300 border border-white/10 rounded-xl hover:bg-zinc-700 hover:text-white transition text-[15px] font-medium"
-                  title="Customer details"
-                >
-                  <i class="ri-user-line text-lg text-zinc-400"></i>
-                </button>
+            <div class="flex-shrink-0 border-b border-white/10">
+              <!-- Tables Selector -->
+              <div class="px-5 pt-5 pb-3 border-b border-white/10 bg-zinc-950/50">
+                <div class="flex items-center justify-between mb-3">
+                  <h3 class="text-sm font-bold text-zinc-400 uppercase tracking-wide">Tables</h3>
+                  <button
+                    @click="addTable"
+                    class="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white text-[12px] font-semibold transition active:scale-95"
+                    title="Add new table"
+                  >
+                    <i class="ri-add-line text-base"></i>
+                    Add Table
+                  </button>
+                </div>
+                <!-- Tables & Live Bill Tabs -->
+                <div class="flex gap-2 overflow-x-auto pb-2">
+                  <!-- Live Bill Tab -->
+                  <button
+                    @click="selectedTable = tables.find(t => t.id === 'default')"
+                    :class="[
+                      'flex-shrink-0 px-4 py-2.5 rounded-xl font-semibold text-[14px] transition border ring-1',
+                      selectedTable?.id === 'default'
+                        ? 'bg-amber-500/20 border-amber-500/50 ring-amber-500/30 text-amber-400'
+                        : 'bg-zinc-800 border-white/10 ring-white/5 text-zinc-300 hover:bg-zinc-700 hover:border-amber-500/30'
+                    ]"
+                  >
+                    <i class="ri-receipt-line text-base mr-2"></i>
+                    Live Bill
+                  </button>
+                  <!-- Restaurant Tables -->
+                  <button
+                    v-for="table in addedTables"
+                    :key="table.id"
+                    @click="selectedTable = table"
+                    :class="[
+                      'flex-shrink-0 px-4 py-2.5 rounded-xl font-semibold text-[14px] transition border ring-1 relative',
+                      selectedTable?.id === table.id
+                        ? 'bg-blue-500/20 border-blue-500/50 ring-blue-500/30 text-blue-400'
+                        : 'bg-zinc-800 border-white/10 ring-white/5 text-zinc-300 hover:bg-zinc-700 hover:border-blue-500/30'
+                    ]"
+                  >
+                    <i class="ri-table-2 text-base mr-2"></i>
+                    Table {{ table.number }}
+                    <span v-if="table.products?.length > 0" class="absolute -top-2 -right-2 min-w-[20px] h-5 flex items-center justify-center bg-red-500 text-white text-[10px] font-bold rounded-full">
+                      {{ table.products.length }}
+                    </span>
+                  </button>
+                </div>
               </div>
 
-              <!-- Right: order type buttons -->
-              <div class="flex items-center gap-2">
-                <!-- Takeaway -->
-                <button
-                  @click="selectedTable.order_type = 'takeaway'"
-                  :class="[
-                    'flex items-center gap-2 px-4 py-2.5 rounded-xl ring-1 text-[15px] font-semibold transition active:scale-95',
-                    selectedTable.order_type === 'takeaway'
-                      ? 'bg-amber-500 ring-amber-500 text-zinc-900 shadow-md shadow-amber-500/20'
-                      : 'bg-zinc-800 ring-white/10 text-zinc-300 hover:bg-amber-500/15 hover:ring-amber-500/40 hover:text-amber-400'
-                  ]"
-                >
-                  <i class="ri-shopping-bag-3-line text-lg"></i>
-                  <span>Takeaway</span>
-                </button>
+              <!-- Bill Title & Controls -->
+              <div class="px-5 py-4">
+                <div class="flex flex-wrap items-center justify-between w-full gap-3">
+                  <!-- Left: title + customer button -->
+                  <div class="flex items-center gap-3">
+                    <h2 class="text-2xl font-bold text-white flex items-center gap-2">
+                      <i class="ri-file-list-3-line text-amber-400"></i>
+                      {{ selectedTable?.id === 'default' ? 'Live Bill' : `Table ${selectedTable?.number}` }}
+                    </h2>
+                    <button
+                      @click="() => { openEditModal(color); }"
+                      class="flex items-center gap-2 px-4 py-2.5 bg-zinc-800 text-zinc-300 border border-white/10 rounded-xl hover:bg-zinc-700 hover:text-white transition text-[15px] font-medium"
+                      title="Customer details"
+                    >
+                      <i class="ri-user-line text-lg text-zinc-400"></i>
+                    </button>
+                  </div>
 
-                <!-- In-Room Dining -->
-                <button
-                  @click="selectedTable.order_type = 'pickup'"
-                  :class="[
-                    'flex items-center gap-2 px-4 py-2.5 rounded-xl ring-1 text-[15px] font-semibold transition active:scale-95',
-                    selectedTable.order_type === 'pickup'
-                      ? 'bg-violet-600 ring-violet-600 text-white shadow-md'
-                      : 'bg-zinc-800 ring-white/10 text-zinc-300 hover:bg-violet-500/15 hover:ring-violet-500/40 hover:text-violet-400'
-                  ]"
-                >
-                  <i class="ri-hotel-bed-line text-lg"></i>
-                  <span>Delivery</span>
-                </button>
+                  <!-- Right: order type buttons -->
+                  <div class="flex items-center gap-2">
+                    <!-- Takeaway -->
+                    <button
+                      @click="selectedTable.order_type = 'takeaway'"
+                      :class="[
+                        'flex items-center gap-2 px-4 py-2.5 rounded-xl ring-1 text-[15px] font-semibold transition active:scale-95',
+                        selectedTable.order_type === 'takeaway'
+                          ? 'bg-amber-500 ring-amber-500 text-zinc-900 shadow-md shadow-amber-500/20'
+                          : 'bg-zinc-800 ring-white/10 text-zinc-300 hover:bg-amber-500/15 hover:ring-amber-500/40 hover:text-amber-400'
+                      ]"
+                    >
+                      <i class="ri-shopping-bag-3-line text-lg"></i>
+                      <span>Takeaway</span>
+                    </button>
+
+                    <!-- In-Room Dining -->
+                    <button
+                      @click="selectedTable.order_type = 'pickup'"
+                      :class="[
+                        'flex items-center gap-2 px-4 py-2.5 rounded-xl ring-1 text-[15px] font-semibold transition active:scale-95',
+                        selectedTable.order_type === 'pickup'
+                          ? 'bg-violet-600 ring-violet-600 text-white shadow-md'
+                          : 'bg-zinc-800 ring-white/10 text-zinc-300 hover:bg-violet-500/15 hover:ring-violet-500/40 hover:text-violet-400'
+                      ]"
+                    >
+                      <i class="ri-hotel-bed-line text-lg"></i>
+                      <span>Delivery</span>
+                    </button>
+                  </div>
+                </div>
               </div>
-            </div>
             </div>
 
             <!-- Scrollable bill body -->
@@ -252,7 +296,7 @@
               </div>
             </div>
 
-            <div class="space-y-2 mb-4">
+            <div class="space-y-2 mb-4 max-h-[420px] overflow-y-auto">
               <div
                 v-for="item in selectedTable.products"
                 :key="item.id"
@@ -2109,6 +2153,7 @@ onMounted(async () => {
     }
   }
 
+
   // Listen for waiter order selection from notification panel
   window.addEventListener('loadWaiterOrder', (event) => {
     const { tableId, products, orderId } = event.detail;
@@ -2246,6 +2291,24 @@ const discount = ref(0);
 const customer = ref({ name: "", contactNumber: "", email: "" });
 const employee_id = ref("");
 const selectedPaymentMethod = ref("cash");
+const selectedCategory = ref(null);
+
+const categoryProducts = computed(() => {
+  if (!selectedCategory.value) {
+    // Show all products from all categories
+    const allProducts = [];
+    props.allcategories?.forEach(category => {
+      if (category.products && Array.isArray(category.products)) {
+        allProducts.push(...category.products);
+      }
+    });
+    return allProducts;
+  }
+  // Show products from selected category
+  const category = props.allcategories?.find(c => c.id === selectedCategory.value.id);
+  if (!category || !category.products) return [];
+  return category.products;
+});
 
 const refreshData = async () => {
   if (selectedTable.value?.id === "default") {
@@ -2302,17 +2365,30 @@ const refreshData = async () => {
 const removeProduct = (id) => {
   if (!selectedTable.value) return;
   selectedTable.value.products = selectedTable.value.products.filter(item => item.id !== id);
+  localStorage.setItem("tables", JSON.stringify(tables.value));
+  localStorage.setItem("selectedTable", JSON.stringify(selectedTable.value));
 };
+
 const removeCoupon = () => { appliedCoupon.value = null; couponForm.code = ""; };
+
 const incrementQuantity = (id) => {
   if (!selectedTable.value) return;
   const p = selectedTable.value.products.find(i => i.id === id);
-  if (p) p.quantity += 1;
+  if (p) {
+    p.quantity += 1;
+    localStorage.setItem("tables", JSON.stringify(tables.value));
+    localStorage.setItem("selectedTable", JSON.stringify(selectedTable.value));
+  }
 };
+
 const decrementQuantity = (id) => {
   if (!selectedTable.value) return;
   const p = selectedTable.value.products.find(i => i.id === id);
-  if (p && p.quantity > 1) p.quantity -= 1;
+  if (p && p.quantity > 1) {
+    p.quantity -= 1;
+    localStorage.setItem("tables", JSON.stringify(tables.value));
+    localStorage.setItem("selectedTable", JSON.stringify(selectedTable.value));
+  }
 };
 
 const addTable = async () => {
@@ -2571,6 +2647,26 @@ const removeDiscount = (id) => {
   const p = selectedTable.value.products.find((item) => item.id === id);
   if (p) p.apply_discount = false;
 };
+const addProductToCart = (product) => {
+  if (!selectedTable.value || !product) return;
+
+  const existing = selectedTable.value.products.find((i) => i.id === product.id);
+  if (existing) {
+    existing.quantity += 1;
+  } else {
+    selectedTable.value.products.push({
+      ...product,
+      quantity: 1,
+      apply_discount: false,
+      size: product.size || null,
+    });
+  }
+
+  // Save to localStorage
+  localStorage.setItem("tables", JSON.stringify(tables.value));
+  localStorage.setItem("selectedTable", JSON.stringify(selectedTable.value));
+};
+
 const handleSelectedProducts = (selectedProducts) => {
   if (!selectedTable.value) return;
   selectedProducts.forEach((fetchedProduct) => {
