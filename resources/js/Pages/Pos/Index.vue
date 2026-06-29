@@ -608,131 +608,85 @@
               />
             </div>
 
-            <div class="flex flex-col w-full gap-5">
-              <!-- Payment Method Toggle -->
-              <div class="flex flex-col gap-2">
-                <p class="text-[13px] font-semibold text-zinc-500 uppercase tracking-wide px-1">
-                  Payment Method
-                </p>
-                <div class="grid grid-cols-2 gap-3">
-
-                  <!-- Cash -->
-                  <button
-                    @click="selectedPaymentMethod = 'cash'"
-                    :class="[
-                      'relative flex items-center gap-4 px-5 py-4 rounded-2xl ring-1 transition-all duration-200 active:scale-[0.97] text-left',
-                      selectedPaymentMethod === 'cash'
-                        ? 'bg-amber-500/15 ring-amber-500/50 shadow-md'
-                        : 'bg-zinc-800 ring-white/10 hover:ring-amber-500/40 hover:bg-amber-500/10'
-                    ]"
-                  >
-                    <div :class="[
-                      'w-12 h-12 flex-shrink-0 flex items-center justify-center rounded-xl transition',
-                      selectedPaymentMethod === 'cash' ? 'bg-amber-500/20' : 'bg-zinc-700'
-                    ]">
-                      <i :class="['ri-money-dollar-circle-line text-2xl', selectedPaymentMethod === 'cash' ? 'text-amber-500' : 'text-zinc-500']"></i>
-                    </div>
-                    <div>
-                      <p :class="['text-[15px] font-bold leading-tight', selectedPaymentMethod === 'cash' ? 'text-amber-300' : 'text-zinc-300']">Cash</p>
-                      <p :class="['text-[12px] font-medium', selectedPaymentMethod === 'cash' ? 'text-amber-500' : 'text-zinc-500']">Pay with cash</p>
-                    </div>
-                    <div v-if="selectedPaymentMethod === 'cash'" class="absolute top-2.5 right-2.5 w-5 h-5 bg-amber-500 rounded-full flex items-center justify-center">
-                      <i class="ri-check-line text-white text-xs"></i>
-                    </div>
-                  </button>
-
-                  <!-- Card -->
-                  <button
-                    @click="selectedPaymentMethod = 'card'"
-                    :class="[
-                      'relative flex items-center gap-4 px-5 py-4 rounded-2xl ring-1 transition-all duration-200 active:scale-[0.97] text-left',
-                      selectedPaymentMethod === 'card'
-                        ? 'bg-blue-500/15 ring-blue-500/50 shadow-md'
-                        : 'bg-zinc-800 ring-white/10 hover:ring-blue-500/40 hover:bg-blue-500/10'
-                    ]"
-                  >
-                    <div :class="[
-                      'w-12 h-12 flex-shrink-0 flex items-center justify-center rounded-xl transition',
-                      selectedPaymentMethod === 'card' ? 'bg-blue-500/20' : 'bg-zinc-700'
-                    ]">
-                      <i :class="['ri-bank-card-line text-2xl', selectedPaymentMethod === 'card' ? 'text-blue-400' : 'text-zinc-500']"></i>
-                    </div>
-                    <div>
-                      <p :class="['text-[15px] font-bold leading-tight', selectedPaymentMethod === 'card' ? 'text-blue-300' : 'text-zinc-300']">Card</p>
-                      <p :class="['text-[12px] font-medium', selectedPaymentMethod === 'card' ? 'text-blue-400' : 'text-zinc-500']">Debit / Credit</p>
-                    </div>
-                    <div v-if="selectedPaymentMethod === 'card'" class="absolute top-2.5 right-2.5 w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center">
-                      <i class="ri-check-line text-white text-xs"></i>
-                    </div>
-                  </button>
-
-                </div>
+            <div class="flex flex-col w-full gap-3">
+              <!-- Payment Method Toggle (Simplified) -->
+              <div class="flex gap-2">
+                <button
+                  @click="selectedPaymentMethod = 'cash'"
+                  :class="[
+                    'flex-1 px-3 py-3 rounded-xl font-semibold text-[13px] transition',
+                    selectedPaymentMethod === 'cash'
+                      ? 'bg-amber-500 text-zinc-900'
+                      : 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700'
+                  ]"
+                >
+                  <i class="ri-money-dollar-circle-line mr-1.5"></i>Cash
+                </button>
+                <button
+                  @click="selectedPaymentMethod = 'card'"
+                  :class="[
+                    'flex-1 px-3 py-3 rounded-xl font-semibold text-[13px] transition',
+                    selectedPaymentMethod === 'card'
+                      ? 'bg-blue-500 text-white'
+                      : 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700'
+                  ]"
+                >
+                  <i class="ri-bank-card-line mr-1.5"></i>Card
+                </button>
               </div>
 
-              <!-- KOT BUTTON — visible for Live Bill when order type is takeaway or in-room -->
-              <div
+              <!-- Action Buttons Grid -->
+              <!-- KOT BUTTON -->
+              <button
                 v-if="selectedTable?.id === 'default' && (selectedTable.order_type === 'takeaway' || selectedTable.order_type === 'pickup') && selectedTable.products.length > 0"
-                class="flex items-center justify-center w-full"
+                @click="sendTakeawayKOT"
+                type="button"
+                class="w-full py-3 flex items-center justify-center gap-2 text-base font-bold text-white rounded-xl transition-all active:scale-[0.98]"
+                :class="selectedTable.order_type === 'pickup' ? 'bg-violet-600 hover:bg-violet-700' : 'bg-amber-600 hover:bg-amber-700'"
               >
-                <button
-                  @click="sendTakeawayKOT"
-                  type="button"
-                  class="w-full py-4 flex items-center justify-center gap-3 text-lg font-bold tracking-wider text-white uppercase rounded-xl transition-all duration-200 active:scale-[0.98]"
-                  :class="selectedTable.order_type === 'pickup' ? 'bg-violet-600 hover:bg-violet-700' : 'bg-amber-500 hover:bg-amber-600'"
-                >
-                  <i class="ri-restaurant-2-line text-xl"></i>
-                  Send KOT
-                  <span class="text-sm font-medium normal-case opacity-80">
-                    ({{ selectedTable.order_type === 'pickup' ? 'In-Room Dining' : 'Takeaway' }})
-                  </span>
-                </button>
-              </div>
+                <i class="ri-restaurant-2-line"></i>Send KOT
+              </button>
 
-              <!-- HOLD TAKEAWAY ORDER BUTTON (Live Bill + takeaway + has products) -->
-              <div
+              <!-- HOLD ORDER BUTTON -->
+              <button
                 v-if="selectedTable?.id === 'default' && selectedTable.order_type === 'takeaway' && selectedTable.products.length > 0"
-                class="flex items-center justify-center w-full"
+                @click="holdTakeawayOrder"
+                type="button"
+                class="w-full py-3 flex items-center justify-center gap-2 text-base font-bold text-amber-400 rounded-xl bg-zinc-800 hover:bg-zinc-700 transition-all active:scale-[0.98]"
               >
-                <button
-                  @click="holdTakeawayOrder"
-                  type="button"
-                  class="w-full py-4 flex items-center justify-center gap-3 text-[16px] font-bold tracking-wider text-amber-300 uppercase rounded-xl bg-zinc-800 hover:bg-zinc-700 ring-1 ring-amber-500/30 hover:ring-amber-500/60 transition-all duration-200 active:scale-[0.98]"
-                >
-                  <i class="ri-pause-circle-line text-xl"></i>
-                  Hold Order
-                </button>
-              </div>
+                <i class="ri-pause-circle-line"></i>Hold Order
+              </button>
 
-              <!-- TEMP BILL-ONLY BUTTON -->
-              <div class="flex items-center justify-center w-full">
+              <!-- Bottom Row: Get Bill + Confirm Order -->
+              <div class="grid grid-cols-2 gap-2">
+                <!-- GET BILL BUTTON -->
                 <button
                   @click="printBillOnly"
                   type="button"
                   :disabled="!selectedTable || selectedTable.products.length === 0"
                   :class="[
-                    'w-full py-4 text-lg font-bold tracking-wider text-center uppercase rounded-xl ring-1 transition-all duration-200 active:scale-[0.98]',
+                    'py-3 flex items-center justify-center gap-2 text-sm font-bold text-center rounded-xl transition-all active:scale-[0.98]',
                     !selectedTable || selectedTable.products.length === 0
-                      ? 'bg-zinc-800 text-zinc-600 border border-white/5 cursor-not-allowed'
-                      : 'bg-zinc-800 text-zinc-300 border border-white/20 hover:bg-zinc-700 hover:text-white cursor-pointer'
+                      ? 'bg-zinc-800 text-zinc-600 cursor-not-allowed'
+                      : 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700'
                   ]"
                 >
-                  <i class="pr-2 ri-printer-line"></i> Get Bill (Temp - Customer Bill)
+                  <i class="ri-printer-line"></i>Get Bill
                 </button>
-              </div>
 
-              <div class="flex items-center justify-center w-full">
+                <!-- CONFIRM ORDER BUTTON -->
                 <button
                   @click="submitOrder"
                   type="button"
                   :disabled="!selectedTable || selectedTable.products.length === 0"
                   :class="[
-                    'w-full py-4 text-lg font-bold tracking-wider text-center text-white uppercase rounded-xl transition-all duration-200 active:scale-[0.98]',
+                    'py-3 flex items-center justify-center gap-2 text-sm font-bold text-center rounded-xl transition-all active:scale-[0.98]',
                     !selectedTable || selectedTable.products.length === 0
                       ? 'bg-zinc-700 text-zinc-500 cursor-not-allowed'
-                      : 'bg-amber-500 hover:bg-amber-400 text-zinc-900 shadow-lg shadow-amber-500/20 cursor-pointer',
+                      : 'bg-amber-500 hover:bg-amber-600 text-zinc-900 shadow-lg shadow-amber-500/20',
                   ]"
                 >
-                  <i class="pr-2 ri-check-double-line"></i> Confirm Order
+                  <i class="ri-check-double-line"></i>Confirm
                 </button>
               </div>
             </div>
