@@ -106,49 +106,84 @@
               <button
                 v-for="category in allcategories"
                 :key="category.id"
-                @click="selectedMenuType = category.id; isSelectModalOpen = true"
-                class="w-full text-left px-4 py-3 rounded-xl bg-zinc-800 border border-white/10 text-zinc-300 hover:bg-amber-500/15 hover:border-amber-500/40 hover:text-amber-400 transition"
+                @click="selectedCategory = category"
+                :class="[
+                  'w-full text-left px-4 py-3 rounded-xl border transition-all duration-200',
+                  selectedCategory?.id === category.id
+                    ? 'bg-amber-500 border-amber-500 text-zinc-900 shadow-md shadow-amber-500/20'
+                    : 'bg-zinc-800 border-white/10 text-zinc-300 hover:bg-amber-500/15 hover:border-amber-500/40 hover:text-amber-400'
+                ]"
               >
                 <p class="text-[14px] font-semibold truncate">{{ category.name }}</p>
-                <p class="text-[12px] text-zinc-500 mt-0.5">Click to browse</p>
               </button>
             </div>
           </div>
         </div>
 
-        <!-- Middle: Products (Add Products Card) -->
+        <!-- Middle: Products Grid -->
         <div class="flex flex-col w-[28%] min-h-0">
           <div class="flex flex-col h-full bg-zinc-900 rounded-2xl border border-white/10 overflow-hidden">
             <div class="p-5 border-b border-white/10 flex-shrink-0">
               <h2 class="text-xl font-bold text-white flex items-center gap-2">
-                <i class="ri-shopping-cart-line text-zinc-500"></i> Add Products
+                <i class="ri-shopping-cart-line text-zinc-500"></i>
+                {{ selectedCategory?.name || 'Products' }}
               </h2>
             </div>
-            <div class="overflow-y-auto flex-1 p-5 flex flex-col items-center justify-center">
+
+            <!-- Empty State -->
+            <div v-if="!selectedCategory" class="overflow-y-auto flex-1 p-5 flex flex-col items-center justify-center">
               <div class="text-center space-y-4">
                 <div class="w-16 h-16 mx-auto flex items-center justify-center rounded-2xl bg-amber-500/15 ring-1 ring-amber-500/30">
                   <i class="ri-add-circle-line text-3xl text-amber-400"></i>
                 </div>
                 <div>
                   <p class="text-[15px] font-semibold text-zinc-300 mb-2">Select a category</p>
-                  <p class="text-[13px] text-zinc-500">Choose from the left menu to add items to your bill</p>
+                  <p class="text-[13px] text-zinc-500">Choose from the left menu to see products</p>
                 </div>
-                <div class="pt-3 space-y-2">
-                  <button
-                    @click="selectedMenuType = '0'; isSelectModalOpen = true"
-                    class="w-full flex items-center justify-center gap-2 px-4 py-3 bg-amber-500/15 ring-1 ring-amber-500/40 text-amber-400 rounded-xl hover:bg-amber-500/25 transition text-[14px] font-semibold"
-                  >
-                    <i class="ri-restaurant-line"></i>
-                    Food Menu
-                  </button>
-                  <button
-                    @click="selectedMenuType = '1'; isSelectModalOpen = true"
-                    class="w-full flex items-center justify-center gap-2 px-4 py-3 bg-amber-500/15 ring-1 ring-amber-500/40 text-amber-400 rounded-xl hover:bg-amber-500/25 transition text-[14px] font-semibold"
-                  >
-                    <i class="ri-goblet-line"></i>
-                    Beverages
-                  </button>
-                </div>
+              </div>
+            </div>
+
+            <!-- Products Grid -->
+            <div v-else class="overflow-y-auto flex-1 p-4">
+              <div v-if="categoryProducts.length === 0" class="flex flex-col items-center justify-center h-full py-10">
+                <i class="ri-inbox-line text-4xl text-zinc-600 mb-2"></i>
+                <p class="text-sm text-zinc-500">No products in this category</p>
+              </div>
+              <div v-else class="grid grid-cols-2 gap-3">
+                <button
+                  v-for="product in categoryProducts"
+                  :key="product.id"
+                  @click="addProductToCart(product)"
+                  :disabled="product.is_sold_out"
+                  class="flex flex-col p-3 rounded-xl transition-all duration-200 group"
+                  :class="[
+                    product.is_sold_out
+                      ? 'bg-zinc-700 border border-red-500/30 cursor-not-allowed opacity-50'
+                      : 'bg-zinc-800 border border-white/10 hover:border-amber-500/50 hover:bg-zinc-700 active:scale-95'
+                  ]"
+                >
+                  <!-- Product Image -->
+                  <div class="w-full h-20 rounded-lg overflow-hidden mb-2 bg-zinc-700">
+                    <img
+                      v-if="product.image"
+                      :src="product.image.replace('/storage/storage/', '/storage/')"
+                      :alt="product.name"
+                      class="w-full h-full object-cover"
+                    />
+                    <div v-else class="w-full h-full flex items-center justify-center text-zinc-600">
+                      <i class="ri-image-line text-2xl"></i>
+                    </div>
+                  </div>
+
+                  <!-- Product Info -->
+                  <p class="text-[13px] font-semibold text-white truncate">{{ product.name }}</p>
+                  <p class="text-[12px] text-amber-400 font-bold mt-1">{{ product.selling_price }} LKR</p>
+
+                  <!-- Sold Out Badge -->
+                  <div v-if="product.is_sold_out" class="absolute inset-0 flex items-center justify-center bg-zinc-900/60 rounded-xl">
+                    <span class="text-xs font-bold text-red-400 bg-zinc-900/90 px-2 py-1 rounded">SOLD OUT</span>
+                  </div>
+                </button>
               </div>
             </div>
           </div>
@@ -1521,6 +1556,7 @@ const getNextKotNumberForToday = () => {
 const product = ref(null);
 const error = ref(null);
 const products = ref([]);
+const selectedCategory = ref(null);
 const isSuccessModalOpen = ref(false);
 const isAlertModalOpen = ref(false);
 const message = ref("");
@@ -2064,6 +2100,17 @@ const addedTables = computed(() =>
   tables.value.filter(t => t.id !== "default")
 );
 
+const categoryProducts = computed(() => {
+  if (!selectedCategory.value) return [];
+  if (!props.allcategories) return [];
+
+  // Find products for the selected category
+  const category = props.allcategories.find(c => c.id === selectedCategory.value.id);
+  if (!category || !category.products) return [];
+
+  return category.products;
+});
+
 
 onMounted(async () => {
   await checkOpenCashDrawer();
@@ -2545,6 +2592,20 @@ const handleSelectedProducts = (selectedProducts) => {
     if (existing) existing.quantity += 1;
     else selectedTable.value.products.push({ ...fetchedProduct, quantity: 1, apply_discount: false });
   });
+};
+
+const addProductToCart = (product) => {
+  if (!selectedTable.value || product.is_sold_out) return;
+  const existing = selectedTable.value.products.find((i) => i.id === product.id);
+  if (existing) {
+    existing.quantity += 1;
+  } else {
+    selectedTable.value.products.push({
+      ...product,
+      quantity: 1,
+      apply_discount: false
+    });
+  }
 };
 
 /* =========================
