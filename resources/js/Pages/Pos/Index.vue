@@ -94,156 +94,152 @@
       </div>
 
       <div class="flex gap-4 flex-1 overflow-hidden min-h-0">
-        <!-- Left: Tables -->
-        <div class="flex flex-col w-[38%] min-h-0">
+        <!-- Left: Categories -->
+        <div class="flex flex-col w-[25%] min-h-0">
           <div class="flex flex-col h-full bg-zinc-900 rounded-2xl border border-white/10 overflow-hidden">
-            <div class="p-5 overflow-y-auto flex-1">
-            <!-- Header -->
-            <div class="flex items-center justify-between pb-4">
-              <h2 class="text-xl font-bold text-white flex items-center gap-2">
-                <i class="ri-layout-grid-line text-zinc-500"></i> Tables
+            <div class="p-4 border-b border-white/10 flex-shrink-0">
+              <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                <i class="ri-list-check-3 text-amber-400"></i> Categories
               </h2>
-
-              <!-- Add More Tables Button -->
-              <button @click="addTable"
-                class="flex items-center gap-2 px-5 py-2.5 bg-amber-500 tracking-wide text-zinc-900 text-[15px] font-bold rounded-xl hover:bg-amber-400 active:scale-[0.97] shadow-lg shadow-amber-500/20 transition">
-                <i class="ri-add-circle-fill"></i>
-                Add Table
+            </div>
+            <div class="overflow-y-auto flex-1 p-3 space-y-2">
+              <button
+                v-for="category in allcategories"
+                :key="category.id"
+                @click="selectedCategory = category"
+                :class="[
+                  'w-full text-left px-4 py-3 rounded-xl transition-all duration-200 font-semibold',
+                  selectedCategory?.id === category.id
+                    ? 'bg-amber-500 text-zinc-900 shadow-md shadow-amber-500/20'
+                    : 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700'
+                ]"
+              >
+                {{ category.name }}
               </button>
             </div>
+          </div>
+        </div>
 
-            <!-- Live Bill -->
-            <div
-              :class="[
-                'w-full flex items-center justify-center rounded-xl px-4 py-4 cursor-pointer ring-1 transition-all duration-200 mb-4',
-                (selectedTable && tables[0] && tables[0].id === selectedTable.id)
-                  ? 'bg-amber-500/15 ring-amber-500/50 shadow-sm'
-                  : 'bg-zinc-800 ring-white/10 hover:bg-amber-500/10 hover:ring-amber-500/30',
-              ]"
-              @click="selectTable(tables[0])"
-            >
-              <div class="flex items-center gap-2">
-                <i class="ri-file-list-3-line text-amber-400 text-xl"></i>
-                <span class="text-lg font-bold text-white">Live Bill</span>
-              </div>
+        <!-- Middle: Products -->
+        <div class="flex flex-col w-[35%] min-h-0">
+          <div class="flex flex-col h-full bg-zinc-900 rounded-2xl border border-white/10 overflow-hidden">
+            <div class="p-4 border-b border-white/10 flex-shrink-0">
+              <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                <i class="ri-shopping-cart-2-line text-amber-400"></i>
+                {{ selectedCategory?.name || 'All Products' }}
+              </h2>
             </div>
-
-            <!-- Fixed 25 tables (1..25) -->
-            <!-- <div class="grid grid-cols-5 gap-3">
-              <div
-                v-for="table in fixedTables"
-                :key="table.id"
-                :class="[
-                  'relative w-full flex flex-col justify-center items-center rounded-xl px-2 py-4 border border-[#2563EB] text-center',
-                  (selectedTable && table.id === selectedTable.id) ? 'bg-blue-100'
-                    : (table.products && table.products.length > 0 ? 'bg-yellow-100' : ''),
-                  'hover:bg-blue-50',
-                ]"
-                @click="selectTable(table)"
-              >
-                <div class="text-lg text-black font-bold">Table</div>
-                <div class="text-4xl text-black font-bold">
-                  {{ table.number - 1 }}
-                </div>
-
+            <div class="overflow-y-auto flex-1 p-3">
+              <div v-if="filteredProducts.length === 0" class="flex flex-col items-center justify-center h-full text-zinc-500">
+                <i class="ri-inbox-line text-4xl mb-2"></i>
+                <p class="text-sm">No products found</p>
+              </div>
+              <div v-else class="grid grid-cols-2 gap-3">
                 <button
-                  @click.stop="sendKOT(table)"
-                  :disabled="isKOTDisabled(table)"
+                  v-for="product in filteredProducts"
+                  :key="product.id"
+                  @click="!product.is_sold_out && addProductToCart(product)"
+                  :disabled="product.is_sold_out"
                   :class="[
-                    'mt-2 px-3 py-1 tracking-wide text-white text-sm font-semibold rounded-lg',
-                    isKOTDisabled(table) ? 'bg-gray-400 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700'
+                    'flex flex-col p-3 rounded-xl transition-all',
+                    product.is_sold_out
+                      ? 'bg-zinc-700 border border-red-500/30 cursor-not-allowed opacity-60'
+                      : 'bg-zinc-800 border border-white/10 hover:border-amber-500/50 hover:bg-zinc-700 active:scale-95'
                   ]"
                 >
-                  {{ table.kotStatus === 'sent' ? 'KOT Sent' : 'KOT' }}
+                  <div class="w-full h-24 rounded-lg overflow-hidden mb-3 bg-zinc-600 flex-shrink-0 relative">
+                    <img
+                      :src="getProductImageUrl(product.image)"
+                      :alt="product.name"
+                      :class="['w-full h-full object-cover', product.is_sold_out && 'opacity-40']"
+                    />
+                    <div v-if="product.is_sold_out" class="absolute inset-0 flex items-center justify-center bg-red-500/20 backdrop-blur-sm">
+                      <span class="text-xs font-bold text-red-300">SOLD OUT</span>
+                    </div>
+                  </div>
+                  <div class="flex items-center justify-between gap-2">
+                    <p class="text-lg font-bold text-white line-clamp-2 flex-1">{{ product.name }}</p>
+                    <p :class="['text-lg font-bold whitespace-nowrap', product.is_sold_out ? 'text-red-400' : 'text-amber-400']">
+                      {{ product.selling_price }}
+                    </p>
+                  </div>
                 </button>
               </div>
-            </div> -->
-
-            <!-- Added Tables (dynamic beyond 25) -->
-            <div v-if="addedTables.length" class="mt-5">
-              <div class="flex items-center justify-between mb-3">
-                <p class="text-[15px] font-semibold text-zinc-300">Added Tables</p>
-                <p class="text-xs text-zinc-500">Tap table to select</p>
-              </div>
-              <div class="grid grid-cols-4 gap-3">
-                <div
-                  v-for="table in addedTables"
-                  :key="table.id"
-                  :class="[
-                    'relative flex flex-col items-center justify-center rounded-xl px-2 py-4 cursor-pointer ring-1 transition-all duration-200',
-                    (selectedTable && table.id === selectedTable.id)
-                      ? 'bg-amber-500/15 ring-amber-500/100 shadow-sm'
-                      : (table.products && table.products.length > 0
-                        ? 'bg-amber-500/10 ring-red-500/100'
-                        : 'bg-zinc-800 ring-white/10 hover:bg-amber-500/10 hover:ring-amber-500/30'),
-                  ]"
-                  @click="selectTable(table)"
-                >
-                  <!-- Remove icon for added tables -->
-                  <button
-                    @click.stop="removeAddedTable(table.id)"
-                    class="absolute -right-1.5 -top-1.5 w-6 h-6 flex items-center justify-center rounded-full bg-red-500 text-white hover:bg-red-600 shadow-sm transition"
-                    title="Remove table"
-                  >
-                    <i class="ri-close-line text-xs"></i>
-                  </button>
-
-                  <span class="text-xs font-medium text-zinc-500 uppercase tracking-wider">Table</span>
-                  <span class="text-2xl font-bold text-white leading-tight">
-                    {{ table.number }}
-                  </span>
-
-                  <button
-                    @click.stop="sendKOT(table)"
-                    :disabled="isKOTDisabled(table)"
-                    :class="[
-                      'mt-2 px-3 py-1 text-xl font-semibold rounded-lg transition',
-                      isKOTDisabled(table)
-                        ? 'bg-zinc-700 text-zinc-500 cursor-not-allowed'
-                        : 'bg-emerald-500 text-white hover:bg-emerald-600 active:scale-95'
-                    ]"
-                  >
-                    {{ table.kotStatus === 'sent' ? 'KOT Sent' : 'KOT' }}
-                  </button>
-                </div>
-              </div>
-            </div>
             </div>
           </div>
         </div>
 
         <!-- Right: Bill -->
-        <div class="flex flex-col flex-1 min-h-0">
+        <div class="flex flex-col w-[40%] min-h-0">
           <div class="flex flex-col h-full bg-zinc-900 rounded-2xl border border-white/10 overflow-hidden">
 
             <!-- Bill Header — fixed -->
             <div class="flex-shrink-0 px-5 pt-5 pb-4 border-b border-white/10">
-            <div class="flex flex-wrap items-center justify-between w-full gap-3">
-              <!-- Left: title + customer button -->
-              <div class="flex items-center gap-3">
-                <h2 class="text-2xl font-bold text-white">
-                  {{
-                    selectedTable?.id === 'default'
-                      ? 'Live Bill'
-                      : `Table ${selectedTable?.number}`
-                  }}
-                </h2>
+              <!-- Table/Bill Selector -->
+              <div class="flex items-center gap-2 mb-4 overflow-x-auto pb-2">
+                <!-- Live Bill Button -->
                 <button
-                  @click="() => { openEditModal(color); }"
-                  class="flex items-center gap-2 px-4 py-2.5 bg-zinc-800 text-zinc-300 border border-white/10 rounded-xl hover:bg-zinc-700 hover:text-white transition text-[15px] font-medium"
+                  @click="selectTable(tables[0])"
+                  :class="[
+                    'flex items-center gap-2 px-4 py-2 rounded-lg font-semibold text-sm whitespace-nowrap transition',
+                    selectedTable?.id === 'default'
+                      ? 'bg-amber-500 text-zinc-900 shadow-md'
+                      : 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700'
+                  ]"
                 >
-                  <i class="ri-user-line text-lg text-zinc-400"></i>
+                  <i class="ri-file-list-3-line"></i>
+                  Live Bill
+                </button>
+
+                <!-- Added Tables -->
+                <button
+                  v-for="table in addedTables"
+                  :key="table.id"
+                  @click="selectTable(table)"
+                  :class="[
+                    'flex items-center gap-2 px-4 py-2 rounded-lg font-semibold text-sm whitespace-nowrap transition relative',
+                    selectedTable?.id === table.id
+                      ? 'bg-violet-600 text-white shadow-md'
+                      : 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700'
+                  ]"
+                >
+                  <i class="ri-table-2"></i>
+                  Table {{ table.number }}
+                  <span v-if="table.products.length > 0" class="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center">
+                    {{ table.products.length }}
+                  </span>
+                </button>
+
+                <!-- Add Table Button -->
+                <button
+                  @click="addTable"
+                  class="flex items-center gap-2 px-4 py-2 rounded-lg font-semibold text-sm whitespace-nowrap bg-emerald-500 text-white hover:bg-emerald-600 transition shadow-md"
+                >
+                  <i class="ri-add-circle-fill"></i>
+                  Add Table
                 </button>
               </div>
 
-              <!-- Right: order type buttons (Live Bill only) + Food & Bar -->
-              <div class="flex items-center gap-2">
-                <template v-if="selectedTable?.id === 'default'">
-                  <!-- Takeaway -->
+              <!-- Order Type & Customer -->
+              <div class="flex flex-col gap-3">
+                <div class="flex items-center justify-between">
+                  <h2 class="text-2xl font-bold text-white">
+                    {{ selectedTable?.id === 'default' ? 'Live Bill' : `Table ${selectedTable?.number}` }}
+                  </h2>
+                  <button
+                    @click="() => { openEditModal(color); }"
+                    class="flex items-center gap-2 px-4 py-2.5 bg-zinc-800 text-zinc-300 border border-white/10 rounded-xl hover:bg-zinc-700 hover:text-white transition text-[15px] font-medium"
+                  >
+                    <i class="ri-user-line text-lg text-zinc-400"></i>
+                  </button>
+                </div>
+
+                <!-- Order Type Selection (only for Live Bill) -->
+                <div v-if="selectedTable?.id === 'default'" class="flex items-center gap-2">
                   <button
                     @click="selectedTable.order_type = 'takeaway'"
                     :class="[
-                      'flex items-center gap-2 px-4 py-2.5 rounded-xl ring-1 text-[15px] font-semibold transition active:scale-95',
+                      'flex items-center gap-2 px-4 py-2.5 rounded-xl ring-1 text-[14px] font-semibold transition active:scale-95',
                       selectedTable.order_type === 'takeaway'
                         ? 'bg-amber-500 ring-amber-500 text-zinc-900 shadow-md shadow-amber-500/20'
                         : 'bg-zinc-800 ring-white/10 text-zinc-300 hover:bg-amber-500/15 hover:ring-amber-500/40 hover:text-amber-400'
@@ -253,11 +249,10 @@
                     <span>Takeaway</span>
                   </button>
 
-                  <!-- In-Room Dining -->
                   <button
                     @click="selectedTable.order_type = 'pickup'"
                     :class="[
-                      'flex items-center gap-2 px-4 py-2.5 rounded-xl ring-1 text-[15px] font-semibold transition active:scale-95',
+                      'flex items-center gap-2 px-4 py-2.5 rounded-xl ring-1 text-[14px] font-semibold transition active:scale-95',
                       selectedTable.order_type === 'pickup'
                         ? 'bg-violet-600 ring-violet-600 text-white shadow-md'
                         : 'bg-zinc-800 ring-white/10 text-zinc-300 hover:bg-violet-500/15 hover:ring-violet-500/40 hover:text-violet-400'
@@ -266,31 +261,12 @@
                     <i class="ri-hotel-bed-line text-lg"></i>
                     <span>Delivery</span>
                   </button>
-                </template>
-
-                <!-- Food Menu -->
-                <span
-                  class="flex items-center gap-2 cursor-pointer px-4 py-2.5 bg-amber-500/15 ring-1 ring-amber-500/40 rounded-xl hover:bg-amber-500/25 transition"
-                  @click="selectedMenuType = '0'; isSelectModalOpen = true"
-                >
-                  <i class="ri-restaurant-line text-amber-400"></i>
-                  <span class="text-[15px] text-amber-400 font-semibold">Food Menu</span>
-                </span>
-
-                <!-- Bar Menu -->
-                <span
-                  class="flex items-center gap-2 cursor-pointer px-4 py-2.5 bg-amber-500/15 ring-1 ring-amber-500/40 rounded-xl hover:bg-amber-500/25 transition"
-                  @click="selectedMenuType = '1'; isSelectModalOpen = true"
-                >
-                  <i class="ri-goblet-line text-amber-400"></i>
-                  <span class="text-[15px] text-amber-400 font-semibold">Beverages Menu</span>
-                </span>
+                </div>
               </div>
-            </div>
             </div>
 
             <!-- Scrollable bill body -->
-            <div class="flex-1 overflow-y-auto px-5 py-4">
+            <div class="flex-1 flex flex-col overflow-hidden px-5 py-4 min-h-0">
 
             <div class="w-full text-center py-10" v-if="!selectedTable || selectedTable.products.length === 0">
               <div class="flex flex-col items-center gap-3">
@@ -299,95 +275,72 @@
               </div>
             </div>
 
-            <div class="space-y-2 mb-4">
-              <div
-                v-for="item in selectedTable.products"
-                :key="item.id"
-                class="group flex gap-3 p-3 rounded-2xl bg-zinc-800 border border-white/10 hover:border-white/20 transition-all duration-200"
-              >
-                <!-- Product Image -->
-                <div class="w-[72px] h-[72px] flex-shrink-0 rounded-xl overflow-hidden ring-1 ring-white/10">
-                  <img
-  :src="item.image
-    ? item.image.replace('/storage/storage/', '/storage/')
-    : '/images/placeholder.jpg'"
-  alt="Product Image"
-  class="object-cover w-full h-full"
-/>
-                </div>
-
-                <!-- Product Details -->
-                <div class="flex-1 min-w-0 flex flex-col justify-between py-0.5">
-
-                  <!-- Top row: name + remove -->
-                  <div class="flex items-start justify-between gap-2">
-                    <div class="min-w-0">
-                      <h3 class="text-[15px] font-bold text-white leading-snug truncate">
-                        {{ item.name }}
-                      </h3>
-                      <p v-if="item.size?.name" class="text-[14px] font-semibold text-zinc-400 mt-0.5 leading-snug">
-                       Size : {{ item.size.name }}
-                      </p>
+            <!-- Bill Items - Display with compact list layout -->
+            <div class="flex-1 overflow-y-auto mb-4 min-h-0 pr-2">
+              <div v-if="selectedTable.products && selectedTable.products.length > 0" class="space-y-2">
+                <div
+                  v-for="item in selectedTable.products"
+                  :key="item.id"
+                  class="flex flex-col p-3 rounded-lg bg-zinc-800 border border-white/10 hover:border-amber-500/30 transition-all duration-200"
+                >
+                  <!-- Product Header: Image, Name, Remove button -->
+                  <div class="flex items-start gap-2 mb-2">
+                    <!-- Product Image (smaller) -->
+                    <div class="w-16 h-16 rounded-lg overflow-hidden bg-zinc-700 flex-shrink-0">
+                      <img
+                        :src="getProductImageUrl(item.image)"
+                        :alt="item.name"
+                        class="w-full h-full object-cover"
+                      />
                     </div>
+
+                    <!-- Product Info -->
+                    <div class="flex-1 min-w-0">
+                      <h3 class="text-sm font-bold text-white truncate mb-0.5">{{ item.name }}</h3>
+                      <p v-if="item.size?.name" class="text-[11px] text-zinc-400 mb-1">{{ item.size.name }}</p>
+                      <p class="text-[11px] text-zinc-500">Price: <span class="text-amber-400 font-semibold">{{ Number(item.selling_price).toFixed(0) }} LKR</span></p>
+                    </div>
+
+                    <!-- Remove Button -->
                     <button
                       @click="removeProduct(item.id)"
-                      class="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-lg text-yellow-400 hover:bg-yellow-400/15 hover:text-yellow-300 transition"
+                      class="w-6 h-6 flex items-center justify-center text-red-400 hover:bg-red-400/15 transition text-xs flex-shrink-0"
+                      title="Remove item"
                     >
-                      <i class="ri-delete-bin-6-line text-2xl"></i>
+                      <i class="ri-close-line text-lg"></i>
                     </button>
                   </div>
 
-                  <!-- Bottom row: qty controls left / price + discount right -->
-                  <div class="flex items-center justify-between mt-2">
-
-                    <!-- Qty controls -->
-                    <div class="flex items-center gap-0 bg-zinc-700 ring-1 ring-white/10 rounded-xl overflow-hidden">
+                  <!-- Qty Controls & Total Price -->
+                  <div class="flex items-center justify-between gap-2 bg-zinc-700/50 px-2 py-1.5 rounded">
+                    <div class="flex items-center gap-1">
                       <button
                         @click="decrementQuantity(item.id)"
-                        class="w-9 h-9 flex items-center justify-center text-zinc-300 hover:bg-zinc-600 active:scale-90 transition text-lg font-bold"
+                        class="w-6 h-6 flex items-center justify-center text-zinc-300 hover:bg-zinc-600 active:scale-90 transition text-xs font-bold rounded"
+                        title="Decrease quantity"
                       >
                         <i class="ri-subtract-line"></i>
                       </button>
-                      <span class="w-9 text-center text-[15px] font-bold text-white select-none">
-                        {{ item.quantity }}
-                      </span>
+                      <span class="w-5 text-center text-[11px] font-bold text-white">{{ item.quantity }}</span>
                       <button
                         @click="incrementQuantity(item.id)"
-                        class="w-9 h-9 flex items-center justify-center text-zinc-300 hover:bg-zinc-600 active:scale-90 transition text-lg font-bold"
+                        class="w-6 h-6 flex items-center justify-center text-zinc-300 hover:bg-zinc-600 active:scale-90 transition text-xs font-bold rounded"
+                        title="Increase quantity"
                       >
                         <i class="ri-add-line"></i>
                       </button>
                     </div>
 
-                    <!-- Price + discount -->
-                    <div class="flex flex-col items-end gap-1">
-                      <p class="text-[16px] font-extrabold text-amber-400 leading-none">
+                    <div class="text-right">
+                      <p class="text-[13px] font-bold text-amber-400">
                         {{
                           item.apply_discount
-                            ? ((item.selling_price * item.quantity * (100 - item.discount)) / 100).toFixed(2)
-                            : (item.selling_price * item.quantity).toFixed(2)
+                            ? ((item.selling_price * item.quantity * (100 - item.discount)) / 100).toFixed(0)
+                            : (item.selling_price * item.quantity).toFixed(0)
                         }}
-                        <span class="text-[11px] font-semibold text-zinc-500 ml-0.5">LKR</span>
                       </p>
-                      <div class="flex items-center gap-1.5">
-                        <span class="text-[11px] text-zinc-500">{{ item.selling_price }} × {{ item.quantity }}</span>
-                        <button
-                          v-if="item.discount && item.discount > 0 && item.apply_discount == false && !appliedCoupon"
-                          @click="applyDiscount(item.id)"
-                          class="text-[11px] px-2 py-0.5 bg-emerald-500/15 ring-1 ring-emerald-500/30 text-emerald-400 rounded-lg font-semibold hover:bg-emerald-500/25 transition active:scale-95"
-                        >
-                          -{{ item.discount }}%
-                        </button>
-                        <button
-                          v-if="item.discount && item.discount > 0 && item.apply_discount == true && !appliedCoupon"
-                          @click="removeDiscount(item.id)"
-                          class="text-[11px] px-2 py-0.5 bg-red-500/15 ring-1 ring-red-500/30 text-red-400 rounded-lg font-semibold hover:bg-red-500/25 transition active:scale-95"
-                        >
-                          ✕ {{ item.discount }}%
-                        </button>
-                      </div>
+                      <p class="text-[10px] text-zinc-400">LKR</p>
                     </div>
-
                   </div>
                 </div>
               </div>
@@ -1523,7 +1476,7 @@ const props = defineProps({
 
 const openEditModal = (color) => {
   console.log("Opening edit modal for Colors:", color);
-  
+
   isEditModalOpen.value = true;
 };
 const isEditModalOpen = ref(false);
@@ -2147,6 +2100,10 @@ const addedTables = computed(() =>
 
 onMounted(async () => {
   await checkOpenCashDrawer();
+
+  // Load all products on page load
+  await loadAllProducts();
+
   // Sync the default table's orderId with the backend value on every page load
   const defaultTable = tables.value.find(t => t.id === 'default');
   if (defaultTable && props.nextOrderId) {
@@ -2159,20 +2116,20 @@ onMounted(async () => {
   // Listen for waiter order selection from notification panel
   window.addEventListener('loadWaiterOrder', (event) => {
     const { tableId, products, orderId } = event.detail;
-    
+
     // Find and select the table
     const table = tables.value.find(t => t.id === tableId);
     if (table) {
       // Clear existing products if this is a new order
       if (table.products.length === 0 || confirm('Replace existing items with waiter order?')) {
         table.products = [];
-        
+
         // Load the waiter order products into the table
         if (products) {
           const foodItems = products.food || [];
           const barItems = products.bar || [];
           const allItems = [...foodItems, ...barItems];
-          
+
           // Add all items with full product details
           allItems.forEach(item => {
             if (item && item.id) {
@@ -2185,7 +2142,7 @@ onMounted(async () => {
           });
         }
       }
-      
+
       // Update selected table reference to trigger reactivity
       selectedTable.value = table;
       localStorage.setItem("tables", JSON.stringify(tables.value));
@@ -2293,6 +2250,83 @@ const discount = ref(0);
 const customer = ref({ name: "", contactNumber: "", email: "" });
 const employee_id = ref("");
 const selectedPaymentMethod = ref("cash");
+
+/* Category & Products for new 3-column UI */
+const selectedCategory = ref(null);
+const categoryProducts = ref([]);
+const filteredProducts = computed(() => {
+  if (!selectedCategory.value) {
+    // Show all products when no category is selected
+    return categoryProducts.value;
+  }
+  // Filter by selected category when one is selected
+  return categoryProducts.value.filter(p => p.category_id === selectedCategory.value.id);
+});
+
+const loadProductsForCategory = async (category) => {
+  try {
+    const response = await axios.post("/api/products", {
+      selectedCategory: category.id,
+      category_type: "",
+      search: "",
+      sort: "",
+      size: "",
+    });
+    categoryProducts.value = response.data.products?.data || response.data.data || [];
+  } catch (err) {
+    console.error("Error loading products:", err);
+    categoryProducts.value = [];
+  }
+};
+
+const loadAllProducts = async () => {
+  try {
+    const response = await axios.post("/api/products", {
+      selectedCategory: "",
+      category_type: "",
+      search: "",
+      sort: "",
+      size: "",
+    });
+    categoryProducts.value = response.data.products?.data || response.data.data || [];
+  } catch (err) {
+    console.error("Error loading all products:", err);
+    categoryProducts.value = [];
+  }
+};
+
+const addProductToCart = async (product) => {
+  if (!selectedTable.value) return;
+  const existingItem = selectedTable.value.products.find(p => p.id === product.id);
+  if (existingItem) {
+    existingItem.quantity += 1;
+  } else {
+    selectedTable.value.products.push({
+      ...product,
+      quantity: 1,
+      apply_discount: false,
+    });
+  }
+  localStorage.setItem("tables", JSON.stringify(tables.value));
+};
+
+const getProductImageUrl = (imagePath) => {
+  if (!imagePath) return '/images/placeholder.jpg';
+  // Fix double /storage/storage/ issue
+  let path = imagePath.replace('/storage/storage/', '/storage/');
+  // Ensure leading slash for absolute path
+  if (!path.startsWith('/')) {
+    path = '/' + path;
+  }
+  return path;
+};
+
+/* Category selection watcher */
+watch(selectedCategory, (newCategory) => {
+  if (newCategory) {
+    loadProductsForCategory(newCategory);
+  }
+});
 
 const refreshData = async () => {
   if (selectedTable.value?.id === "default") {
@@ -2489,8 +2523,17 @@ const submitOrder = async () => {
     });
     // Use the backend-confirmed order ID on the receipt
     selectedTable.value.orderId = response.data.orderId || selectedTable.value.orderId;
-    isSuccessModalOpen.value = true;
-    customer.value = { name: "", contactNumber: "", email: "" };
+
+    // Print the bill directly
+    printBillOnly();
+
+    // Reset the bill after a short delay to allow printing to start
+    setTimeout(async () => {
+      await removeSelectedTable();
+      selectedTable.value = tables.value[0]; // Live Bill
+      customer.value = { name: "", contactNumber: "", email: "" };
+      refreshData();
+    }, 500);
   } catch (error) {
     if (error.response?.status === 423) {
       isAlertModalOpen.value = true; message.value = error.response.data.message;
@@ -2888,15 +2931,15 @@ const printBillOnly = () => {
           <meta charset="utf-8" />
           <title>Bill</title>
           <style>
-            @page { 
+            @page {
               size: 80mm auto;
               margin: 0;
             }
-            @media print { 
-              body { 
-                margin: 0; 
-                padding: 0; 
-                -webkit-print-color-adjust: exact !important; 
+            @media print {
+              body {
+                margin: 0;
+                padding: 0;
+                -webkit-print-color-adjust: exact !important;
                 width: 80mm;
               }
               * {
@@ -2904,96 +2947,96 @@ const printBillOnly = () => {
                 color-adjust: exact !important;
               }
             }
-            body { 
-              background: #fff; 
-              font-size: 16px; 
+            body {
+              background: #fff;
+              font-size: 16px;
               font-family: 'Courier New', monospace;
-              margin: 0; 
+              margin: 0;
               padding: 8px 6px;
-              color: #000 !important; 
+              color: #000 !important;
               width: 80mm;
               box-sizing: border-box;
               font-weight: 900;
             }
-            h1 { 
-              text-align: center; 
-              margin: 0 0 12px 0; 
+            h1 {
+              text-align: center;
+              margin: 0 0 12px 0;
               font-size: 19px;
               font-weight: 900;
               color: #000 !important;
             }
-            .row { 
-              display: flex; 
-              justify-content: space-between; 
+            .row {
+              display: flex;
+              justify-content: space-between;
               margin: 7px 0;
               word-break: break-word;
               color: #000 !important;
               font-weight: 900;
               font-size: 15px;
             }
-            .badge { 
-              border: 2px solid #000; 
-              padding: 6px 8px; 
-              text-align: center; 
-              margin: 10px 0; 
+            .badge {
+              border: 2px solid #000;
+              padding: 6px 8px;
+              text-align: center;
+              margin: 10px 0;
               font-weight: 900;
               font-size: 14px;
               color: #000 !important;
             }
-            table { 
-              width: 100%; 
-              border-collapse: collapse; 
+            table {
+              width: 100%;
+              border-collapse: collapse;
               margin: 10px 0;
               font-size: 14px;
               font-weight: 900;
             }
-            th, td { 
-              padding: 6px 3px; 
+            th, td {
+              padding: 6px 3px;
               color: #000 !important;
               font-weight: 900;
             }
-            th { 
+            th {
               text-align: left;
               font-weight: 900;
               border-bottom: 2px solid #000;
               padding-bottom: 8px;
               font-size: 14px;
             }
-            tbody tr { 
+            tbody tr {
               border-bottom: 1px solid #ddd;
             }
             tbody tr:last-child {
               border-bottom: none;
             }
-            td { 
-              text-align: right; 
+            td {
+              text-align: right;
               color: #000 !important;
             }
-            td:first-child { 
+            td:first-child {
               text-align: left;
               max-width: 35mm;
               word-wrap: break-word;
               font-weight: 700;
             }
-            .totals { 
-              margin-top: 10px; 
-              border-top: 1px solid #999; 
+            .totals {
+              margin-top: 10px;
+              border-top: 1px solid #999;
               padding-top: 10px;
               font-size: 15px;
               font-weight: 900;
             }
-            .grand { 
-              font-weight: 900; 
-              font-size: 16px; 
-              border-top: 2px solid #000; 
-              padding-top: 10px; 
+            .grand {
+              font-weight: 900;
+              font-size: 16px;
+              border-top: 2px solid #000;
+              padding-top: 10px;
               margin-top: 8px;
               color: #000 !important;
             }
-            .note { 
-              border-top: 1px solid #000; 
-              padding-top: 10px; 
-              margin-top: 12px; 
+            .note {
+              border-top: 1px solid #000;
+              padding-top: 10px;
+              margin-top: 12px;
               font-weight: 900;
               font-size: 14px;
               color: #000 !important;
@@ -3002,7 +3045,7 @@ const printBillOnly = () => {
               border-top: 2px solid #000;
               margin: 10px 0;
             }
-            b { 
+            b {
               font-weight: 900;
               color: #000 !important;
             }
