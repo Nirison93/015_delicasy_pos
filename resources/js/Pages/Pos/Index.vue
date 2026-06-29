@@ -144,44 +144,46 @@
             </div>
 
             <!-- Products Grid -->
-            <div v-else class="overflow-y-auto flex-1 p-4">
+            <div v-else class="overflow-y-auto flex-1 p-3 space-y-2">
               <div v-if="categoryProducts.length === 0" class="flex flex-col items-center justify-center h-full py-10">
-                <i class="ri-inbox-line text-4xl text-zinc-600 mb-2"></i>
-                <p class="text-sm text-zinc-500">No products in this category</p>
+                <i class="ri-inbox-line text-3xl text-zinc-600 mb-2"></i>
+                <p class="text-xs text-zinc-500">No products</p>
               </div>
-              <div v-else class="grid grid-cols-2 gap-3">
+              <div v-else class="space-y-2">
                 <button
-                  v-for="product in categoryProducts"
+                  v-for="product in categoryProducts.slice(0, 3)"
                   :key="product.id"
                   @click="addProductToCart(product)"
                   :disabled="product.is_sold_out"
-                  class="flex flex-col p-3 rounded-xl transition-all duration-200 group"
+                  class="relative w-full flex items-center gap-3 p-2 rounded-lg transition-all duration-200"
                   :class="[
                     product.is_sold_out
                       ? 'bg-zinc-700 border border-red-500/30 cursor-not-allowed opacity-50'
                       : 'bg-zinc-800 border border-white/10 hover:border-amber-500/50 hover:bg-zinc-700 active:scale-95'
                   ]"
                 >
-                  <!-- Product Image -->
-                  <div class="w-full h-20 rounded-lg overflow-hidden mb-2 bg-zinc-700">
+                  <!-- Product Image (Small) -->
+                  <div class="w-14 h-14 flex-shrink-0 rounded-md overflow-hidden bg-zinc-700">
                     <img
                       v-if="product.image"
                       :src="product.image.replace('/storage/storage/', '/storage/')"
                       :alt="product.name"
                       class="w-full h-full object-cover"
                     />
-                    <div v-else class="w-full h-full flex items-center justify-center text-zinc-600">
-                      <i class="ri-image-line text-2xl"></i>
+                    <div v-else class="w-full h-full flex items-center justify-center text-zinc-600 text-sm">
+                      <i class="ri-image-line"></i>
                     </div>
                   </div>
 
-                  <!-- Product Info -->
-                  <p class="text-[13px] font-semibold text-white truncate">{{ product.name }}</p>
-                  <p class="text-[12px] text-amber-400 font-bold mt-1">{{ product.selling_price }} LKR</p>
+                  <!-- Product Info (Compact) -->
+                  <div class="flex-1 min-w-0">
+                    <p class="text-[12px] font-semibold text-white truncate">{{ product.name }}</p>
+                    <p class="text-[11px] text-amber-400 font-bold mt-0.5">{{ product.selling_price }} LKR</p>
+                  </div>
 
                   <!-- Sold Out Badge -->
-                  <div v-if="product.is_sold_out" class="absolute inset-0 flex items-center justify-center bg-zinc-900/60 rounded-xl">
-                    <span class="text-xs font-bold text-red-400 bg-zinc-900/90 px-2 py-1 rounded">SOLD OUT</span>
+                  <div v-if="product.is_sold_out" class="absolute inset-0 flex items-center justify-center bg-zinc-900/70 rounded-lg">
+                    <span class="text-[10px] font-bold text-red-400">SOLD OUT</span>
                   </div>
                 </button>
               </div>
