@@ -275,73 +275,70 @@
               </div>
             </div>
 
-            <!-- Bill Items - Display with compact list layout -->
+            <!-- Bill Items - Horizontal card layout -->
             <div class="flex-1 overflow-y-auto mb-4 min-h-0 pr-2">
-              <div v-if="selectedTable.products && selectedTable.products.length > 0" class="space-y-2">
+              <div v-if="selectedTable.products && selectedTable.products.length > 0" class="space-y-3">
                 <div
                   v-for="item in selectedTable.products"
                   :key="item.id"
-                  class="flex flex-col p-3 rounded-lg bg-zinc-800 border border-white/10 hover:border-amber-500/30 transition-all duration-200"
+                  class="flex items-center gap-3 p-3 rounded-xl bg-zinc-800/60 border border-white/10 hover:border-amber-500/40 hover:bg-zinc-800 transition-all duration-200"
                 >
-                  <!-- Product Header: Image, Name, Remove button -->
-                  <div class="flex items-start gap-2 mb-2">
-                    <!-- Product Image (smaller) -->
-                    <div class="w-16 h-16 rounded-lg overflow-hidden bg-zinc-700 flex-shrink-0">
-                      <img
-                        :src="getProductImageUrl(item.image)"
-                        :alt="item.name"
-                        class="w-full h-full object-cover"
-                      />
-                    </div>
+                  <!-- Product Image -->
+                  <div class="w-20 h-20 rounded-lg overflow-hidden bg-zinc-700 flex-shrink-0">
+                    <img
+                      :src="getProductImageUrl(item.image)"
+                      :alt="item.name"
+                      class="w-full h-full object-cover"
+                    />
+                  </div>
 
-                    <!-- Product Info -->
-                    <div class="flex-1 min-w-0">
-                      <h3 class="text-sm font-bold text-white truncate mb-0.5">{{ item.name }}</h3>
-                      <p v-if="item.size?.name" class="text-[11px] text-zinc-400 mb-1">{{ item.size.name }}</p>
-                      <p class="text-[11px] text-zinc-500">Price: <span class="text-amber-400 font-semibold">{{ Number(item.selling_price).toFixed(0) }} LKR</span></p>
-                    </div>
+                  <!-- Product Name & Size -->
+                  <div class="flex-1 min-w-0">
+                    <h3 class="text-sm font-bold text-white truncate">{{ item.name }}</h3>
+                    <p v-if="item.size?.name" class="text-[11px] text-zinc-400">{{ item.size.name }}</p>
+                  </div>
 
-                    <!-- Remove Button -->
+                  <!-- Quantity Controls -->
+                  <div class="flex items-center gap-2 bg-zinc-700/80 rounded-lg px-2 py-1.5 flex-shrink-0">
                     <button
-                      @click="removeProduct(item.id)"
-                      class="w-6 h-6 flex items-center justify-center text-red-400 hover:bg-red-400/15 transition text-xs flex-shrink-0"
-                      title="Remove item"
+                      @click="decrementQuantity(item.id)"
+                      class="w-5 h-5 flex items-center justify-center text-zinc-300 hover:text-white active:scale-90 transition text-sm font-bold"
+                      title="Decrease quantity"
                     >
-                      <i class="ri-close-line text-lg"></i>
+                      −
+                    </button>
+                    <span class="w-4 text-center text-xs font-bold text-white">{{ item.quantity }}</span>
+                    <button
+                      @click="incrementQuantity(item.id)"
+                      class="w-5 h-5 flex items-center justify-center text-zinc-300 hover:text-white active:scale-90 transition text-sm font-bold"
+                      title="Increase quantity"
+                    >
+                      +
                     </button>
                   </div>
 
-                  <!-- Qty Controls & Total Price -->
-                  <div class="flex items-center justify-between gap-2 bg-zinc-700/50 px-2 py-1.5 rounded">
-                    <div class="flex items-center gap-1">
-                      <button
-                        @click="decrementQuantity(item.id)"
-                        class="w-6 h-6 flex items-center justify-center text-zinc-300 hover:bg-zinc-600 active:scale-90 transition text-xs font-bold rounded"
-                        title="Decrease quantity"
-                      >
-                        <i class="ri-subtract-line"></i>
-                      </button>
-                      <span class="w-5 text-center text-[11px] font-bold text-white">{{ item.quantity }}</span>
-                      <button
-                        @click="incrementQuantity(item.id)"
-                        class="w-6 h-6 flex items-center justify-center text-zinc-300 hover:bg-zinc-600 active:scale-90 transition text-xs font-bold rounded"
-                        title="Increase quantity"
-                      >
-                        <i class="ri-add-line"></i>
-                      </button>
-                    </div>
-
-                    <div class="text-right">
-                      <p class="text-[13px] font-bold text-amber-400">
-                        {{
-                          item.apply_discount
-                            ? ((item.selling_price * item.quantity * (100 - item.discount)) / 100).toFixed(0)
-                            : (item.selling_price * item.quantity).toFixed(0)
-                        }}
-                      </p>
-                      <p class="text-[10px] text-zinc-400">LKR</p>
-                    </div>
+                  <!-- Total Price -->
+                  <div class="text-right flex-shrink-0">
+                    <p class="text-lg font-bold text-amber-400">
+                      {{
+                        item.apply_discount
+                          ? ((item.selling_price * item.quantity * (100 - item.discount)) / 100).toFixed(2)
+                          : (item.selling_price * item.quantity).toFixed(2)
+                      }}
+                    </p>
+                    <p class="text-[10px] text-zinc-500 font-medium">
+                      {{ Number(item.selling_price).toFixed(0) }} × {{ item.quantity }}
+                    </p>
                   </div>
+
+                  <!-- Remove Button -->
+                  <button
+                    @click="removeProduct(item.id)"
+                    class="w-7 h-7 flex items-center justify-center text-amber-500/70 hover:text-red-400 hover:bg-red-400/10 rounded transition flex-shrink-0"
+                    title="Remove item"
+                  >
+                    <i class="ri-delete-bin-6-line text-lg"></i>
+                  </button>
                 </div>
               </div>
             </div>
