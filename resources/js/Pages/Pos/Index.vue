@@ -93,84 +93,87 @@
         </div>
       </div>
 
-      <div class="flex gap-4 flex-1 overflow-hidden min-h-0">
-        <!-- Left: Categories -->
-        <div class="flex flex-col w-[25%] min-h-0">
-          <div class="flex flex-col h-full bg-zinc-900 rounded-2xl border border-white/10 overflow-hidden">
-            <div class="p-4 border-b border-white/10 flex-shrink-0">
-              <h2 class="text-lg font-bold text-white flex items-center gap-2">
-                <i class="ri-list-check-3 text-amber-400"></i> Categories
-              </h2>
-            </div>
-            <div class="overflow-y-auto flex-1 p-3 space-y-2">
-              <button
-                v-for="category in allcategories"
-                :key="category.id"
-                @click="selectedCategory = category"
-                :class="[
-                  'w-full text-left px-4 py-3 rounded-xl transition-all duration-200 font-semibold',
-                  selectedCategory?.id === category.id
-                    ? 'bg-amber-500 text-zinc-900 shadow-md shadow-amber-500/20'
-                    : 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700'
-                ]"
-              >
-                {{ category.name }}
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Middle: Products -->
-        <div class="flex flex-col w-[35%] min-h-0">
-          <div class="flex flex-col h-full bg-zinc-900 rounded-2xl border border-white/10 overflow-hidden">
-            <div class="p-4 border-b border-white/10 flex-shrink-0">
-              <h2 class="text-lg font-bold text-white flex items-center gap-2">
-                <i class="ri-shopping-cart-2-line text-amber-400"></i>
-                {{ selectedCategory?.name || 'All Products' }}
-              </h2>
-            </div>
-            <div class="overflow-y-auto flex-1 p-3">
-              <div v-if="filteredProducts.length === 0" class="flex flex-col items-center justify-center h-full text-zinc-500">
-                <i class="ri-inbox-line text-4xl mb-2"></i>
-                <p class="text-sm">No products found</p>
+      <div class="flex flex-col gap-4 flex-1 overflow-hidden min-h-0">
+        <!-- Top: Categories & Products -->
+        <div class="flex gap-4 flex-1 overflow-hidden min-h-0">
+          <!-- Left: Categories -->
+          <div class="flex flex-col w-[20%] min-h-0">
+            <div class="flex flex-col h-full bg-zinc-900 rounded-2xl border border-white/10 overflow-hidden">
+              <div class="p-4 border-b border-white/10 flex-shrink-0">
+                <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                  <i class="ri-list-check-3 text-amber-400"></i> Categories
+                </h2>
               </div>
-              <div v-else class="grid grid-cols-2 gap-3">
+              <div class="overflow-y-auto flex-1 p-3 space-y-2">
                 <button
-                  v-for="product in filteredProducts"
-                  :key="product.id"
-                  @click="!product.is_sold_out && addProductToCart(product)"
-                  :disabled="product.is_sold_out"
+                  v-for="category in allcategories"
+                  :key="category.id"
+                  @click="selectedCategory = category"
                   :class="[
-                    'flex flex-col p-3 rounded-xl transition-all',
-                    product.is_sold_out
-                      ? 'bg-zinc-700 border border-red-500/30 cursor-not-allowed opacity-60'
-                      : 'bg-zinc-800 border border-white/10 hover:border-amber-500/50 hover:bg-zinc-700 active:scale-95'
+                    'w-full text-left px-4 py-3 rounded-xl transition-all duration-200 font-semibold',
+                    selectedCategory?.id === category.id
+                      ? 'bg-amber-500 text-zinc-900 shadow-md shadow-amber-500/20'
+                      : 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700'
                   ]"
                 >
-                  <div class="w-full h-24 rounded-lg overflow-hidden mb-3 bg-zinc-600 flex-shrink-0 relative">
-                    <img
-                      :src="getProductImageUrl(product.image)"
-                      :alt="product.name"
-                      :class="['w-full h-full object-cover', product.is_sold_out && 'opacity-40']"
-                    />
-                    <div v-if="product.is_sold_out" class="absolute inset-0 flex items-center justify-center bg-red-500/20 backdrop-blur-sm">
-                      <span class="text-xs font-bold text-red-300">SOLD OUT</span>
-                    </div>
-                  </div>
-                  <div class="flex items-center justify-between gap-2">
-                    <p class="text-lg font-bold text-white line-clamp-2 flex-1">{{ product.name }}</p>
-                    <p :class="['text-lg font-bold whitespace-nowrap', product.is_sold_out ? 'text-red-400' : 'text-amber-400']">
-                      {{ product.selling_price }}
-                    </p>
-                  </div>
+                  {{ category.name }}
                 </button>
               </div>
             </div>
           </div>
+
+          <!-- Middle: Products -->
+          <div class="flex flex-col flex-1 min-h-0">
+            <div class="flex flex-col h-full bg-zinc-900 rounded-2xl border border-white/10 overflow-hidden">
+              <div class="p-4 border-b border-white/10 flex-shrink-0">
+                <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                  <i class="ri-shopping-cart-2-line text-amber-400"></i>
+                  {{ selectedCategory?.name || 'All Products' }}
+                </h2>
+              </div>
+              <div class="overflow-y-auto flex-1 p-3">
+                <div v-if="filteredProducts.length === 0" class="flex flex-col items-center justify-center h-full text-zinc-500">
+                  <i class="ri-inbox-line text-4xl mb-2"></i>
+                  <p class="text-sm">No products found</p>
+                </div>
+                <div v-else class="grid grid-cols-3 gap-3">
+                  <button
+                    v-for="product in filteredProducts"
+                    :key="product.id"
+                    @click="!product.is_sold_out && addProductToCart(product)"
+                    :disabled="product.is_sold_out"
+                    :class="[
+                      'flex flex-col p-3 rounded-xl transition-all',
+                      product.is_sold_out
+                        ? 'bg-zinc-700 border border-red-500/30 cursor-not-allowed opacity-60'
+                        : 'bg-zinc-800 border border-white/10 hover:border-amber-500/50 hover:bg-zinc-700 active:scale-95'
+                    ]"
+                  >
+                    <div class="w-full h-24 rounded-lg overflow-hidden mb-3 bg-zinc-600 flex-shrink-0 relative">
+                      <img
+                        :src="getProductImageUrl(product.image)"
+                        :alt="product.name"
+                        :class="['w-full h-full object-cover', product.is_sold_out && 'opacity-40']"
+                      />
+                      <div v-if="product.is_sold_out" class="absolute inset-0 flex items-center justify-center bg-red-500/20 backdrop-blur-sm">
+                        <span class="text-xs font-bold text-red-300">SOLD OUT</span>
+                      </div>
+                    </div>
+                    <div class="flex items-center justify-between gap-2">
+                      <p class="text-lg font-bold text-white line-clamp-2 flex-1">{{ product.name }}</p>
+                      <p :class="['text-lg font-bold whitespace-nowrap', product.is_sold_out ? 'text-red-400' : 'text-amber-400']">
+                        {{ product.selling_price }}
+                      </p>
+                    </div>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <!-- Right: Bill -->
-        <div class="flex flex-col w-[40%] min-h-0">
+        <!-- Bottom: Bill -->
+        <div class="flex flex-col h-[45%] min-h-0">
           <div class="flex flex-col h-full bg-zinc-900 rounded-2xl border border-white/10 overflow-hidden">
 
             <!-- Bill Header — fixed -->
@@ -649,7 +652,7 @@
             </div><!-- end scrollable body -->
           </div>
         </div>
-        <!-- /Right -->
+        <!-- /Bottom: Bill -->
       </div>
     </div>
   </div>
