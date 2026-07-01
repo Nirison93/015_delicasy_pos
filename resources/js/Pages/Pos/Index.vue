@@ -219,11 +219,16 @@
 
                   <!-- Product Info (Compact) -->
                   <div class="flex-1 min-w-0">
-                    <p class="text-[12px] font-semibold text-white truncate">{{ product.name }}
-                    <span v-if="product.size?.name" class="text-[10px] text-red-400 mt-0.5"> -- (  {{ product.size.name }} ) -- </span>
-
-                    </p>
-                    <p class="text-[11px] text-amber-400 font-bold mt-0.5">{{ product.selling_price }} LKR</p>
+                    <p class="text-[12px] font-semibold text-white truncate">{{ product.name }}</p>
+                    <div class="flex items-center gap-2 mt-1">
+                      <p v-if="product.sizes && product.sizes.length > 1" class="text-[10px] text-amber-300 font-semibold">
+                        {{ product.sizes.length }} sizes
+                      </p>
+                      <p v-if="product.sizes && product.sizes.length > 0" class="text-[11px] text-amber-400 font-bold">
+                        {{ Math.min(...product.sizes.map(s => parseFloat(s.price || 0))).toFixed(0) }} - {{ Math.max(...product.sizes.map(s => parseFloat(s.price || 0))).toFixed(0) }} LKR
+                      </p>
+                      <p v-else class="text-[11px] text-amber-400 font-bold">{{ product.selling_price }} LKR</p>
+                    </div>
                   </div>
 
                   <!-- Sold Out Badge -->
@@ -880,7 +885,12 @@
 
         <!-- Header -->
         <div class="flex items-center justify-between px-5 py-4 border-b border-white/10">
-          <h3 class="text-lg font-bold text-white">{{ selectedProductForModal?.name }}</h3>
+          <div>
+            <h3 class="text-lg font-bold text-white">{{ selectedProductForModal?.name }}</h3>
+            <p v-if="selectedProductForModal?.sizes" class="text-[12px] text-amber-400 font-semibold mt-1">
+              {{ Math.min(...selectedProductForModal.sizes.map(s => parseFloat(s.price || 0))).toFixed(0) }} - {{ Math.max(...selectedProductForModal.sizes.map(s => parseFloat(s.price || 0))).toFixed(0) }} LKR
+            </p>
+          </div>
           <button @click="isProductSelectionModalOpen = false"
             class="w-9 h-9 flex items-center justify-center rounded-xl bg-white/10 text-zinc-400 hover:bg-white/20 hover:text-white transition">
             <i class="ri-close-line text-xl"></i>
@@ -897,13 +907,14 @@
                 :key="size.id"
                 @click="selectedSizeForModal = size"
                 :class="[
-                  'py-3 px-4 rounded-xl font-semibold text-sm transition border ring-1',
+                  'py-3 px-4 rounded-xl font-semibold text-sm transition border ring-1 flex flex-col items-center gap-1',
                   selectedSizeForModal?.id === size.id
                     ? 'bg-amber-500/20 border-amber-500/50 ring-amber-500/30 text-amber-400'
                     : 'bg-zinc-800 border-white/10 ring-white/5 text-zinc-300 hover:border-amber-500/40'
                 ]"
               >
-                {{ size.name }}
+                <span>{{ size.name }}</span>
+                <span class="text-[11px] opacity-75">{{ parseFloat(size.price || 0).toFixed(2) }} LKR</span>
               </button>
             </div>
           </div>
@@ -2439,13 +2450,42 @@ const categoryProducts = computed(() => {
 });
 
 const filteredProducts = computed(() => {
-  if (!productSearch.value.trim()) {
-    return categoryProducts.value;
+  let filtered = categoryProducts.value;
+  if (productSearch.value.trim()) {
+    const query = productSearch.value.toLowerCase();
+    filtered = categoryProducts.value.filter(product =>
+      product.name?.toLowerCase().includes(query)
+    );
   }
-  const query = productSearch.value.toLowerCase();
-  return categoryProducts.value.filter(product =>
-    product.name?.toLowerCase().includes(query)
-  );
+
+  // Group products by base name and merge size variants
+  const grouped = {};
+  filtered.forEach(product => {
+    const baseName = product.name;
+    if (!grouped[baseName]) {
+      grouped[baseName] = {
+        ...product,
+        sizes: [],
+        originalProduct: product
+      };
+    }
+
+    // Add size variant if product has a size
+    if (product.size?.id && product.size?.name) {
+      const existingSize = grouped[baseName].sizes.find(s => s.id === product.size.id);
+      if (!existingSize) {
+        grouped[baseName].sizes.push({
+          id: product.size.id,
+          name: product.size.name,
+          price: product.selling_price,
+          product_id: product.id,
+          full_product: product
+        });
+      }
+    }
+  });
+
+  return Object.values(grouped);
 });
 
 const refreshData = async () => {
@@ -2797,15 +2837,17 @@ const addProductToCart = (product) => {
     return;
   }
 
-  const existing = selectedTable.value.products.find((i) => i.id === product.id);
+  // For products without size variants, use the original product data
+  const productToAdd = product.originalProduct || product;
+  const existing = selectedTable.value.products.find((i) => i.id === productToAdd.id);
   if (existing) {
     existing.quantity += 1;
   } else {
     selectedTable.value.products.push({
-      ...product,
+      ...productToAdd,
       quantity: 1,
       apply_discount: false,
-      size: product.size || null,
+      size: productToAdd.size || null,
     });
   }
 
@@ -2817,22 +2859,24 @@ const addProductToCart = (product) => {
 const confirmProductSelection = () => {
   if (!selectedTable.value || !selectedProductForModal.value) return;
 
-  const product = selectedProductForModal.value;
+  const groupedProduct = selectedProductForModal.value;
   const quantity = parseInt(quantityForModal.value) || 1;
-  const size = selectedSizeForModal.value;
+  const selectedSize = selectedSizeForModal.value;
 
-  const cartKey = `${product.id}_${size?.id || 'no-size'}`;
+  // Get the full product data from the selected size
+  const fullProduct = selectedSize?.full_product || groupedProduct.originalProduct || groupedProduct;
+  const cartKey = `${fullProduct.id}_${selectedSize?.id || 'no-size'}`;
   const existing = selectedTable.value.products.find((i) => i.cart_key === cartKey);
 
   if (existing) {
     existing.quantity += quantity;
   } else {
     selectedTable.value.products.push({
-      ...product,
+      ...fullProduct,
       cart_key: cartKey,
       quantity: quantity,
       apply_discount: false,
-      size: size || null,
+      size: selectedSize ? { id: selectedSize.id, name: selectedSize.name } : null,
     });
   }
 
