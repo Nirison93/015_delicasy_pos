@@ -168,11 +168,17 @@
         <!-- Middle: Products Grid -->
         <div class="flex flex-col w-[28%] min-h-0">
           <div class="flex flex-col h-full bg-zinc-900 rounded-2xl border border-white/10 overflow-hidden">
-            <div class="p-5 border-b border-white/10 flex-shrink-0">
+            <div class="p-5 border-b border-white/10 flex-shrink-0 space-y-3">
               <h2 class="text-xl font-bold text-white flex items-center gap-2">
                 <i class="ri-shopping-cart-line text-zinc-500"></i>
                 {{ selectedCategory?.name || 'All Products' }}
               </h2>
+              <input
+                v-model="productSearch"
+                type="text"
+                placeholder="Search products..."
+                class="w-full px-3 py-2 bg-zinc-800 border border-white/10 rounded-lg text-[13px] text-white placeholder-zinc-500 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30 transition"
+              />
             </div>
 
             <!-- Products List (all products) -->
@@ -181,9 +187,13 @@
                 <i class="ri-inbox-line text-3xl text-zinc-600 mb-2"></i>
                 <p class="text-xs text-zinc-500">No products</p>
               </div>
+              <div v-else-if="filteredProducts.length === 0" class="flex flex-col items-center justify-center h-full">
+                <i class="ri-search-line text-3xl text-zinc-600 mb-2"></i>
+                <p class="text-xs text-zinc-500">No products found</p>
+              </div>
               <div v-else class="space-y-2 overflow-y-auto flex-1">
                 <button
-                  v-for="product in categoryProducts"
+                  v-for="product in filteredProducts"
                   :key="product.id"
                   @click="addProductToCart(product)"
                   :disabled="product.is_sold_out"
@@ -862,6 +872,86 @@
     @search="searchCustomer"
   />
 
+  <!-- Product Size & Quantity Selection Modal -->
+  <Teleport to="body">
+    <div v-if="isProductSelectionModalOpen" class="fixed inset-0 z-[1000] flex items-center justify-center p-4">
+      <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" @click="isProductSelectionModalOpen = false"></div>
+      <div class="relative bg-zinc-900 rounded-3xl border border-white/10 shadow-2xl w-full max-w-[420px] overflow-hidden flex flex-col">
+
+        <!-- Header -->
+        <div class="flex items-center justify-between px-5 py-4 border-b border-white/10">
+          <h3 class="text-lg font-bold text-white">{{ selectedProductForModal?.name }}</h3>
+          <button @click="isProductSelectionModalOpen = false"
+            class="w-9 h-9 flex items-center justify-center rounded-xl bg-white/10 text-zinc-400 hover:bg-white/20 hover:text-white transition">
+            <i class="ri-close-line text-xl"></i>
+          </button>
+        </div>
+
+        <div class="p-5 space-y-4 flex-1 overflow-y-auto">
+          <!-- Size Selection -->
+          <div>
+            <label class="block text-sm font-semibold text-zinc-300 mb-3">Select Size</label>
+            <div class="grid grid-cols-2 gap-2">
+              <button
+                v-for="size in selectedProductForModal?.sizes"
+                :key="size.id"
+                @click="selectedSizeForModal = size"
+                :class="[
+                  'py-3 px-4 rounded-xl font-semibold text-sm transition border ring-1',
+                  selectedSizeForModal?.id === size.id
+                    ? 'bg-amber-500/20 border-amber-500/50 ring-amber-500/30 text-amber-400'
+                    : 'bg-zinc-800 border-white/10 ring-white/5 text-zinc-300 hover:border-amber-500/40'
+                ]"
+              >
+                {{ size.name }}
+              </button>
+            </div>
+          </div>
+
+          <!-- Quantity Selection -->
+          <div>
+            <label class="block text-sm font-semibold text-zinc-300 mb-3">Quantity</label>
+            <div class="flex items-center gap-2">
+              <button
+                @click="quantityForModal = Math.max(1, quantityForModal - 1)"
+                class="w-10 h-10 flex items-center justify-center rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 transition"
+              >
+                <i class="ri-subtract-line text-lg"></i>
+              </button>
+              <input
+                v-model.number="quantityForModal"
+                type="number"
+                min="1"
+                class="flex-1 h-10 text-center bg-zinc-800 border border-white/10 rounded-lg text-white font-bold text-lg focus:border-amber-500 focus:outline-none"
+              />
+              <button
+                @click="quantityForModal = quantityForModal + 1"
+                class="w-10 h-10 flex items-center justify-center rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 transition"
+              >
+                <i class="ri-add-line text-lg"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex gap-3 p-5 border-t border-white/10">
+          <button
+            @click="isProductSelectionModalOpen = false"
+            class="flex-1 py-3 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-semibold transition"
+          >
+            Cancel
+          </button>
+          <button
+            @click="confirmProductSelection"
+            class="flex-1 py-3 rounded-lg bg-amber-500 hover:bg-amber-600 text-zinc-900 font-bold transition"
+          >
+            Add to Cart
+          </button>
+        </div>
+      </div>
+    </div>
+  </Teleport>
 
   <!-- Bank Selection Modal -->
   <Teleport to="body">
@@ -1631,6 +1721,12 @@ const isExpensesModalOpen = ref(false);
 const newExpense = ref({ reason: '', amount: '' });
 const isExpenseSubmitting = ref(false);
 
+// Product size/quantity selection modal
+const isProductSelectionModalOpen = ref(false);
+const selectedProductForModal = ref(null);
+const selectedSizeForModal = ref(null);
+const quantityForModal = ref(1);
+
 // ===== Ongoing Takeaway Orders (Hold / Ongoing) =====
 const HELD_TAKEAWAY_KEY = 'heldTakeawayOrders';
 const heldTakeawayOrders = ref(JSON.parse(localStorage.getItem(HELD_TAKEAWAY_KEY) || '[]'));
@@ -2293,10 +2389,17 @@ const customer = ref({ name: "", contactNumber: "", email: "" });
 const employee_id = ref("");
 const selectedPaymentMethod = ref("cash");
 const selectedCategory = ref(null);
+const productSearch = ref("");
 
-// Watch selectedMenuType to reset category when menu type changes
+// Watch selectedMenuType to reset category and search when menu type changes
 watch(() => selectedMenuType.value, () => {
   selectedCategory.value = null;
+  productSearch.value = "";
+});
+
+// Watch selectedCategory to clear search when category changes
+watch(() => selectedCategory.value, () => {
+  productSearch.value = "";
 });
 
 const filteredCategories = computed(() => {
@@ -2333,6 +2436,16 @@ const categoryProducts = computed(() => {
   const category = filteredCategories.value?.find(c => c.id === selectedCategory.value.id);
   if (!category || !category.products) return [];
   return category.products;
+});
+
+const filteredProducts = computed(() => {
+  if (!productSearch.value.trim()) {
+    return categoryProducts.value;
+  }
+  const query = productSearch.value.toLowerCase();
+  return categoryProducts.value.filter(product =>
+    product.name?.toLowerCase().includes(query)
+  );
 });
 
 const refreshData = async () => {
@@ -2675,6 +2788,15 @@ const removeDiscount = (id) => {
 const addProductToCart = (product) => {
   if (!selectedTable.value || !product) return;
 
+  // Check if product has sizes available
+  if (product.sizes && Array.isArray(product.sizes) && product.sizes.length > 0) {
+    selectedProductForModal.value = product;
+    selectedSizeForModal.value = product.sizes[0] || null;
+    quantityForModal.value = 1;
+    isProductSelectionModalOpen.value = true;
+    return;
+  }
+
   const existing = selectedTable.value.products.find((i) => i.id === product.id);
   if (existing) {
     existing.quantity += 1;
@@ -2690,6 +2812,39 @@ const addProductToCart = (product) => {
   // Save to localStorage
   localStorage.setItem("tables", JSON.stringify(tables.value));
   localStorage.setItem("selectedTable", JSON.stringify(selectedTable.value));
+};
+
+const confirmProductSelection = () => {
+  if (!selectedTable.value || !selectedProductForModal.value) return;
+
+  const product = selectedProductForModal.value;
+  const quantity = parseInt(quantityForModal.value) || 1;
+  const size = selectedSizeForModal.value;
+
+  const cartKey = `${product.id}_${size?.id || 'no-size'}`;
+  const existing = selectedTable.value.products.find((i) => i.cart_key === cartKey);
+
+  if (existing) {
+    existing.quantity += quantity;
+  } else {
+    selectedTable.value.products.push({
+      ...product,
+      cart_key: cartKey,
+      quantity: quantity,
+      apply_discount: false,
+      size: size || null,
+    });
+  }
+
+  // Save to localStorage
+  localStorage.setItem("tables", JSON.stringify(tables.value));
+  localStorage.setItem("selectedTable", JSON.stringify(selectedTable.value));
+
+  // Close modal
+  isProductSelectionModalOpen.value = false;
+  selectedProductForModal.value = null;
+  selectedSizeForModal.value = null;
+  quantityForModal.value = 1;
 };
 
 const handleSelectedProducts = (selectedProducts) => {
