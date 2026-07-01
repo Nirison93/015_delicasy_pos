@@ -209,7 +209,10 @@
 
                   <!-- Product Info (Compact) -->
                   <div class="flex-1 min-w-0">
-                    <p class="text-[12px] font-semibold text-white truncate">{{ product.name }}</p>
+                    <p class="text-[12px] font-semibold text-white truncate">{{ product.name }}
+                    <span v-if="product.size?.name" class="text-[10px] text-red-400 mt-0.5"> -- (  {{ product.size.name }} ) -- </span>
+
+                    </p>
                     <p class="text-[11px] text-amber-400 font-bold mt-0.5">{{ product.selling_price }} LKR</p>
                   </div>
 
@@ -365,10 +368,10 @@
                     <div class="min-w-0">
                       <h3 class="text-[15px] font-bold text-white leading-snug truncate">
                         {{ item.name }}
+
+                        
                       </h3>
-                      <p v-if="item.size?.name" class="text-[14px] font-semibold text-zinc-400 mt-0.5 leading-snug">
-                       Size : {{ item.size.name }}
-                      </p>
+                     
                     </div>
                     <button
                       @click="removeProduct(item.id)"
