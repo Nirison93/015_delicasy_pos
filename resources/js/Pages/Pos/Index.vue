@@ -361,7 +361,7 @@
             <div class="space-y-2 mb-4 max-h-[420px] overflow-y-auto">
               <div
                 v-for="item in selectedTable.products"
-                :key="item.id"
+                :key="item.cart_key || item.id"
                 class="group flex gap-3 p-3 rounded-2xl bg-zinc-800 border border-white/10 hover:border-white/20 transition-all duration-200"
               >
                 <!-- Product Image -->
@@ -383,10 +383,9 @@
                     <div class="min-w-0">
                       <h3 class="text-[15px] font-bold text-white leading-snug truncate">
                         {{ item.name }}
-
-                        
+                        <span v-if="item.size?.name" class="text-[12px] text-amber-400 font-semibold"> ({{ item.size.name }})</span>
                       </h3>
-                     
+
                     </div>
                     <button
                       @click="removeProduct(item.id)"
