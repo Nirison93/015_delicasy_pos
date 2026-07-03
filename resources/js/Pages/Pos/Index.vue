@@ -656,11 +656,11 @@
 
                 <!-- Send KOT Button -->
                 <button
-                  v-if="selectedTable?.id === 'default' && (selectedTable.order_type === 'takeaway' || selectedTable.order_type === 'pickup') && selectedTable.products.length > 0"
+                  v-if="selectedTable && selectedTable.products.length > 0"
                   @click="sendTakeawayKOT"
                   type="button"
                   class="py-3 flex items-center justify-center gap-2 text-sm font-bold text-white rounded-xl transition-all active:scale-[0.98]"
-                  :class="selectedTable.order_type === 'pickup' ? 'bg-violet-600 hover:bg-violet-700' : 'bg-amber-600 hover:bg-amber-700'"
+                  :class="selectedTable.id !== 'default' || selectedTable.order_type === 'pickup' ? 'bg-blue-600 hover:bg-blue-700' : 'bg-amber-600 hover:bg-amber-700'"
                 >
                   <i class="ri-restaurant-2-line text-lg"></i>Send KOT
                 </button>
