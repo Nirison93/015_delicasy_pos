@@ -653,26 +653,28 @@
               </div>
 
               <!-- Action Buttons Grid -->
-              <!-- KOT BUTTON -->
-              <button
-                v-if="selectedTable?.id === 'default' && (selectedTable.order_type === 'takeaway' || selectedTable.order_type === 'pickup') && selectedTable.products.length > 0"
-                @click="sendTakeawayKOT"
-                type="button"
-                class="w-full py-3 flex items-center justify-center gap-2 text-base font-bold text-white rounded-xl transition-all active:scale-[0.98]"
-                :class="selectedTable.order_type === 'pickup' ? 'bg-violet-600 hover:bg-violet-700' : 'bg-amber-600 hover:bg-amber-700'"
-              >
-                <i class="ri-restaurant-2-line"></i>Send KOT
-              </button>
+              <div class="grid grid-cols-2 gap-2">
+                <!-- KOT BUTTON -->
+                <button
+                  v-if="selectedTable?.id === 'default' && (selectedTable.order_type === 'takeaway' || selectedTable.order_type === 'pickup') && selectedTable.products.length > 0"
+                  @click="sendTakeawayKOT"
+                  type="button"
+                  class="py-3 flex items-center justify-center gap-2 text-sm font-bold text-white rounded-xl transition-all active:scale-[0.98]"
+                  :class="selectedTable.order_type === 'pickup' ? 'bg-violet-600 hover:bg-violet-700' : 'bg-amber-600 hover:bg-amber-700'"
+                >
+                  <i class="ri-restaurant-2-line"></i>Send KOT
+                </button>
 
-              <!-- HOLD ORDER BUTTON -->
-              <button
-                v-if="selectedTable?.id === 'default' && selectedTable.order_type === 'takeaway' && selectedTable.products.length > 0"
-                @click="holdTakeawayOrder"
-                type="button"
-                class="w-full py-3 flex items-center justify-center gap-2 text-base font-bold text-amber-400 rounded-xl bg-zinc-800 hover:bg-zinc-700 transition-all active:scale-[0.98]"
-              >
-                <i class="ri-pause-circle-line"></i>Hold Order
-              </button>
+                <!-- HOLD ORDER BUTTON -->
+                <button
+                  v-if="selectedTable?.id === 'default' && selectedTable.order_type === 'takeaway' && selectedTable.products.length > 0"
+                  @click="holdTakeawayOrder"
+                  type="button"
+                  class="py-3 flex items-center justify-center gap-2 text-sm font-bold text-amber-400 rounded-xl bg-zinc-800 hover:bg-zinc-700 transition-all active:scale-[0.98]"
+                >
+                  <i class="ri-pause-circle-line"></i>Hold Order
+                </button>
+              </div>
 
               <!-- Bottom Row: Get Bill + Confirm Order -->
               <div class="grid grid-cols-2 gap-2">
