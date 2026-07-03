@@ -2416,11 +2416,19 @@ const filteredCategories = computed(() => {
   if (!selectedMenuType.value) return props.allcategories || [];
 
   return (props.allcategories || []).filter(category => {
-    // Check if category has a type field matching the selected menu type
-    if (category.type) {
-      return category.type.toLowerCase() === selectedMenuType.value.toLowerCase();
+    // Check category_type: 0 = Food, 1 = Bar/Beverages
+    if (category.category_type !== null && category.category_type !== undefined) {
+      const isFoodType = category.category_type === 0 || category.category_type === '0';
+      const isBeverageType = category.category_type === 1 || category.category_type === '1';
+
+      if (selectedMenuType.value === 'food') {
+        return isFoodType;
+      } else if (selectedMenuType.value === 'beverage') {
+        return isBeverageType;
+      }
     }
-    // Fallback: check category name for keywords
+
+    // Fallback: check category name for keywords if category_type is missing
     const name = (category.name || '').toLowerCase();
     if (selectedMenuType.value === 'food') {
       return !name.includes('beverage') && !name.includes('drink') && !name.includes('wine') && !name.includes('beer');
