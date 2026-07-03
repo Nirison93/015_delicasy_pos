@@ -3028,6 +3028,14 @@ const sendTakeawayKOT = () => {
       return;
     }
 
+    // Get only new/changed items (delta)
+    const deltas = getKotDelta(table);
+    if (deltas.length === 0) {
+      isAlertModalOpen.value = true;
+      message.value = "No new items to send to kitchen. All items already sent.";
+      return;
+    }
+
     const kotNo = getNextKotNumberForToday();
     const now = new Date();
     const dateStr = now.toLocaleDateString();
@@ -3037,13 +3045,17 @@ const sendTakeawayKOT = () => {
       table.order_type === "takeaway" ? "Takeaway" :
       table.order_type === "pickup"   ? "In-Room Dining" : "Dine In";
 
-    const productRows = (table.products || []).map(p => `
+    // Use only delta items in KOT
+    const productRows = deltas.map(delta => {
+      const product = table.products.find(p => p.id === delta.id);
+      return `
       <tr>
-        <td>${p.name || ""}</td>
-        <td style="text-align:center;">${Number(p.quantity || 1)}</td>
-        <td style="text-align:center;">${p.size?.name || "N/A"}</td>
+        <td>${delta.name || ""}</td>
+        <td style="text-align:center;">${delta.delta}</td>
+        <td style="text-align:center;">${delta.size || "N/A"}</td>
       </tr>
-    `).join("");
+    `;
+    }).join("");
 
     const noteBlock = table.kitchen_note
       ? `<div class="note"><b>Kitchen Note:</b> ${table.kitchen_note}</div>`
@@ -3097,7 +3109,14 @@ const sendTakeawayKOT = () => {
     w.document.open();
     w.document.write(receiptHTML);
     w.document.close();
-    w.onload = () => { w.focus(); w.print(); w.close(); };
+    w.onload = () => {
+      w.focus();
+      w.print();
+      w.close();
+      // Update snapshot after KOT is sent
+      table.lastKotSnapshot = getKotSnapshot(table);
+      localStorage.setItem("tables", JSON.stringify(tables.value));
+    };
   } catch (err) {
     isAlertModalOpen.value = true;
     message.value = "Failed to print KOT.";
