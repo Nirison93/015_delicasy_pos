@@ -214,25 +214,33 @@ public function update(Request $request, Category $category)
 
     public function topCategories(Request $request)
 {
-    $categories = Category::whereNull('parent_id')
-        ->with('children')
-        ->get()
-        ->map(function ($category) {
-            return [
-                'id' => $category->id,
-                'name' => $category->name,
-                'image' => $category->image ?? null,
-                'hierarchy_string' => $category->hierarchy_string, // Include hierarchy_string for parent
-                'children' => $category->children->map(function ($child) {
-                    return [
-                        'id' => $child->id,
-                        'name' => $child->name,
-                        'image' => $child->image ?? null,
-                        'hierarchy_string' => $child->hierarchy_string, // Include hierarchy_string for children
-                    ];
-                }),
-            ];
-        });
+    $categoryType = $request->input('category_type');
+
+    $query = Category::whereNull('parent_id')->with('children');
+
+    // Filter by category_type if provided
+    if (in_array($categoryType, ['0', '1'])) {
+        $query->where('category_type', $categoryType);
+    }
+
+    $categories = $query->get()->map(function ($category) {
+        return [
+            'id' => $category->id,
+            'name' => $category->name,
+            'image' => $category->image ?? null,
+            'category_type' => $category->category_type,
+            'hierarchy_string' => $category->hierarchy_string,
+            'children' => $category->children->map(function ($child) {
+                return [
+                    'id' => $child->id,
+                    'name' => $child->name,
+                    'image' => $child->image ?? null,
+                    'category_type' => $child->category_type,
+                    'hierarchy_string' => $child->hierarchy_string,
+                ];
+            }),
+        ];
+    });
 
     return response()->json([
         'categories' => $categories,
