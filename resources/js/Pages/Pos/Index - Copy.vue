@@ -94,255 +94,199 @@
       </div>
 
       <div class="flex gap-4 flex-1 overflow-hidden min-h-0">
-        <!-- Left: Categories -->
-        <div class="flex flex-col w-[22%] min-h-0">
+        <!-- Left: Tables -->
+        <div class="flex flex-col w-[38%] min-h-0">
           <div class="flex flex-col h-full bg-zinc-900 rounded-2xl border border-white/10 overflow-hidden">
-            <div class="p-5 border-b border-white/10 flex-shrink-0 space-y-3">
+            <div class="p-5 overflow-y-auto flex-1">
+            <!-- Header -->
+            <div class="flex items-center justify-between pb-4">
               <h2 class="text-xl font-bold text-white flex items-center gap-2">
-                <i class="ri-menu-line text-zinc-500"></i> Categories
+                <i class="ri-layout-grid-line text-zinc-500"></i> Tables
               </h2>
-              <!-- Menu Type Filter Buttons -->
-              <div class="flex gap-2">
-                <button
-                  @click="selectedMenuType = 'food'; selectedCategory = null"
-                  :class="[
-                    'flex-1 px-3 py-2.5 rounded-lg font-semibold text-[13px] transition border ring-1',
-                    selectedMenuType === 'food'
-                      ? 'bg-orange-500/20 border-orange-500/50 ring-orange-500/30 text-orange-400'
-                      : 'bg-zinc-800 border-white/10 ring-white/5 text-zinc-300 hover:bg-zinc-700'
-                  ]"
-                >
-                  <i class="ri-restaurant-2-line mr-1.5"></i>Food Menu
-                </button>
-                <button
-                  @click="selectedMenuType = 'beverage'; selectedCategory = null"
-                  :class="[
-                    'flex-1 px-3 py-2.5 rounded-lg font-semibold text-[13px] transition border ring-1',
-                    selectedMenuType === 'beverage'
-                      ? 'bg-blue-500/20 border-blue-500/50 ring-blue-500/30 text-blue-400'
-                      : 'bg-zinc-800 border-white/10 ring-white/5 text-zinc-300 hover:bg-zinc-700'
-                  ]"
-                >
-                  <i class="ri-drink-2-line mr-1.5"></i>Beverages
-                </button>
-              </div>
-            </div>
-            <div class="flex-1 overflow-y-auto p-3 space-y-2">
-              <!-- Show All Button -->
-              <button
-                @click="selectedCategory = null"
-                :class="[
-                  'w-full text-left px-4 py-3 rounded-xl border transition font-semibold',
-                  !selectedCategory
-                    ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-400 ring-1 ring-emerald-500/30'
-                    : 'bg-zinc-800 border-white/10 text-zinc-300 hover:bg-emerald-500/15 hover:border-emerald-500/40 hover:text-emerald-400'
-                ]"
-              >
-                <div class="flex items-center justify-between">
-                  <span class="text-[14px] font-semibold">Show All</span>
-                  <span class="text-[12px] text-zinc-500">{{ categoryProducts?.length || 0 }}</span>
-                </div>
-              </button>
 
-              <!-- Category Buttons -->
-              <button
-                v-for="category in filteredCategories"
-                :key="category.id"
-                @click="selectedCategory = category"
-                :class="[
-                  'w-full text-left px-4 py-3 rounded-xl border transition',
-                  selectedCategory?.id === category.id
-                    ? 'bg-amber-500/20 border-amber-500/50 text-amber-400 ring-1 ring-amber-500/30'
-                    : 'bg-zinc-800 border-white/10 text-zinc-300 hover:bg-amber-500/15 hover:border-amber-500/40 hover:text-amber-400'
-                ]"
-              >
-                <div class="flex items-center justify-between">
-                  <p class="text-[14px] font-semibold truncate">{{ category.name }}</p>
-                  <span class="text-[12px] text-zinc-500 flex-shrink-0 ml-2">{{ category.products?.length || 0 }}</span>
-                </div>
+              <!-- Add More Tables Button -->
+              <button @click="addTable"
+                class="flex items-center gap-2 px-5 py-2.5 bg-amber-500 tracking-wide text-zinc-900 text-[15px] font-bold rounded-xl hover:bg-amber-400 active:scale-[0.97] shadow-lg shadow-amber-500/20 transition">
+                <i class="ri-add-circle-fill"></i>
+                Add Table
               </button>
             </div>
-          </div>
-        </div>
 
-        <!-- Middle: Products Grid -->
-        <div class="flex flex-col w-[28%] min-h-0">
-          <div class="flex flex-col h-full bg-zinc-900 rounded-2xl border border-white/10 overflow-hidden">
-            <div class="p-5 border-b border-white/10 flex-shrink-0 space-y-3">
-              <h2 class="text-xl font-bold text-white flex items-center gap-2">
-                <i class="ri-shopping-cart-line text-zinc-500"></i>
-                {{ selectedCategory?.name || 'All Products' }}
-              </h2>
-              <input
-                v-model="productSearch"
-                type="text"
-                placeholder="Search products..."
-                class="w-full px-3 py-2 bg-zinc-800 border border-white/10 rounded-lg text-[13px] text-white placeholder-zinc-500 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30 transition"
-              />
+            <!-- Live Bill -->
+            <div
+              :class="[
+                'w-full flex items-center justify-center rounded-xl px-4 py-4 cursor-pointer ring-1 transition-all duration-200 mb-4',
+                (selectedTable && tables[0] && tables[0].id === selectedTable.id)
+                  ? 'bg-amber-500/15 ring-amber-500/50 shadow-sm'
+                  : 'bg-zinc-800 ring-white/10 hover:bg-amber-500/10 hover:ring-amber-500/30',
+              ]"
+              @click="selectTable(tables[0])"
+            >
+              <div class="flex items-center gap-2">
+                <i class="ri-file-list-3-line text-amber-400 text-xl"></i>
+                <span class="text-lg font-bold text-white">Live Bill</span>
+              </div>
             </div>
 
-            <!-- Products List (all products) -->
-            <div class="flex-1 flex flex-col min-h-0 p-3">
-              <div v-if="categoryProducts.length === 0" class="flex flex-col items-center justify-center h-full">
-                <i class="ri-inbox-line text-3xl text-zinc-600 mb-2"></i>
-                <p class="text-xs text-zinc-500">No products</p>
-              </div>
-              <div v-else-if="filteredProducts.length === 0" class="flex flex-col items-center justify-center h-full">
-                <i class="ri-search-line text-3xl text-zinc-600 mb-2"></i>
-                <p class="text-xs text-zinc-500">No products found</p>
-              </div>
-              <div v-else class="grid grid-cols-2 gap-2 overflow-y-auto flex-1 pr-1">
+            <!-- Fixed 25 tables (1..25) -->
+            <!-- <div class="grid grid-cols-5 gap-3">
+              <div
+                v-for="table in fixedTables"
+                :key="table.id"
+                :class="[
+                  'relative w-full flex flex-col justify-center items-center rounded-xl px-2 py-4 border border-[#2563EB] text-center',
+                  (selectedTable && table.id === selectedTable.id) ? 'bg-blue-100'
+                    : (table.products && table.products.length > 0 ? 'bg-yellow-100' : ''),
+                  'hover:bg-blue-50',
+                ]"
+                @click="selectTable(table)"
+              >
+                <div class="text-lg text-black font-bold">Table</div>
+                <div class="text-4xl text-black font-bold">
+                  {{ table.number - 1 }}
+                </div>
+
                 <button
-                  v-for="product in filteredProducts"
-                  :key="product.id"
-                  @click="addProductToCart(product)"
-                  :disabled="product.is_sold_out"
-                  class="relative w-full flex flex-col items-stretch gap-2 p-2 rounded-lg transition-all duration-200"
+                  @click.stop="sendKOT(table)"
+                  :disabled="isKOTDisabled(table)"
                   :class="[
-                    product.is_sold_out
-                      ? 'bg-zinc-700 border border-red-500/30 cursor-not-allowed opacity-50'
-                      : 'bg-zinc-800 border border-white/10 hover:border-amber-500/50 hover:bg-zinc-700 active:scale-95'
+                    'mt-2 px-3 py-1 tracking-wide text-white text-sm font-semibold rounded-lg',
+                    isKOTDisabled(table) ? 'bg-gray-400 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700'
                   ]"
                 >
-                  <!-- Product Image (Small) -->
-                  <div class="w-full aspect-square rounded-md overflow-hidden bg-zinc-700">
-                    <img
-                      v-if="product.image"
-                      :src="product.image.replace('/storage/storage/', '/storage/')"
-                      :alt="product.name"
-                      class="w-full h-full object-cover"
-                    />
-                    <div v-else class="w-full h-full flex items-center justify-center text-zinc-600 text-sm">
-                      <i class="ri-image-line"></i>
-                    </div>
-                  </div>
-
-                  <!-- Product Info (Compact) -->
-                  <div class="flex-1 min-w-0">
-                    <p class="text-[12px] font-semibold text-white leading-tight line-clamp-2">{{ product.name }}</p>
-                    <div class="flex flex-wrap items-center gap-1 mt-1">
-                      <p v-if="product.sizes && product.sizes.length > 0" class="text-[14px] text-amber-400 font-bold text-center">
-                        LKR {{ Math.min(...product.sizes.map(s => parseFloat(s.price || 0))).toFixed(0) }} - LKR {{ Math.max(...product.sizes.map(s => parseFloat(s.price || 0))).toFixed(0) }}
-                      </p>
-                      <p v-else class="text-[14px] text-amber-400 font-bold text-center">LKR {{ product.selling_price }} </p>
-                    </div>
-                  </div>
-
-                  <!-- Sold Out Badge -->
-                  <div v-if="product.is_sold_out" class="absolute inset-0 flex items-center justify-center bg-zinc-900/70 rounded-lg">
-                    <span class="text-[10px] font-bold text-red-400">SOLD OUT</span>
-                  </div>
+                  {{ table.kotStatus === 'sent' ? 'KOT Sent' : 'KOT' }}
                 </button>
               </div>
+            </div> -->
+
+            <!-- Added Tables (dynamic beyond 25) -->
+            <div v-if="addedTables.length" class="mt-5">
+              <div class="flex items-center justify-between mb-3">
+                <p class="text-[15px] font-semibold text-zinc-300">Added Tables</p>
+                <p class="text-xs text-zinc-500">Tap table to select</p>
+              </div>
+              <div class="grid grid-cols-4 gap-3">
+                <div
+                  v-for="table in addedTables"
+                  :key="table.id"
+                  :class="[
+                    'relative flex flex-col items-center justify-center rounded-xl px-2 py-4 cursor-pointer ring-1 transition-all duration-200',
+                    (selectedTable && table.id === selectedTable.id)
+                      ? 'bg-amber-500/15 ring-amber-500/100 shadow-sm'
+                      : (table.products && table.products.length > 0
+                        ? 'bg-amber-500/10 ring-red-500/100'
+                        : 'bg-zinc-800 ring-white/10 hover:bg-amber-500/10 hover:ring-amber-500/30'),
+                  ]"
+                  @click="selectTable(table)"
+                >
+                  <!-- Remove icon for added tables -->
+                  <button
+                    @click.stop="removeAddedTable(table.id)"
+                    class="absolute -right-1.5 -top-1.5 w-6 h-6 flex items-center justify-center rounded-full bg-red-500 text-white hover:bg-red-600 shadow-sm transition"
+                    title="Remove table"
+                  >
+                    <i class="ri-close-line text-xs"></i>
+                  </button>
+
+                  <span class="text-xs font-medium text-zinc-500 uppercase tracking-wider">Table</span>
+                  <span class="text-2xl font-bold text-white leading-tight">
+                    {{ table.number }}
+                  </span>
+
+                  <button
+                    @click.stop="sendKOT(table)"
+                    :disabled="isKOTDisabled(table)"
+                    :class="[
+                      'mt-2 px-3 py-1 text-xl font-semibold rounded-lg transition',
+                      isKOTDisabled(table)
+                        ? 'bg-zinc-700 text-zinc-500 cursor-not-allowed'
+                        : 'bg-emerald-500 text-white hover:bg-emerald-600 active:scale-95'
+                    ]"
+                  >
+                    {{ table.kotStatus === 'sent' ? 'KOT Sent' : 'KOT' }}
+                  </button>
+                </div>
+              </div>
+            </div>
             </div>
           </div>
         </div>
 
         <!-- Right: Bill -->
-        <div class="flex flex-col w-[50%] min-h-0">
+        <div class="flex flex-col flex-1 min-h-0">
           <div class="flex flex-col h-full bg-zinc-900 rounded-2xl border border-white/10 overflow-hidden">
 
             <!-- Bill Header — fixed -->
-            <div class="flex-shrink-0 border-b border-white/10">
-              <!-- Tables Selector -->
-              <div class="px-5 pt-5 pb-3 border-b border-white/10 bg-zinc-950/50">
-                <div class="flex items-center justify-between mb-3">
-                  <h3 class="text-sm font-bold text-zinc-400 uppercase tracking-wide">Tables</h3>
-                  <button
-                    @click="addTable"
-                    class="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white text-[12px] font-semibold transition active:scale-95"
-                    title="Add new table"
-                  >
-                    <i class="ri-add-line text-base"></i>
-                    Add Table
-                  </button>
-                </div>
-                <!-- Tables & Live Bill Tabs -->
-                <div class="flex gap-2 overflow-x-auto pb-2">
-                  <!-- Live Bill Tab -->
-                  <button
-                    @click="selectedTable = tables.find(t => t.id === 'default')"
-                    :class="[
-                      'flex-shrink-0 px-4 py-2.5 rounded-xl font-semibold text-[14px] transition border ring-1',
-                      selectedTable?.id === 'default'
-                        ? 'bg-amber-500/20 border-amber-500/50 ring-amber-500/30 text-amber-400'
-                        : 'bg-zinc-800 border-white/10 ring-white/5 text-zinc-300 hover:bg-zinc-700 hover:border-amber-500/30'
-                    ]"
-                  >
-                    <i class="ri-receipt-line text-base mr-2"></i>
-                    Live Bill
-                  </button>
-                  <!-- Restaurant Tables -->
-                  <button
-                    v-for="table in addedTables"
-                    :key="table.id"
-                    @click="selectedTable = table"
-                    :class="[
-                      'flex-shrink-0 px-4 py-2.5 rounded-xl font-semibold text-[14px] transition border ring-1 relative',
-                      selectedTable?.id === table.id
-                        ? 'bg-blue-500/20 border-blue-500/50 ring-blue-500/30 text-blue-400'
-                        : 'bg-zinc-800 border-white/10 ring-white/5 text-zinc-300 hover:bg-zinc-700 hover:border-blue-500/30'
-                    ]"
-                  >
-                    <i class="ri-table-2 text-base mr-2"></i>
-                    Table {{ table.number }}
-                    <span v-if="table.products?.length > 0" class="absolute -top-2 -right-2 min-w-[20px] h-5 flex items-center justify-center bg-red-500 text-white text-[10px] font-bold rounded-full">
-                      {{ table.products.length }}
-                    </span>
-                  </button>
-                </div>
+            <div class="flex-shrink-0 px-5 pt-5 pb-4 border-b border-white/10">
+            <div class="flex flex-wrap items-center justify-between w-full gap-3">
+              <!-- Left: title + customer button -->
+              <div class="flex items-center gap-3">
+                <h2 class="text-2xl font-bold text-white">
+                  {{
+                    selectedTable?.id === 'default'
+                      ? 'Live Bill'
+                      : `Table ${selectedTable?.number}`
+                  }}
+                </h2>
+                <button
+                  @click="() => { openEditModal(color); }"
+                  class="flex items-center gap-2 px-4 py-2.5 bg-zinc-800 text-zinc-300 border border-white/10 rounded-xl hover:bg-zinc-700 hover:text-white transition text-[15px] font-medium"
+                >
+                  <i class="ri-user-line text-lg text-zinc-400"></i>
+                </button>
               </div>
 
-              <!-- Bill Title & Controls -->
-              <div class="px-5 py-4">
-                <div class="flex flex-wrap items-center justify-between w-full gap-3">
-                  <!-- Left: title + customer button -->
-                  <div class="flex items-center gap-3">
-                    <h2 class="text-2xl font-bold text-white flex items-center gap-2">
-                      <i class="ri-file-list-3-line text-amber-400"></i>
-                      {{ selectedTable?.id === 'default' ? 'Live Bill' : `Table ${selectedTable?.number}` }}
-                    </h2>
-                    <button
-                      @click="() => { openEditModal(color); }"
-                      class="flex items-center gap-2 px-4 py-2.5 bg-zinc-800 text-zinc-300 border border-white/10 rounded-xl hover:bg-zinc-700 hover:text-white transition text-[15px] font-medium"
-                      title="Customer details"
-                    >
-                      <i class="ri-user-line text-lg text-zinc-400"></i>
-                    </button>
-                  </div>
+              <!-- Right: order type buttons (Live Bill only) + Food & Bar -->
+              <div class="flex items-center gap-2">
+                <template v-if="selectedTable?.id === 'default'">
+                  <!-- Takeaway -->
+                  <button
+                    @click="selectedTable.order_type = 'takeaway'"
+                    :class="[
+                      'flex items-center gap-2 px-4 py-2.5 rounded-xl ring-1 text-[15px] font-semibold transition active:scale-95',
+                      selectedTable.order_type === 'takeaway'
+                        ? 'bg-amber-500 ring-amber-500 text-zinc-900 shadow-md shadow-amber-500/20'
+                        : 'bg-zinc-800 ring-white/10 text-zinc-300 hover:bg-amber-500/15 hover:ring-amber-500/40 hover:text-amber-400'
+                    ]"
+                  >
+                    <i class="ri-shopping-bag-3-line text-lg"></i>
+                    <span>Takeaway</span>
+                  </button>
 
-                  <!-- Right: order type buttons -->
-                  <div class="flex items-center gap-2">
-                    <!-- Takeaway -->
-                    <button
-                      @click="selectedTable.order_type = 'takeaway'"
-                      :class="[
-                        'flex items-center gap-2 px-4 py-2.5 rounded-xl ring-1 text-[15px] font-semibold transition active:scale-95',
-                        selectedTable.order_type === 'takeaway'
-                          ? 'bg-amber-500 ring-amber-500 text-zinc-900 shadow-md shadow-amber-500/20'
-                          : 'bg-zinc-800 ring-white/10 text-zinc-300 hover:bg-amber-500/15 hover:ring-amber-500/40 hover:text-amber-400'
-                      ]"
-                    >
-                      <i class="ri-shopping-bag-3-line text-lg"></i>
-                      <span>Takeaway</span>
-                    </button>
+                  <!-- In-Room Dining -->
+                  <button
+                    @click="selectedTable.order_type = 'pickup'"
+                    :class="[
+                      'flex items-center gap-2 px-4 py-2.5 rounded-xl ring-1 text-[15px] font-semibold transition active:scale-95',
+                      selectedTable.order_type === 'pickup'
+                        ? 'bg-violet-600 ring-violet-600 text-white shadow-md'
+                        : 'bg-zinc-800 ring-white/10 text-zinc-300 hover:bg-violet-500/15 hover:ring-violet-500/40 hover:text-violet-400'
+                    ]"
+                  >
+                    <i class="ri-hotel-bed-line text-lg"></i>
+                    <span>Delivery</span>
+                  </button>
+                </template>
 
-                    <!-- In-Room Dining -->
-                    <button
-                      @click="selectedTable.order_type = 'pickup'"
-                      :class="[
-                        'flex items-center gap-2 px-4 py-2.5 rounded-xl ring-1 text-[15px] font-semibold transition active:scale-95',
-                        selectedTable.order_type === 'pickup'
-                          ? 'bg-violet-600 ring-violet-600 text-white shadow-md'
-                          : 'bg-zinc-800 ring-white/10 text-zinc-300 hover:bg-violet-500/15 hover:ring-violet-500/40 hover:text-violet-400'
-                      ]"
-                    >
-                      <i class="ri-hotel-bed-line text-lg"></i>
-                      <span>Delivery</span>
-                    </button>
-                  </div>
-                </div>
+                <!-- Food Menu -->
+                <span
+                  class="flex items-center gap-2 cursor-pointer px-4 py-2.5 bg-amber-500/15 ring-1 ring-amber-500/40 rounded-xl hover:bg-amber-500/25 transition"
+                  @click="selectedMenuType = '0'; isSelectModalOpen = true"
+                >
+                  <i class="ri-restaurant-line text-amber-400"></i>
+                  <span class="text-[15px] text-amber-400 font-semibold">Food Menu</span>
+                </span>
+
+                <!-- Bar Menu -->
+                <span
+                  class="flex items-center gap-2 cursor-pointer px-4 py-2.5 bg-amber-500/15 ring-1 ring-amber-500/40 rounded-xl hover:bg-amber-500/25 transition"
+                  @click="selectedMenuType = '1'; isSelectModalOpen = true"
+                >
+                  <i class="ri-goblet-line text-amber-400"></i>
+                  <span class="text-[15px] text-amber-400 font-semibold">Beverages Menu</span>
+                </span>
               </div>
+            </div>
             </div>
 
             <!-- Scrollable bill body -->
@@ -355,10 +299,10 @@
               </div>
             </div>
 
-            <div class="space-y-2 mb-4 max-h-[420px] overflow-y-auto">
+            <div class="space-y-2 mb-4">
               <div
                 v-for="item in selectedTable.products"
-                :key="item.cart_key || item.id"
+                :key="item.id"
                 class="group flex gap-3 p-3 rounded-2xl bg-zinc-800 border border-white/10 hover:border-white/20 transition-all duration-200"
               >
                 <!-- Product Image -->
@@ -380,9 +324,10 @@
                     <div class="min-w-0">
                       <h3 class="text-[15px] font-bold text-white leading-snug truncate">
                         {{ item.name }}
-                        <span v-if="item.size?.name" class="text-[12px] text-amber-400 font-semibold"> ({{ item.size.name }})</span>
                       </h3>
-
+                      <p v-if="item.size?.name" class="text-[14px] font-semibold text-zinc-400 mt-0.5 leading-snug">
+                       Size : {{ item.size.name }}
+                      </p>
                     </div>
                     <button
                       @click="removeProduct(item.id)"
@@ -622,84 +567,131 @@
               />
             </div>
 
-            <div class="flex flex-col w-full gap-2">
-              <!-- 6 Action Buttons Grid (2 columns × 3 rows) -->
-              <div class="grid grid-cols-2 gap-2">
-                <!-- Cash Button -->
-                <button
-                  @click="selectedPaymentMethod = 'cash'"
-                  :class="[
-                    'py-3 flex items-center justify-center gap-2 text-sm font-bold rounded-xl transition-all active:scale-[0.98]',
-                    selectedPaymentMethod === 'cash'
-                      ? 'bg-amber-500 hover:bg-amber-600 text-zinc-900 shadow-lg shadow-amber-500/20'
-                      : 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700'
-                  ]"
-                >
-                  <i class="ri-money-dollar-circle-line text-lg"></i>Cash
-                </button>
+            <div class="flex flex-col w-full gap-5">
+              <!-- Payment Method Toggle -->
+              <div class="flex flex-col gap-2">
+                <p class="text-[13px] font-semibold text-zinc-500 uppercase tracking-wide px-1">
+                  Payment Method
+                </p>
+                <div class="grid grid-cols-2 gap-3">
 
-                <!-- Card Button -->
-                <button
-                  @click="selectedPaymentMethod = 'card'"
-                  :class="[
-                    'py-3 flex items-center justify-center gap-2 text-sm font-bold rounded-xl transition-all active:scale-[0.98]',
-                    selectedPaymentMethod === 'card'
-                      ? 'bg-blue-500 hover:bg-blue-600 text-white shadow-lg shadow-blue-500/20'
-                      : 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700'
-                  ]"
-                >
-                  <i class="ri-bank-card-line text-lg"></i>Card
-                </button>
+                  <!-- Cash -->
+                  <button
+                    @click="selectedPaymentMethod = 'cash'"
+                    :class="[
+                      'relative flex items-center gap-4 px-5 py-4 rounded-2xl ring-1 transition-all duration-200 active:scale-[0.97] text-left',
+                      selectedPaymentMethod === 'cash'
+                        ? 'bg-amber-500/15 ring-amber-500/50 shadow-md'
+                        : 'bg-zinc-800 ring-white/10 hover:ring-amber-500/40 hover:bg-amber-500/10'
+                    ]"
+                  >
+                    <div :class="[
+                      'w-12 h-12 flex-shrink-0 flex items-center justify-center rounded-xl transition',
+                      selectedPaymentMethod === 'cash' ? 'bg-amber-500/20' : 'bg-zinc-700'
+                    ]">
+                      <i :class="['ri-money-dollar-circle-line text-2xl', selectedPaymentMethod === 'cash' ? 'text-amber-500' : 'text-zinc-500']"></i>
+                    </div>
+                    <div>
+                      <p :class="['text-[15px] font-bold leading-tight', selectedPaymentMethod === 'cash' ? 'text-amber-300' : 'text-zinc-300']">Cash</p>
+                      <p :class="['text-[12px] font-medium', selectedPaymentMethod === 'cash' ? 'text-amber-500' : 'text-zinc-500']">Pay with cash</p>
+                    </div>
+                    <div v-if="selectedPaymentMethod === 'cash'" class="absolute top-2.5 right-2.5 w-5 h-5 bg-amber-500 rounded-full flex items-center justify-center">
+                      <i class="ri-check-line text-white text-xs"></i>
+                    </div>
+                  </button>
 
-                <!-- Send KOT Button -->
+                  <!-- Card -->
+                  <button
+                    @click="selectedPaymentMethod = 'card'"
+                    :class="[
+                      'relative flex items-center gap-4 px-5 py-4 rounded-2xl ring-1 transition-all duration-200 active:scale-[0.97] text-left',
+                      selectedPaymentMethod === 'card'
+                        ? 'bg-blue-500/15 ring-blue-500/50 shadow-md'
+                        : 'bg-zinc-800 ring-white/10 hover:ring-blue-500/40 hover:bg-blue-500/10'
+                    ]"
+                  >
+                    <div :class="[
+                      'w-12 h-12 flex-shrink-0 flex items-center justify-center rounded-xl transition',
+                      selectedPaymentMethod === 'card' ? 'bg-blue-500/20' : 'bg-zinc-700'
+                    ]">
+                      <i :class="['ri-bank-card-line text-2xl', selectedPaymentMethod === 'card' ? 'text-blue-400' : 'text-zinc-500']"></i>
+                    </div>
+                    <div>
+                      <p :class="['text-[15px] font-bold leading-tight', selectedPaymentMethod === 'card' ? 'text-blue-300' : 'text-zinc-300']">Card</p>
+                      <p :class="['text-[12px] font-medium', selectedPaymentMethod === 'card' ? 'text-blue-400' : 'text-zinc-500']">Debit / Credit</p>
+                    </div>
+                    <div v-if="selectedPaymentMethod === 'card'" class="absolute top-2.5 right-2.5 w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center">
+                      <i class="ri-check-line text-white text-xs"></i>
+                    </div>
+                  </button>
+
+                </div>
+              </div>
+
+              <!-- KOT BUTTON — visible for Live Bill when order type is takeaway or in-room -->
+              <div
+                v-if="selectedTable?.id === 'default' && (selectedTable.order_type === 'takeaway' || selectedTable.order_type === 'pickup') && selectedTable.products.length > 0"
+                class="flex items-center justify-center w-full"
+              >
                 <button
-                  v-if="selectedTable && selectedTable.products.length > 0"
                   @click="sendTakeawayKOT"
                   type="button"
-                  class="py-3 flex items-center justify-center gap-2 text-sm font-bold text-white rounded-xl transition-all active:scale-[0.98]"
-                  :class="selectedTable.id !== 'default' || selectedTable.order_type === 'pickup' ? 'bg-blue-600 hover:bg-blue-700' : 'bg-amber-600 hover:bg-amber-700'"
+                  class="w-full py-4 flex items-center justify-center gap-3 text-lg font-bold tracking-wider text-white uppercase rounded-xl transition-all duration-200 active:scale-[0.98]"
+                  :class="selectedTable.order_type === 'pickup' ? 'bg-violet-600 hover:bg-violet-700' : 'bg-amber-500 hover:bg-amber-600'"
                 >
-                  <i class="ri-restaurant-2-line text-lg"></i>Send KOT
+                  <i class="ri-restaurant-2-line text-xl"></i>
+                  Send KOT
+                  <span class="text-sm font-medium normal-case opacity-80">
+                    ({{ selectedTable.order_type === 'pickup' ? 'In-Room Dining' : 'Takeaway' }})
+                  </span>
                 </button>
+              </div>
 
-                <!-- Hold Order Button -->
+              <!-- HOLD TAKEAWAY ORDER BUTTON (Live Bill + takeaway + has products) -->
+              <div
+                v-if="selectedTable?.id === 'default' && selectedTable.order_type === 'takeaway' && selectedTable.products.length > 0"
+                class="flex items-center justify-center w-full"
+              >
                 <button
-                  v-if="selectedTable?.id === 'default' && selectedTable.order_type === 'takeaway' && selectedTable.products.length > 0"
                   @click="holdTakeawayOrder"
                   type="button"
-                  class="py-3 flex items-center justify-center gap-2 text-sm font-bold text-amber-400 rounded-xl bg-zinc-800 hover:bg-zinc-700 transition-all active:scale-[0.98]"
+                  class="w-full py-4 flex items-center justify-center gap-3 text-[16px] font-bold tracking-wider text-amber-300 uppercase rounded-xl bg-zinc-800 hover:bg-zinc-700 ring-1 ring-amber-500/30 hover:ring-amber-500/60 transition-all duration-200 active:scale-[0.98]"
                 >
-                  <i class="ri-pause-circle-line text-lg"></i>Hold Order
+                  <i class="ri-pause-circle-line text-xl"></i>
+                  Hold Order
                 </button>
+              </div>
 
-                <!-- Get Bill Button -->
+              <!-- TEMP BILL-ONLY BUTTON -->
+              <div class="flex items-center justify-center w-full">
                 <button
                   @click="printBillOnly"
                   type="button"
                   :disabled="!selectedTable || selectedTable.products.length === 0"
                   :class="[
-                    'py-3 flex items-center justify-center gap-2 text-sm font-bold rounded-xl transition-all active:scale-[0.98]',
+                    'w-full py-4 text-lg font-bold tracking-wider text-center uppercase rounded-xl ring-1 transition-all duration-200 active:scale-[0.98]',
                     !selectedTable || selectedTable.products.length === 0
-                      ? 'bg-zinc-800 text-zinc-600 cursor-not-allowed'
-                      : 'bg-zinc-700 text-zinc-200 hover:bg-zinc-600'
+                      ? 'bg-zinc-800 text-zinc-600 border border-white/5 cursor-not-allowed'
+                      : 'bg-zinc-800 text-zinc-300 border border-white/20 hover:bg-zinc-700 hover:text-white cursor-pointer'
                   ]"
                 >
-                  <i class="ri-printer-line text-lg"></i>Get Bill
+                  <i class="pr-2 ri-printer-line"></i> Get Bill (Temp - Customer Bill)
                 </button>
+              </div>
 
-                <!-- Confirm Order Button -->
+              <div class="flex items-center justify-center w-full">
                 <button
                   @click="submitOrder"
                   type="button"
                   :disabled="!selectedTable || selectedTable.products.length === 0"
                   :class="[
-                    'py-3 flex items-center justify-center gap-2 text-sm font-bold rounded-xl transition-all active:scale-[0.98]',
+                    'w-full py-4 text-lg font-bold tracking-wider text-center text-white uppercase rounded-xl transition-all duration-200 active:scale-[0.98]',
                     !selectedTable || selectedTable.products.length === 0
                       ? 'bg-zinc-700 text-zinc-500 cursor-not-allowed'
-                      : 'bg-green-500 hover:bg-green-600 text-white shadow-lg shadow-green-500/20',
+                      : 'bg-amber-500 hover:bg-amber-400 text-zinc-900 shadow-lg shadow-amber-500/20 cursor-pointer',
                   ]"
                 >
-                  <i class="ri-check-double-line text-lg"></i>Confirm
+                  <i class="pr-2 ri-check-double-line"></i> Confirm Order
                 </button>
               </div>
             </div>
@@ -872,92 +864,6 @@
     @search="searchCustomer"
   />
 
-  <!-- Product Size & Quantity Selection Modal -->
-  <Teleport to="body">
-    <div v-if="isProductSelectionModalOpen" class="fixed inset-0 z-[1000] flex items-center justify-center p-4">
-      <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" @click="isProductSelectionModalOpen = false"></div>
-      <div class="relative bg-zinc-900 rounded-3xl border border-white/10 shadow-2xl w-full max-w-[420px] overflow-hidden flex flex-col">
-
-        <!-- Header -->
-        <div class="flex items-center justify-between px-5 py-4 border-b border-white/10">
-          <div>
-            <h3 class="text-lg font-bold text-white">{{ selectedProductForModal?.name }}</h3>
-            <p v-if="selectedProductForModal?.sizes" class="text-[12px] text-amber-400 font-semibold mt-1">
-              {{ Math.min(...selectedProductForModal.sizes.map(s => parseFloat(s.price || 0))).toFixed(0) }} - {{ Math.max(...selectedProductForModal.sizes.map(s => parseFloat(s.price || 0))).toFixed(0) }} LKR
-            </p>
-          </div>
-          <button @click="isProductSelectionModalOpen = false"
-            class="w-9 h-9 flex items-center justify-center rounded-xl bg-white/10 text-zinc-400 hover:bg-white/20 hover:text-white transition">
-            <i class="ri-close-line text-xl"></i>
-          </button>
-        </div>
-
-        <div class="p-5 space-y-4 flex-1 overflow-y-auto">
-          <!-- Size Selection -->
-          <div>
-            <label class="block text-sm font-semibold text-zinc-300 mb-3">Select Size</label>
-            <div class="grid grid-cols-2 gap-2">
-              <button
-                v-for="size in selectedProductForModal?.sizes"
-                :key="size.id"
-                @click="selectedSizeForModal = size"
-                :class="[
-                  'py-3 px-4 rounded-xl font-semibold text-sm transition border ring-1 flex flex-col items-center gap-1',
-                  selectedSizeForModal?.id === size.id
-                    ? 'bg-amber-500/20 border-amber-500/50 ring-amber-500/30 text-amber-400'
-                    : 'bg-zinc-800 border-white/10 ring-white/5 text-zinc-300 hover:border-amber-500/40'
-                ]"
-              >
-                <span>{{ size.name }}</span>
-                <span class="text-[11px] opacity-75">{{ parseFloat(size.price || 0).toFixed(2) }} LKR</span>
-              </button>
-            </div>
-          </div>
-
-          <!-- Quantity Selection -->
-          <div>
-            <label class="block text-sm font-semibold text-zinc-300 mb-3">Quantity</label>
-            <div class="flex items-center gap-2">
-              <button
-                @click="quantityForModal = Math.max(1, quantityForModal - 1)"
-                class="w-10 h-10 flex items-center justify-center rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 transition"
-              >
-                <i class="ri-subtract-line text-lg"></i>
-              </button>
-              <input
-                v-model.number="quantityForModal"
-                type="number"
-                min="1"
-                class="flex-1 h-10 text-center bg-zinc-800 border border-white/10 rounded-lg text-white font-bold text-lg focus:border-amber-500 focus:outline-none"
-              />
-              <button
-                @click="quantityForModal = quantityForModal + 1"
-                class="w-10 h-10 flex items-center justify-center rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 transition"
-              >
-                <i class="ri-add-line text-lg"></i>
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Actions -->
-        <div class="flex gap-3 p-5 border-t border-white/10">
-          <button
-            @click="isProductSelectionModalOpen = false"
-            class="flex-1 py-3 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-semibold transition"
-          >
-            Cancel
-          </button>
-          <button
-            @click="confirmProductSelection"
-            class="flex-1 py-3 rounded-lg bg-amber-500 hover:bg-amber-600 text-zinc-900 font-bold transition"
-          >
-            Add to Cart
-          </button>
-        </div>
-      </div>
-    </div>
-  </Teleport>
 
   <!-- Bank Selection Modal -->
   <Teleport to="body">
@@ -1617,7 +1523,7 @@ const props = defineProps({
 
 const openEditModal = (color) => {
   console.log("Opening edit modal for Colors:", color);
-
+  
   isEditModalOpen.value = true;
 };
 const isEditModalOpen = ref(false);
@@ -1726,12 +1632,6 @@ const lastOrdersLoading = ref(false);
 const isExpensesModalOpen = ref(false);
 const newExpense = ref({ reason: '', amount: '' });
 const isExpenseSubmitting = ref(false);
-
-// Product size/quantity selection modal
-const isProductSelectionModalOpen = ref(false);
-const selectedProductForModal = ref(null);
-const selectedSizeForModal = ref(null);
-const quantityForModal = ref(1);
 
 // ===== Ongoing Takeaway Orders (Hold / Ongoing) =====
 const HELD_TAKEAWAY_KEY = 'heldTakeawayOrders';
@@ -2256,24 +2156,23 @@ onMounted(async () => {
     }
   }
 
-
   // Listen for waiter order selection from notification panel
   window.addEventListener('loadWaiterOrder', (event) => {
     const { tableId, products, orderId } = event.detail;
-
+    
     // Find and select the table
     const table = tables.value.find(t => t.id === tableId);
     if (table) {
       // Clear existing products if this is a new order
       if (table.products.length === 0 || confirm('Replace existing items with waiter order?')) {
         table.products = [];
-
+        
         // Load the waiter order products into the table
         if (products) {
           const foodItems = products.food || [];
           const barItems = products.bar || [];
           const allItems = [...foodItems, ...barItems];
-
+          
           // Add all items with full product details
           allItems.forEach(item => {
             if (item && item.id) {
@@ -2286,7 +2185,7 @@ onMounted(async () => {
           });
         }
       }
-
+      
       // Update selected table reference to trigger reactivity
       selectedTable.value = table;
       localStorage.setItem("tables", JSON.stringify(tables.value));
@@ -2394,102 +2293,6 @@ const discount = ref(0);
 const customer = ref({ name: "", contactNumber: "", email: "" });
 const employee_id = ref("");
 const selectedPaymentMethod = ref("cash");
-const selectedCategory = ref(null);
-const productSearch = ref("");
-
-// Watch selectedMenuType to reset category and search when menu type changes
-watch(() => selectedMenuType.value, () => {
-  selectedCategory.value = null;
-  productSearch.value = "";
-});
-
-// Watch selectedCategory to clear search when category changes
-watch(() => selectedCategory.value, () => {
-  productSearch.value = "";
-});
-
-const filteredCategories = computed(() => {
-  if (!selectedMenuType.value) return props.allcategories || [];
-
-  return (props.allcategories || []).filter(category => {
-    // Check category_type: 0 = Food, 1 = Bar/Beverages
-    if (category.category_type !== null && category.category_type !== undefined) {
-      const isFoodType = category.category_type === 0 || category.category_type === '0';
-      const isBeverageType = category.category_type === 1 || category.category_type === '1';
-
-      if (selectedMenuType.value === 'food') {
-        return isFoodType;
-      } else if (selectedMenuType.value === 'beverage') {
-        return isBeverageType;
-      }
-    }
-
-    // Fallback: check category name for keywords if category_type is missing
-    const name = (category.name || '').toLowerCase();
-    if (selectedMenuType.value === 'food') {
-      return !name.includes('beverage') && !name.includes('drink') && !name.includes('wine') && !name.includes('beer');
-    } else if (selectedMenuType.value === 'beverage') {
-      return name.includes('beverage') || name.includes('drink') || name.includes('wine') || name.includes('beer');
-    }
-    return true;
-  });
-});
-
-const categoryProducts = computed(() => {
-  if (!selectedCategory.value) {
-    // Show all products from filtered categories
-    const allProducts = [];
-    filteredCategories.value?.forEach(category => {
-      if (category.products && Array.isArray(category.products)) {
-        allProducts.push(...category.products);
-      }
-    });
-    return allProducts;
-  }
-  // Show products from selected category
-  const category = filteredCategories.value?.find(c => c.id === selectedCategory.value.id);
-  if (!category || !category.products) return [];
-  return category.products;
-});
-
-const filteredProducts = computed(() => {
-  let filtered = categoryProducts.value;
-  if (productSearch.value.trim()) {
-    const query = productSearch.value.toLowerCase();
-    filtered = categoryProducts.value.filter(product =>
-      product.name?.toLowerCase().includes(query)
-    );
-  }
-
-  // Group products by base name and merge size variants
-  const grouped = {};
-  filtered.forEach(product => {
-    const baseName = product.name;
-    if (!grouped[baseName]) {
-      grouped[baseName] = {
-        ...product,
-        sizes: [],
-        originalProduct: product
-      };
-    }
-
-    // Add size variant if product has a size
-    if (product.size?.id && product.size?.name) {
-      const existingSize = grouped[baseName].sizes.find(s => s.id === product.size.id);
-      if (!existingSize) {
-        grouped[baseName].sizes.push({
-          id: product.size.id,
-          name: product.size.name,
-          price: product.selling_price,
-          product_id: product.id,
-          full_product: product
-        });
-      }
-    }
-  });
-
-  return Object.values(grouped);
-});
 
 const refreshData = async () => {
   if (selectedTable.value?.id === "default") {
@@ -2546,30 +2349,17 @@ const refreshData = async () => {
 const removeProduct = (id) => {
   if (!selectedTable.value) return;
   selectedTable.value.products = selectedTable.value.products.filter(item => item.id !== id);
-  localStorage.setItem("tables", JSON.stringify(tables.value));
-  localStorage.setItem("selectedTable", JSON.stringify(selectedTable.value));
 };
-
 const removeCoupon = () => { appliedCoupon.value = null; couponForm.code = ""; };
-
 const incrementQuantity = (id) => {
   if (!selectedTable.value) return;
   const p = selectedTable.value.products.find(i => i.id === id);
-  if (p) {
-    p.quantity += 1;
-    localStorage.setItem("tables", JSON.stringify(tables.value));
-    localStorage.setItem("selectedTable", JSON.stringify(selectedTable.value));
-  }
+  if (p) p.quantity += 1;
 };
-
 const decrementQuantity = (id) => {
   if (!selectedTable.value) return;
   const p = selectedTable.value.products.find(i => i.id === id);
-  if (p && p.quantity > 1) {
-    p.quantity -= 1;
-    localStorage.setItem("tables", JSON.stringify(tables.value));
-    localStorage.setItem("selectedTable", JSON.stringify(selectedTable.value));
-  }
+  if (p && p.quantity > 1) p.quantity -= 1;
 };
 
 const addTable = async () => {
@@ -2828,72 +2618,6 @@ const removeDiscount = (id) => {
   const p = selectedTable.value.products.find((item) => item.id === id);
   if (p) p.apply_discount = false;
 };
-const addProductToCart = (product) => {
-  if (!selectedTable.value || !product) return;
-
-  // Check if product has sizes available
-  if (product.sizes && Array.isArray(product.sizes) && product.sizes.length > 0) {
-    selectedProductForModal.value = product;
-    selectedSizeForModal.value = product.sizes[0] || null;
-    quantityForModal.value = 1;
-    isProductSelectionModalOpen.value = true;
-    return;
-  }
-
-  // For products without size variants, use the original product data
-  const productToAdd = product.originalProduct || product;
-  const existing = selectedTable.value.products.find((i) => i.id === productToAdd.id);
-  if (existing) {
-    existing.quantity += 1;
-  } else {
-    selectedTable.value.products.push({
-      ...productToAdd,
-      quantity: 1,
-      apply_discount: false,
-      size: productToAdd.size || null,
-    });
-  }
-
-  // Save to localStorage
-  localStorage.setItem("tables", JSON.stringify(tables.value));
-  localStorage.setItem("selectedTable", JSON.stringify(selectedTable.value));
-};
-
-const confirmProductSelection = () => {
-  if (!selectedTable.value || !selectedProductForModal.value) return;
-
-  const groupedProduct = selectedProductForModal.value;
-  const quantity = parseInt(quantityForModal.value) || 1;
-  const selectedSize = selectedSizeForModal.value;
-
-  // Get the full product data from the selected size
-  const fullProduct = selectedSize?.full_product || groupedProduct.originalProduct || groupedProduct;
-  const cartKey = `${fullProduct.id}_${selectedSize?.id || 'no-size'}`;
-  const existing = selectedTable.value.products.find((i) => i.cart_key === cartKey);
-
-  if (existing) {
-    existing.quantity += quantity;
-  } else {
-    selectedTable.value.products.push({
-      ...fullProduct,
-      cart_key: cartKey,
-      quantity: quantity,
-      apply_discount: false,
-      size: selectedSize ? { id: selectedSize.id, name: selectedSize.name } : null,
-    });
-  }
-
-  // Save to localStorage
-  localStorage.setItem("tables", JSON.stringify(tables.value));
-  localStorage.setItem("selectedTable", JSON.stringify(selectedTable.value));
-
-  // Close modal
-  isProductSelectionModalOpen.value = false;
-  selectedProductForModal.value = null;
-  selectedSizeForModal.value = null;
-  quantityForModal.value = 1;
-};
-
 const handleSelectedProducts = (selectedProducts) => {
   if (!selectedTable.value) return;
   selectedProducts.forEach((fetchedProduct) => {
@@ -3022,14 +2746,6 @@ const sendTakeawayKOT = () => {
       return;
     }
 
-    // Get only new/changed items (delta)
-    const deltas = getKotDelta(table);
-    if (deltas.length === 0) {
-      isAlertModalOpen.value = true;
-      message.value = "No new items to send to kitchen. All items already sent.";
-      return;
-    }
-
     const kotNo = getNextKotNumberForToday();
     const now = new Date();
     const dateStr = now.toLocaleDateString();
@@ -3039,17 +2755,13 @@ const sendTakeawayKOT = () => {
       table.order_type === "takeaway" ? "Takeaway" :
       table.order_type === "pickup"   ? "In-Room Dining" : "Dine In";
 
-    // Use only delta items in KOT
-    const productRows = deltas.map(delta => {
-      const product = table.products.find(p => p.id === delta.id);
-      return `
+    const productRows = (table.products || []).map(p => `
       <tr>
-        <td>${delta.name || ""}</td>
-        <td style="text-align:center;">${delta.delta}</td>
-        <td style="text-align:center;">${delta.size || "N/A"}</td>
+        <td>${p.name || ""}</td>
+        <td style="text-align:center;">${Number(p.quantity || 1)}</td>
+        <td style="text-align:center;">${p.size?.name || "N/A"}</td>
       </tr>
-    `;
-    }).join("");
+    `).join("");
 
     const noteBlock = table.kitchen_note
       ? `<div class="note"><b>Kitchen Note:</b> ${table.kitchen_note}</div>`
@@ -3103,14 +2815,7 @@ const sendTakeawayKOT = () => {
     w.document.open();
     w.document.write(receiptHTML);
     w.document.close();
-    w.onload = () => {
-      w.focus();
-      w.print();
-      w.close();
-      // Update snapshot after KOT is sent
-      table.lastKotSnapshot = getKotSnapshot(table);
-      localStorage.setItem("tables", JSON.stringify(tables.value));
-    };
+    w.onload = () => { w.focus(); w.print(); w.close(); };
   } catch (err) {
     isAlertModalOpen.value = true;
     message.value = "Failed to print KOT.";
@@ -3183,15 +2888,15 @@ const printBillOnly = () => {
           <meta charset="utf-8" />
           <title>Bill</title>
           <style>
-            @page {
+            @page { 
               size: 80mm auto;
               margin: 0;
             }
-            @media print {
-              body {
-                margin: 0;
-                padding: 0;
-                -webkit-print-color-adjust: exact !important;
+            @media print { 
+              body { 
+                margin: 0; 
+                padding: 0; 
+                -webkit-print-color-adjust: exact !important; 
                 width: 80mm;
               }
               * {
@@ -3199,96 +2904,96 @@ const printBillOnly = () => {
                 color-adjust: exact !important;
               }
             }
-            body {
-              background: #fff;
-              font-size: 16px;
+            body { 
+              background: #fff; 
+              font-size: 16px; 
               font-family: 'Courier New', monospace;
-              margin: 0;
+              margin: 0; 
               padding: 8px 6px;
-              color: #000 !important;
+              color: #000 !important; 
               width: 80mm;
               box-sizing: border-box;
               font-weight: 900;
             }
-            h1 {
-              text-align: center;
-              margin: 0 0 12px 0;
+            h1 { 
+              text-align: center; 
+              margin: 0 0 12px 0; 
               font-size: 19px;
               font-weight: 900;
               color: #000 !important;
             }
-            .row {
-              display: flex;
-              justify-content: space-between;
+            .row { 
+              display: flex; 
+              justify-content: space-between; 
               margin: 7px 0;
               word-break: break-word;
               color: #000 !important;
               font-weight: 900;
               font-size: 15px;
             }
-            .badge {
-              border: 2px solid #000;
-              padding: 6px 8px;
-              text-align: center;
-              margin: 10px 0;
+            .badge { 
+              border: 2px solid #000; 
+              padding: 6px 8px; 
+              text-align: center; 
+              margin: 10px 0; 
               font-weight: 900;
               font-size: 14px;
               color: #000 !important;
             }
-            table {
-              width: 100%;
-              border-collapse: collapse;
+            table { 
+              width: 100%; 
+              border-collapse: collapse; 
               margin: 10px 0;
               font-size: 14px;
               font-weight: 900;
             }
-            th, td {
-              padding: 6px 3px;
+            th, td { 
+              padding: 6px 3px; 
               color: #000 !important;
               font-weight: 900;
             }
-            th {
+            th { 
               text-align: left;
               font-weight: 900;
               border-bottom: 2px solid #000;
               padding-bottom: 8px;
               font-size: 14px;
             }
-            tbody tr {
+            tbody tr { 
               border-bottom: 1px solid #ddd;
             }
             tbody tr:last-child {
               border-bottom: none;
             }
-            td {
-              text-align: right;
+            td { 
+              text-align: right; 
               color: #000 !important;
             }
-            td:first-child {
+            td:first-child { 
               text-align: left;
               max-width: 35mm;
               word-wrap: break-word;
               font-weight: 700;
             }
-            .totals {
-              margin-top: 10px;
-              border-top: 1px solid #999;
+            .totals { 
+              margin-top: 10px; 
+              border-top: 1px solid #999; 
               padding-top: 10px;
               font-size: 15px;
               font-weight: 900;
             }
-            .grand {
-              font-weight: 900;
-              font-size: 16px;
-              border-top: 2px solid #000;
-              padding-top: 10px;
+            .grand { 
+              font-weight: 900; 
+              font-size: 16px; 
+              border-top: 2px solid #000; 
+              padding-top: 10px; 
               margin-top: 8px;
               color: #000 !important;
             }
-            .note {
-              border-top: 1px solid #000;
-              padding-top: 10px;
-              margin-top: 12px;
+            .note { 
+              border-top: 1px solid #000; 
+              padding-top: 10px; 
+              margin-top: 12px; 
               font-weight: 900;
               font-size: 14px;
               color: #000 !important;
@@ -3297,7 +3002,7 @@ const printBillOnly = () => {
               border-top: 2px solid #000;
               margin: 10px 0;
             }
-            b {
+            b { 
               font-weight: 900;
               color: #000 !important;
             }

@@ -37,8 +37,10 @@ class PosController extends Controller
         }
 
         // Your existing data…
-        $allcategories = Category::with('parent')->get()->map(function ($category) {
+        $allcategories = Category::with(['parent', 'products.size', 'products.category'])->get()->map(function ($category) {
             $category->hierarchy_string = $category->hierarchy_string;
+            // Filter products: only show products from this category (by category_id match)
+            $category->products = $category->products->where('category_id', $category->id)->values();
             return $category;
         });
         $colors = Color::orderBy('created_at', 'desc')->get();

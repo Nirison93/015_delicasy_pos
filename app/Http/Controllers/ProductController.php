@@ -98,6 +98,12 @@ class ProductController extends Controller
 
     $products = $productsQuery->orderBy('created_at', 'desc')->paginate(1000);
 
+    // Add sold-out status to each product
+    $products->getCollection()->transform(function ($product) {
+        $product->is_sold_out = $product->stock_quantity <= 0;
+        return $product;
+    });
+
     return response()->json([
         'products' => $products,
     ]);

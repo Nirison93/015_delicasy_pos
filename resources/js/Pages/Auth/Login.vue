@@ -41,10 +41,14 @@ const submit = () => {
   <Head title="Log in"/>
 
   <div
-    class="flex min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950"
+    class="flex min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 bg-cover bg-center bg-no-repeat relative"
+    :style="{ backgroundImage: 'url(/images/login_img_auth.avif)' }"
   >
+    <!-- Dark overlay for readability -->
+    <div class="absolute inset-0 bg-black/60"></div>
+
     <!-- ===================== LEFT SIDE — Image ===================== -->
-    <div class="hidden lg:flex lg:w-3/4 relative overflow-hidden group">
+    <div class="hidden relative overflow-hidden group">
       <img
         src="/images/login_img_auth.avif"
         alt="Login visual"
@@ -72,10 +76,10 @@ const submit = () => {
 
     <!-- ===================== RIGHT SIDE — Login Form ===================== -->
     <div
-      class="flex w-full flex-col items-center justify-center px-6 py-12 lg:w-1/4 bg-gradient-to-b from-slate-900/50 to-slate-950"
+      class="relative z-10 flex w-full flex-col items-center justify-center px-6 py-12 bg-gradient-to-b from-slate-900/50 to-slate-950"
     >
       <div
-        class="w-full max-w-md space-y-8 transition-all duration-1000"
+        class="w-full max-w-2xl space-y-8 transition-all duration-1000"
         :class="isFormVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'"
       >
         <!-- Header -->
@@ -99,10 +103,10 @@ const submit = () => {
             </svg>
           </div>
           <div>
-            <h1 class="text-5xl font-extrabold tracking-tight text-white">
+            <h1 class="text-6xl font-extrabold tracking-tight text-white">
               Sign In
             </h1>
-            <p class="mt-3 text-lg text-slate-400">
+            <p class="mt-3 text-xl text-slate-400">
               Access your hotel management system
             </p>
           </div>
@@ -111,13 +115,13 @@ const submit = () => {
         <!-- Form card with enhanced styling -->
         <form
           @submit.prevent="submit"
-          class="group rounded-2xl border border-white/[0.08] bg-white/[0.03] backdrop-blur-xl p-8 shadow-2xl space-y-6 transition-all duration-300 hover:border-white/[0.12] hover:bg-white/[0.05]"
+          class="group rounded-2xl border border-white/[0.08] bg-white/[0.03] backdrop-blur-xl p-10 shadow-2xl space-y-7 transition-all duration-300 hover:border-white/[0.12] hover:bg-white/[0.05]"
         >
           <!-- Username -->
-          <div class="space-y-2">
+          <div class="space-y-3">
             <label
               for="identity"
-              class="block text-base font-semibold text-slate-300 uppercase tracking-wide"
+              class="block text-lg font-semibold text-slate-300 uppercase tracking-wide"
             >
               Username or Email
             </label>
@@ -131,7 +135,7 @@ const submit = () => {
                 id="identity"
                 v-model="form.identity"
                 type="text"
-                class="w-full rounded-xl border border-white/10 bg-white/[0.03] py-5 pl-12 pr-4 text-lg text-white placeholder:text-slate-500 transition-all duration-200 focus:border-emerald-500/50 focus:bg-white/[0.07] focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                class="w-full rounded-xl border border-white/10 bg-white/[0.03] py-6 pl-14 pr-4 text-xl text-white placeholder:text-slate-500 transition-all duration-200 focus:border-emerald-500/50 focus:bg-white/[0.07] focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
                 required
                 autofocus
                 placeholder="Enter your username"
@@ -145,10 +149,10 @@ const submit = () => {
           </div>
 
           <!-- Password -->
-          <div class="space-y-2">
+          <div class="space-y-3">
             <label
               for="password"
-              class="block text-base font-semibold text-slate-300 uppercase tracking-wide"
+              class="block text-lg font-semibold text-slate-300 uppercase tracking-wide"
             >
               Password
             </label>
@@ -162,7 +166,7 @@ const submit = () => {
                 id="password"
                 v-model="form.password"
                 :type="showPassword ? 'text' : 'password'"
-                class="w-full rounded-xl border border-white/10 bg-white/[0.03] py-5 pl-12 pr-14 text-lg text-white placeholder:text-slate-500 transition-all duration-200 focus:border-emerald-500/50 focus:bg-white/[0.07] focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                class="w-full rounded-xl border border-white/10 bg-white/[0.03] py-6 pl-14 pr-16 text-xl text-white placeholder:text-slate-500 transition-all duration-200 focus:border-emerald-500/50 focus:bg-white/[0.07] focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
                 required
                 placeholder="Enter your password"
                 autocomplete="current-password"
@@ -197,13 +201,13 @@ const submit = () => {
           <button
             type="submit"
             :disabled="form.processing"
-            class="relative w-full mt-8 overflow-hidden rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 py-5 text-lg font-semibold text-slate-900 shadow-lg shadow-emerald-500/30 transition-all duration-200 hover:from-emerald-400 hover:to-emerald-500 hover:shadow-emerald-500/40 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:ring-offset-2 focus:ring-offset-slate-900 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:scale-100 group"
+            class="relative w-full mt-10 overflow-hidden rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 py-7 text-xl font-semibold text-slate-900 shadow-lg shadow-emerald-500/30 transition-all duration-200 hover:from-emerald-400 hover:to-emerald-500 hover:shadow-emerald-500/40 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:ring-offset-2 focus:ring-offset-slate-900 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:scale-100 group"
           >
             <span class="absolute inset-0 origin-right scale-x-0 transform bg-white/10 transition-transform duration-500 group-hover:origin-left group-hover:scale-x-100"></span>
-            <span class="relative flex items-center justify-center gap-2">
+            <span class="relative flex items-center justify-center gap-3">
               <svg
                 v-if="form.processing"
-                class="h-6 w-6 animate-spin"
+                class="h-7 w-7 animate-spin"
                 viewBox="0 0 24 24"
                 fill="none"
               >
