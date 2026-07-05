@@ -422,8 +422,14 @@ onMounted(() => {
     dom: 'Bfrtip',
     pageLength: 10,
     buttons: [],
+    order: [],
+    aaSorting: [],
     columnDefs: [
-      { targets: 2, searchable: false, orderable: false },
+      {
+        targets: '_all',
+        orderable: false,
+      },
+      { targets: 2, searchable: false },
     ],
     initComplete: function () {
       const searchInput = $('div.dataTables_filter input')

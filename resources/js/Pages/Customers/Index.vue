@@ -271,11 +271,17 @@ $(document).ready(function () {
     dom: "Bfrtip",
     pageLength: 10,
     buttons: [],
+    order: [],
+    aaSorting: [],
     columnDefs: [
+      {
+        targets: '_all',
+        searchable: true,
+        orderable: false,
+      },
       {
         targets: [4],
         searchable: false,
-        orderable: false,
       },
     ],
     initComplete: function () {

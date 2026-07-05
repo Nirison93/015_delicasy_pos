@@ -106,7 +106,7 @@
                   >
                     <option value="" class="bg-zinc-800">— No Parent —</option>
                     <option
-                      v-for="category in categories"
+                      v-for="category in filteredCategories"
                       :key="category.id"
                       :value="category.id"
                       class="bg-zinc-800"
@@ -190,7 +190,7 @@ import {
   TransitionChild,
   TransitionRoot,
 } from "@headlessui/vue";
-import { ref, reactive } from "vue";
+import { ref, reactive, computed } from "vue";
 import { useForm } from "@inertiajs/vue3";
 
  
@@ -214,14 +214,19 @@ const emit = defineEmits(["update:open"]);
 const form = useForm({
   name: "",
   parent_id: "",
-   image: null,
-     category_type: "0",
+  image: null,
+  category_type: "0",
 });
 
 // Loading state
 const isSubmitting = ref(false);
 
- // Handle form submission
+// Filter categories by type (only show parents of same type)
+const filteredCategories = computed(() =>
+  props.categories.filter(c => c.category_type === form.category_type || c.category_type === parseInt(form.category_type))
+);
+
+// Handle form submission
 const handleSubmit = async () => {
   if (isSubmitting.value) return;
  
@@ -233,7 +238,7 @@ const handleSubmit = async () => {
 
   isSubmitting.value = true;
 
-  form.post("/categories", {
+  form.post(route('categories.store'), {
     forceFormData: true,
     onSuccess: () => {
       form.reset();

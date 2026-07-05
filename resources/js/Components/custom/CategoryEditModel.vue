@@ -211,16 +211,20 @@ const form = useForm({
   _method: "PUT",
   name: "",
   parent_id: "",
-  image: null,          // new file (optional)
+  image: null,
   remove_image: false,
-   category_type: "0",   // checkbox to remove current image
+  category_type: "0",
 });
 
 const currentImageUrl = ref(null);
+const originalCategoryType = ref("0");
 
-// Only allow selecting a parent that's not the current record
+// Only allow selecting a parent that's not the current record and matches category type
 const filteredCategories = computed(() =>
-  props.categories.filter(c => c.id !== props.selectedCategory?.id)
+  props.categories.filter(c =>
+    c.id !== props.selectedCategory?.id &&
+    (c.category_type === form.category_type || c.category_type === parseInt(form.category_type))
+  )
 );
 
 // Seed form when opening with a selected category
@@ -230,11 +234,13 @@ watch(
     if (!val) return;
     form.name = val.name ?? "";
     form.parent_id = val.parent?.id ?? "";
-    form.image = null; 
+    form.image = null;
+    form.remove_image = false;
     form.category_type = val.category_type?.toString() ?? "0";
+    originalCategoryType.value = form.category_type;
 
-    // If backend maps full URL via Storage::url(...), val.image is already like `/storage/...`
-    currentImageUrl.value = val.image || null;
+    // Build full URL from stored path (e.g., 'categories/filename.png' -> '/storage/categories/filename.png')
+    currentImageUrl.value = val.image ? `/storage/${val.image}` : null;
   },
   { immediate: true }
 );
@@ -247,6 +253,16 @@ const onFileChange = (e) => {
     form.remove_image = false;
   }
 };
+
+// Watch for category type changes to clear parent if type is incompatible
+watch(
+  () => form.category_type,
+  (newType) => {
+    if (newType !== originalCategoryType.value) {
+      form.parent_id = "";
+    }
+  }
+);
 
 const close = () => emit("update:open", false);
 

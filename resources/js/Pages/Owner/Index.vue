@@ -379,7 +379,14 @@ onMounted(() => {
     dom: "Bfrtip",
     pageLength: 10,
     buttons: [],
-    // No actions column now, so no need to disable ordering on any column.
+    order: [],
+    aaSorting: [],
+    columnDefs: [
+      {
+        targets: '_all',
+        orderable: false,
+      },
+    ],
     initComplete: function () {
       const searchInput = $("div.dataTables_filter input");
       searchInput.attr("placeholder", "Search ...");

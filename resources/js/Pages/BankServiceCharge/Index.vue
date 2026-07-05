@@ -169,10 +169,17 @@
     setTimeout(() => {
       $("#BankServiceChargeTable").DataTable({
         pageLength: 10,
-        ordering: true,
         dom: "Bfrtip",
         buttons: [],
-        columnDefs: [{ targets: [2], searchable: false, orderable: false }],
+        order: [],
+        aaSorting: [],
+        columnDefs: [
+          {
+            targets: '_all',
+            orderable: false,
+          },
+          { targets: [2], searchable: false },
+        ],
         language: { search: "", searchPlaceholder: "Search..." },
       });
     }, 300); // delay to wait for DOM rendering
