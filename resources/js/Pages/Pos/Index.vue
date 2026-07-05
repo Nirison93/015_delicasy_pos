@@ -622,57 +622,46 @@
               />
             </div>
 
-            <div class="flex flex-col w-full gap-3">
-              <!-- Row 1: Payment Methods (2 columns) -->
-              <div class="grid grid-cols-2 gap-2">
+            <div class="flex flex-col w-full gap-2">
+              <!-- Action Buttons (4 columns) -->
+              <div class="grid grid-cols-4 gap-2">
                 <!-- Cash Button -->
                 <button
                   @click="selectedPaymentMethod = 'cash'"
                   :class="[
-                    'py-3 flex items-center justify-center gap-2 text-sm font-bold rounded-xl transition-all active:scale-[0.98]',
+                    'py-3 flex items-center justify-center text-xs font-bold rounded-xl transition-all active:scale-[0.98]',
                     selectedPaymentMethod === 'cash'
                       ? 'bg-amber-500 hover:bg-amber-600 text-zinc-900 shadow-lg shadow-amber-500/20'
                       : 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700'
                   ]"
                 >
-                  <i class="ri-money-dollar-circle-line text-lg"></i>Cash
+                  Cash
                 </button>
 
                 <!-- Card Button -->
                 <button
                   @click="selectedPaymentMethod = 'card'"
                   :class="[
-                    'py-3 flex items-center justify-center gap-2 text-sm font-bold rounded-xl transition-all active:scale-[0.98]',
+                    'py-3 flex items-center justify-center text-xs font-bold rounded-xl transition-all active:scale-[0.98]',
                     selectedPaymentMethod === 'card'
                       ? 'bg-blue-500 hover:bg-blue-600 text-white shadow-lg shadow-blue-500/20'
                       : 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700'
                   ]"
                 >
-                  <i class="ri-bank-card-line text-lg"></i>Card
+                  Card
                 </button>
-              </div>
 
-              <!-- Row 2: Action Buttons (3 columns or flex wrap) -->
-              <div class="grid grid-cols-3 gap-2">
                 <!-- Send KOT Button -->
                 <button
                   v-if="selectedTable && selectedTable.products.length > 0"
                   @click="sendTakeawayKOT"
                   type="button"
-                  class="py-3 flex items-center justify-center gap-1.5 text-xs font-bold text-white rounded-xl transition-all active:scale-[0.98]"
-                  :class="selectedTable.id !== 'default' || selectedTable.order_type === 'pickup' ? 'bg-blue-600 hover:bg-blue-700' : 'bg-amber-600 hover:bg-amber-700'"
+                  :class="[
+                    'py-3 flex items-center justify-center text-xs font-bold rounded-xl transition-all active:scale-[0.98] text-white',
+                    selectedTable.id !== 'default' || selectedTable.order_type === 'pickup' ? 'bg-blue-600 hover:bg-blue-700' : 'bg-amber-600 hover:bg-amber-700'
+                  ]"
                 >
-                  <i class="ri-restaurant-2-line text-lg"></i><span>Send KOT</span>
-                </button>
-
-                <!-- Hold Order Button -->
-                <button
-                  v-if="selectedTable?.id === 'default' && selectedTable.order_type === 'takeaway' && selectedTable.products.length > 0"
-                  @click="holdTakeawayOrder"
-                  type="button"
-                  class="py-3 flex items-center justify-center gap-1.5 text-xs font-bold text-amber-400 rounded-xl bg-zinc-800 hover:bg-zinc-700 transition-all active:scale-[0.98]"
-                >
-                  <i class="ri-pause-circle-line text-lg"></i><span>Hold Order</span>
+                  Send KOT
                 </button>
 
                 <!-- Get Bill Button -->
@@ -681,29 +670,39 @@
                   type="button"
                   :disabled="!selectedTable || selectedTable.products.length === 0"
                   :class="[
-                    'py-3 flex items-center justify-center gap-1.5 text-xs font-bold rounded-xl transition-all active:scale-[0.98]',
+                    'py-3 flex items-center justify-center text-xs font-bold rounded-xl transition-all active:scale-[0.98]',
                     !selectedTable || selectedTable.products.length === 0
                       ? 'bg-zinc-800 text-zinc-600 cursor-not-allowed'
                       : 'bg-zinc-700 text-zinc-200 hover:bg-zinc-600'
                   ]"
                 >
-                  <i class="ri-printer-line text-lg"></i><span>Get Bill</span>
+                  Get Bill
                 </button>
               </div>
 
-              <!-- Row 3: Full-Width Confirm Button -->
+              <!-- Hold Order Button (conditional, full width if shown) -->
+              <button
+                v-if="selectedTable?.id === 'default' && selectedTable.order_type === 'takeaway' && selectedTable.products.length > 0"
+                @click="holdTakeawayOrder"
+                type="button"
+                class="w-full py-3 flex items-center justify-center text-xs font-bold text-amber-400 rounded-xl bg-zinc-800 hover:bg-zinc-700 transition-all active:scale-[0.98]"
+              >
+                Hold Order
+              </button>
+
+              <!-- Full-Width Confirm Button -->
               <button
                 @click="submitOrder"
                 type="button"
                 :disabled="!selectedTable || selectedTable.products.length === 0"
                 :class="[
-                  'w-full py-4 flex items-center justify-center gap-2 text-base font-bold rounded-xl transition-all active:scale-[0.98]',
+                  'w-full py-4 flex items-center justify-center text-sm font-bold rounded-xl transition-all active:scale-[0.98]',
                   !selectedTable || selectedTable.products.length === 0
                     ? 'bg-zinc-700 text-zinc-500 cursor-not-allowed'
                     : 'bg-green-500 hover:bg-green-600 text-white shadow-lg shadow-green-500/20',
                 ]"
               >
-                <i class="ri-check-double-line text-lg"></i>Confirm Order
+                Confirm Order
               </button>
             </div>
 
