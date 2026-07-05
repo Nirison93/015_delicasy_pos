@@ -191,13 +191,13 @@
                 <i class="ri-search-line text-3xl text-zinc-600 mb-2"></i>
                 <p class="text-xs text-zinc-500">No products found</p>
               </div>
-              <div v-else class="space-y-2 overflow-y-auto flex-1">
+              <div v-else class="grid grid-cols-2 gap-2 overflow-y-auto flex-1 pr-1">
                 <button
                   v-for="product in filteredProducts"
                   :key="product.id"
                   @click="addProductToCart(product)"
                   :disabled="product.is_sold_out"
-                  class="relative w-full flex items-center gap-3 p-2 rounded-lg transition-all duration-200"
+                  class="relative w-full flex flex-col items-stretch gap-2 p-2 rounded-lg transition-all duration-200"
                   :class="[
                     product.is_sold_out
                       ? 'bg-zinc-700 border border-red-500/30 cursor-not-allowed opacity-50'
@@ -205,7 +205,7 @@
                   ]"
                 >
                   <!-- Product Image (Small) -->
-                  <div class="w-14 h-14 flex-shrink-0 rounded-md overflow-hidden bg-zinc-700">
+                  <div class="w-full aspect-square rounded-md overflow-hidden bg-zinc-700">
                     <img
                       v-if="product.image"
                       :src="product.image.replace('/storage/storage/', '/storage/')"
@@ -219,15 +219,12 @@
 
                   <!-- Product Info (Compact) -->
                   <div class="flex-1 min-w-0">
-                    <p class="text-[12px] font-semibold text-white truncate">{{ product.name }}</p>
-                    <div class="flex items-center gap-2 mt-1">
-                      <p v-if="product.sizes && product.sizes.length > 1" class="text-[10px] text-amber-300 font-semibold">
-                        {{ product.sizes.length }} sizes
+                    <p class="text-[12px] font-semibold text-white leading-tight line-clamp-2">{{ product.name }}</p>
+                    <div class="flex flex-wrap items-center gap-1 mt-1">
+                      <p v-if="product.sizes && product.sizes.length > 0" class="text-[14px] text-amber-400 font-bold text-center">
+                        LKR {{ Math.min(...product.sizes.map(s => parseFloat(s.price || 0))).toFixed(0) }} - LKR {{ Math.max(...product.sizes.map(s => parseFloat(s.price || 0))).toFixed(0) }}
                       </p>
-                      <p v-if="product.sizes && product.sizes.length > 0" class="text-[11px] text-amber-400 font-bold">
-                        {{ Math.min(...product.sizes.map(s => parseFloat(s.price || 0))).toFixed(0) }} - {{ Math.max(...product.sizes.map(s => parseFloat(s.price || 0))).toFixed(0) }} LKR
-                      </p>
-                      <p v-else class="text-[11px] text-amber-400 font-bold">{{ product.selling_price }} LKR</p>
+                      <p v-else class="text-[14px] text-amber-400 font-bold text-center">LKR {{ product.selling_price }} </p>
                     </div>
                   </div>
 
