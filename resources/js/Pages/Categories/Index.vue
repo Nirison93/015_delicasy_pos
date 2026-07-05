@@ -188,7 +188,7 @@
 
                   <!-- Image -->
                   <td class="px-6 py-4">
-                    <img v-if="category.image" :src="category.image" class="h-11 w-11 rounded-lg object-cover ring-1 ring-slate-200" />
+                    <img v-if="category.image" :src="`/storage/${category.image}`" class="h-11 w-11 rounded-lg object-cover ring-1 ring-slate-200" />
                     <span v-else class="text-[13px] text-slate-300">No Image</span>
                   </td>
 
@@ -319,13 +319,18 @@ $(document).ready(function () {
       pageLength: 10,
       buttons: [],
 
-      // ✅ Sort by ID column (0th column) in descending order
-      order: [[0, "desc"]],
+      // Disable sorting to preserve backend order (already sorted by ID descending)
+      order: [],
+      aaSorting: [],
 
       columnDefs: [
         {
           targets: 2, // Disable search for Image column
           searchable: false,
+        },
+        {
+          targets: '_all', // Disable sorting on all columns
+          orderable: false,
         },
       ],
 

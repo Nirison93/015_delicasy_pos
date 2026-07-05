@@ -35,15 +35,11 @@ class CategoryController extends Controller
                 'id'    => $category->id,
                 'name'  => $category->name,
                 'category_type'  => $category->category_type,
-
-                // 🔹 Image path from database (already contains /storage/ if set)
-                'image' => $category->image ?? null,
+                'image' => $category->image,
 
                 'parent' => $category->parent ? [
                     'id'   => $category->parent->id,
                     'name' => $category->parent->name,
-                    // Optional: include parent's image too
-                    // 'image' => $category->parent->image ?? null,
                 ] : null,
 
                 'hierarchy_string' => $category->hierarchy_string,
@@ -227,14 +223,14 @@ public function update(Request $request, Category $category)
         return [
             'id' => $category->id,
             'name' => $category->name,
-            'image' => $category->image ?? null,
+            'image' => $category->image,
             'category_type' => $category->category_type,
             'hierarchy_string' => $category->hierarchy_string,
             'children' => $category->children->map(function ($child) {
                 return [
                     'id' => $child->id,
                     'name' => $child->name,
-                    'image' => $child->image ?? null,
+                    'image' => $child->image,
                     'category_type' => $child->category_type,
                     'hierarchy_string' => $child->hierarchy_string,
                 ];

@@ -38,7 +38,7 @@
             <div class="mt-6 space-x-4">
               <button
                 class="px-6 py-2 text-[15px] text-gray-700 bg-gray-300 rounded hover:bg-gray-400"
-                
+                @click="() => emit('update:open', false)"
               >
                 Cancel
               </button>
@@ -63,7 +63,6 @@ import {
   TransitionChild,
   TransitionRoot,
 } from "@headlessui/vue";
-import { ref } from "vue";
 import { useForm } from "@inertiajs/vue3";
 
 
@@ -92,9 +91,9 @@ const form = useForm({});
 const deleteItem = () => {
   if (!selectedCategory?.id) return;
 
-  form.delete(`/categories/${selectedCategory.id}`, {
+  form.delete(route('categories.destroy', selectedCategory.id), {
     onSuccess: () => {
-      emit("update:open", false); // Close the modal on success
+      emit("update:open", false);
     },
     onError: (errors) => {
       console.error("Delete failed:", errors);

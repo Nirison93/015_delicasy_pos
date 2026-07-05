@@ -1058,7 +1058,15 @@ onMounted(() => {
       dom: "Bfrtip",
       paging: false,
       buttons: [],
-      columnDefs: [{ targets: 0, searchable: false, orderable: false }],
+      order: [],
+      aaSorting: [],
+      columnDefs: [
+        {
+          targets: '_all',
+          orderable: false,
+        },
+        { targets: 0, searchable: false },
+      ],
       initComplete: function () {
         const $input = jq("div.dataTables_filter input");
         $input.attr("placeholder", "Search stock...");
