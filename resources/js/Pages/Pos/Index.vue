@@ -623,18 +623,19 @@
             </div>
 
             <div class="flex flex-col w-full gap-3">
-              <!-- Payment Method Row (Cash / Card) -->
-              <div class="grid grid-cols-2 gap-3">
+              <!-- All Buttons Row (5 columns) -->
+              <div class="grid grid-cols-5 gap-2">
                 <!-- Cash Button -->
                 <button
                   @click="selectedPaymentMethod = 'cash'"
                   :class="[
-                    'py-5 flex items-center justify-center text-base font-bold rounded-2xl border transition-all active:scale-[0.98]',
+                    'py-4 px-2 flex flex-col items-center justify-center gap-1.5 text-sm font-bold rounded-2xl border transition-all active:scale-[0.98]',
                     selectedPaymentMethod === 'cash'
                       ? 'bg-amber-500 hover:bg-amber-600 text-zinc-900 border-amber-400 shadow-lg shadow-amber-500/30'
-                      : 'bg-zinc-800 text-zinc-300 border-white/10 hover:bg-zinc-700'
+                      : 'bg-amber-500/20 text-amber-400 border-amber-500/40 hover:bg-amber-500/30'
                   ]"
                 >
+                  <i class="ri-money-dollar-circle-line text-xl"></i>
                   Cash
                 </button>
 
@@ -642,28 +643,24 @@
                 <button
                   @click="selectedPaymentMethod = 'card'"
                   :class="[
-                    'py-5 flex items-center justify-center text-base font-bold rounded-2xl border transition-all active:scale-[0.98]',
+                    'py-4 px-2 flex flex-col items-center justify-center gap-1.5 text-sm font-bold rounded-2xl border transition-all active:scale-[0.98]',
                     selectedPaymentMethod === 'card'
                       ? 'bg-blue-500 hover:bg-blue-600 text-white border-blue-400 shadow-lg shadow-blue-500/30'
-                      : 'bg-zinc-800 text-zinc-300 border-white/10 hover:bg-zinc-700'
+                      : 'bg-blue-500/20 text-blue-400 border-blue-500/40 hover:bg-blue-500/30'
                   ]"
                 >
+                  <i class="ri-bank-card-line text-xl"></i>
                   Card
                 </button>
-              </div>
 
-              <!-- Order Action Row (Send KOT / Get Bill) -->
-              <div class="grid grid-cols-2 gap-3">
                 <!-- Send KOT Button -->
                 <button
                   v-if="selectedTable && selectedTable.products.length > 0"
                   @click="sendTakeawayKOT"
                   type="button"
-                  :class="[
-                    'py-5 flex items-center justify-center text-base font-bold rounded-2xl border border-white/10 transition-all active:scale-[0.98] text-white',
-                    selectedTable.id !== 'default' || selectedTable.order_type === 'pickup' ? 'bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-600/20' : 'bg-amber-600 hover:bg-amber-700 shadow-lg shadow-amber-600/20'
-                  ]"
+                  class="py-4 px-2 flex flex-col items-center justify-center gap-1.5 text-sm font-bold rounded-2xl border border-green-500/40 bg-green-500/20 text-green-400 hover:bg-green-500/30 transition-all active:scale-[0.98]"
                 >
+                  <i class="ri-check-double-line text-xl"></i>
                   Send KOT
                 </button>
 
@@ -673,25 +670,27 @@
                   type="button"
                   :disabled="!selectedTable || selectedTable.products.length === 0"
                   :class="[
-                    'py-5 flex items-center justify-center text-base font-bold rounded-2xl border transition-all active:scale-[0.98]',
+                    'py-4 px-2 flex flex-col items-center justify-center gap-1.5 text-sm font-bold rounded-2xl border transition-all active:scale-[0.98]',
                     !selectedTable || selectedTable.products.length === 0
                       ? 'bg-zinc-800 text-zinc-600 border-white/5 cursor-not-allowed'
-                      : 'bg-zinc-700 text-zinc-200 border-white/10 hover:bg-zinc-600'
+                      : 'bg-purple-500/20 text-purple-400 border-purple-500/40 hover:bg-purple-500/30'
                   ]"
                 >
+                  <i class="ri-file-text-line text-xl"></i>
                   Get Bill
                 </button>
-              </div>
 
-              <!-- Hold Order Button (conditional, full width if shown) -->
-              <button
-                v-if="selectedTable?.id === 'default' && selectedTable.order_type === 'takeaway' && selectedTable.products.length > 0"
-                @click="holdTakeawayOrder"
-                type="button"
-                class="w-full py-5 flex items-center justify-center text-base font-bold text-amber-400 rounded-2xl border border-white/10 bg-zinc-800 hover:bg-zinc-700 transition-all active:scale-[0.98]"
-              >
-                Hold Order
-              </button>
+                <!-- Hold Order Button -->
+                <button
+                  v-if="selectedTable?.id === 'default' && selectedTable.order_type === 'takeaway' && selectedTable.products.length > 0"
+                  @click="holdTakeawayOrder"
+                  type="button"
+                  class="py-4 px-2 flex flex-col items-center justify-center gap-1.5 text-sm font-bold rounded-2xl border border-red-500/40 bg-red-500/20 text-red-400 hover:bg-red-500/30 transition-all active:scale-[0.98]"
+                >
+                  <i class="ri-pause-circle-line text-xl"></i>
+                  Hold Order
+                </button>
+              </div>
 
               <!-- Full-Width Confirm Button -->
               <button
@@ -699,7 +698,7 @@
                 type="button"
                 :disabled="!selectedTable || selectedTable.products.length === 0"
                 :class="[
-                  'w-full py-4 flex items-center justify-center text-sm font-bold rounded-xl transition-all active:scale-[0.98]',
+                  'w-full py-4 flex items-center justify-center text-lg font-bold rounded-xl transition-all active:scale-[0.98]',
                   !selectedTable || selectedTable.products.length === 0
                     ? 'bg-zinc-700 text-zinc-500 cursor-not-allowed'
                     : 'bg-green-500 hover:bg-green-600 text-white shadow-lg shadow-green-500/20',
@@ -1715,7 +1714,7 @@ const isClosingBalanceSaving = ref(false);
 const appliedCoupon = ref(null);
 const cash = ref(0);
 const isSelectModalOpen = ref(false);
-const selectedMenuType = ref("");
+const selectedMenuType = ref("food");
 const order_type = ref("");
 const kitchen_note = ref("");
 const delivery_charge = ref("");
