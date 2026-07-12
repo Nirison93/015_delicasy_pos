@@ -157,14 +157,14 @@
                      <div v-else class="grid grid-cols-4 gap-2 overflow-y-auto flex-1 pr-1">
                         <button v-for="product in filteredProducts" :key="product.id"
                            @click="addProductToCart(product)" :disabled="product.is_sold_out"
-                           class="relative w-full flex flex-col items-stretch gap-2 p-2 rounded-lg transition-all duration-200"
+                           class="relative w-full flex flex-col items-stretch gap-2 p-2 rounded-lg transition-all duration-200 h-[180px]"
                            :class="[
                            product.is_sold_out
                            ? 'bg-zinc-700 border border-red-500/30 cursor-not-allowed opacity-50'
                            : 'bg-zinc-800 border border-white/10 hover:border-amber-500/50 hover:bg-zinc-700 active:scale-95'
                            ]">
                            <!-- Product Image (Small) -->
-                           <div class="w-full aspect-square rounded-md overflow-hidden bg-zinc-700">
+                           <div class="w-full h-40 rounded-md overflow-hidden bg-zinc-700 flex-shrink-0">
                               <img v-if="product.image"
                                  :src="product.image.replace('/storage/storage/', '/storage/')"
                                  :alt="product.name" class="w-full h-full object-cover" />
@@ -174,18 +174,18 @@
                               </div>
                            </div>
                            <!-- Product Info (Compact) -->
-                           <div class="flex-1 min-w-0">
+                           <div class="min-w-0 overflow-hidden">
                               <p class="text-[12px] font-semibold text-white leading-tight line-clamp-2">{{
                                  product.name }}
                               </p>
                               <div class="flex flex-wrap items-center gap-1 mt-1">
                                  <p v-if="product.sizes && product.sizes.length > 0"
-                                    class="text-[14px] text-amber-400 font-bold text-center">
+                                    class="text-[13px] text-amber-400 font-bold">
                                     LKR {{Math.min(...product.sizes.map(s => parseFloat(s.price ||
                                     0))).toFixed(0) }} - LKR {{Math.max(...product.sizes.map(s =>
                                     parseFloat(s.price || 0))).toFixed(0) }}
                                  </p>
-                                 <p v-else class="text-[14px] text-amber-400 font-bold text-center">LKR {{
+                                 <p v-else class="text-[13px] text-amber-400 font-bold">LKR {{
                                     product.selling_price }}
                                  </p>
                               </div>
@@ -444,7 +444,7 @@
                               ? 'bg-zinc-700 text-zinc-500 cursor-not-allowed'
                               : 'bg-green-500 hover:bg-green-600 text-white shadow-lg shadow-green-500/20',
                               ]">
-                           Confirm Order
+                           Pay Now
                            </button>
                         </div>
                      </div>
