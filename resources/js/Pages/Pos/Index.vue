@@ -8,9 +8,9 @@
             <div class="flex items-center gap-3">
                <Link href="/"
                   class="w-11 h-11 flex items-center justify-center rounded-xl bg-zinc-800 border border-white/10 text-zinc-400 hover:bg-zinc-700 hover:text-white transition">
-               <i class="ri-arrow-left-s-line text-2xl"></i>
+               <i class="ri-arrow-left-s-line text-lg"></i>
                </Link>
-               <h1 class="text-2xl font-bold text-white tracking-wide uppercase">
+               <h1 class="text-lg font-bold text-white tracking-wide uppercase">
                   Point of Sale
                </h1>
             </div>
@@ -19,29 +19,29 @@
                <!-- <WaiterOrderAlert /> -->
                <!-- Last Order List button -->
                <button @click="openExpensesModal"
-                  class="flex items-center gap-2 px-4 py-2.5 bg-zinc-800 rounded-xl border border-white/10 text-zinc-300 hover:bg-zinc-700 hover:text-white transition text-[14px] font-semibold">
-               <i class="ri-money-dollar-circle-line text-lg"></i>
+                  class="flex items-center gap-2 px-4 py-2.5 bg-zinc-800 rounded-xl border border-white/10 text-zinc-300 hover:bg-zinc-700 hover:text-white transition text-[11px] font-semibold">
+               <i class="ri-money-dollar-circle-line text-base"></i>
                Expenses
                </button>
                <button @click="openLastOrders"
-                  class="flex items-center gap-2 px-4 py-2.5 bg-zinc-800 rounded-xl border border-white/10 text-zinc-300 hover:bg-zinc-700 hover:text-white transition text-[14px] font-semibold">
-               <i class="ri-receipt-line text-lg"></i>
+                  class="flex items-center gap-2 px-4 py-2.5 bg-zinc-800 rounded-xl border border-white/10 text-zinc-300 hover:bg-zinc-700 hover:text-white transition text-[11px] font-semibold">
+               <i class="ri-receipt-line text-base"></i>
                Last Orders
                </button>
                <!-- Ongoing Takeaway Orders button (shown only when there are held orders) -->
                <button @click="isOngoingTakeawayOpen = true"
-                  class="relative flex items-center gap-2 px-4 py-2.5 bg-amber-500/15 rounded-xl border border-amber-500/40 text-amber-400 hover:bg-amber-500/25 hover:text-amber-300 transition text-[14px] font-semibold"
+                  class="relative flex items-center gap-2 px-4 py-2.5 bg-amber-500/15 rounded-xl border border-amber-500/40 text-amber-400 hover:bg-amber-500/25 hover:text-amber-300 transition text-[11px] font-semibold"
                   :class="{ 'ring-anim': heldTakeawayOrders.length > 0 }"
                   :style="heldTakeawayOrders.length === 0 ? 'opacity:0.38; pointer-events:none;' : ''"
                   title="Ongoing Takeaway Orders">
-               <i class="ri-alarm-warning-line text-lg"
+               <i class="ri-alarm-warning-line text-base"
                   :class="heldTakeawayOrders.length > 0 ? 'ongoing-ring-icon' : ''"></i>
                Ongoing Orders
                <span v-if="heldTakeawayOrders.length > 0"
                   class="absolute -top-1.5 -right-1.5 min-w-[20px] h-5 flex items-center justify-center bg-amber-500 text-zinc-900 text-[11px] font-extrabold rounded-full px-1 ring-2 ring-zinc-950">{{
                heldTakeawayOrders.length }}</span>
                </button>
-               <!-- <div v-if="selectedTable?.orderId" class="px-4 py-2 bg-zinc-800 rounded-xl border border-white/10 text-zinc-300 font-semibold text-[15px]">
+               <!-- <div v-if="selectedTable?.orderId" class="px-4 py-2 bg-zinc-800 rounded-xl border border-white/10 text-zinc-300 font-semibold text-[12px]">
                   Order No <span class="font-bold text-amber-400">#{{ selectedTable.orderId }}</span>
                   </div> -->
                <button @click="refreshData"
@@ -56,19 +56,19 @@
                      class="w-8 h-8 flex items-center justify-center rounded-lg bg-amber-500/20 ring-1 ring-amber-500/30">
                      <i class="ri-user-line text-amber-400 text-base"></i>
                   </div>
-                  <span class="text-[14px] font-semibold text-zinc-200">{{ loggedInUser?.name }}</span>
+                  <span class="text-[11px] font-semibold text-zinc-200">{{ loggedInUser?.name }}</span>
                </div>
                <!-- Cash Drawer -->
                <button @click="openCashDrawerModal"
-                  class="flex items-center gap-2 px-4 py-2.5 bg-amber-500/15 rounded-xl border border-amber-500/40 text-amber-300 hover:bg-amber-500/25 hover:text-amber-200 transition text-[14px] font-semibold"
+                  class="flex items-center gap-2 px-4 py-2.5 bg-amber-500/15 rounded-xl border border-amber-500/40 text-amber-300 hover:bg-amber-500/25 hover:text-amber-200 transition text-[11px] font-semibold"
                   title="Open/Close Cash Drawer">
-               <i class="ri-safe-line text-lg"></i>
+               <i class="ri-safe-line text-base"></i>
                Cash Drawer
                </button>
                <!-- Logout -->
                <Link href="/logout" method="post" as="button"
-                  class="flex items-center gap-2 px-4 py-2.5 bg-zinc-800 rounded-xl border border-white/10 text-zinc-300 hover:bg-red-500/15 hover:border-red-500/40 hover:text-red-400 transition text-[14px] font-semibold">
-               <i class="ri-logout-box-r-line text-lg"></i>
+                  class="flex items-center gap-2 px-4 py-2.5 bg-zinc-800 rounded-xl border border-white/10 text-zinc-300 hover:bg-red-500/15 hover:border-red-500/40 hover:text-red-400 transition text-[11px] font-semibold">
+               <i class="ri-logout-box-r-line text-base"></i>
                Logout
                </Link>
             </div>
@@ -78,13 +78,13 @@
             <div class="flex flex-col w-[18%] min-h-0">
                <div class="flex flex-col h-full bg-zinc-900 rounded-2xl border border-white/10 overflow-hidden">
                   <div class="p-5 border-b border-white/10 flex-shrink-0 space-y-3">
-                     <h2 class="text-xl font-bold text-white flex items-center gap-2">
+                     <h2 class="text-base font-bold text-white flex items-center gap-2">
                         <i class="ri-menu-line text-zinc-500"></i> Categories
                      </h2>
                      <!-- Menu Type Filter Buttons -->
                      <div class="flex gap-2">
                         <button @click="selectedMenuType = 'food'; selectedCategory = null" :class="[
-                           'flex-1 px-3 py-2.5 rounded-lg font-semibold text-[13px] transition border ring-1',
+                           'flex-1 px-3 py-2.5 rounded-lg font-semibold text-[11px] transition border ring-1',
                            selectedMenuType === 'food'
                            ? 'bg-orange-500/20 border-orange-500/50 ring-orange-500/30 text-orange-400'
                            : 'bg-zinc-800 border-white/10 ring-white/5 text-zinc-300 hover:bg-zinc-700'
@@ -92,7 +92,7 @@
                         <i class="ri-restaurant-2-line mr-1.5"></i>Food Menu
                         </button>
                         <button @click="selectedMenuType = 'beverage'; selectedCategory = null" :class="[
-                           'flex-1 px-3 py-2.5 rounded-lg font-semibold text-[13px] transition border ring-1',
+                           'flex-1 px-3 py-2.5 rounded-lg font-semibold text-[11px] transition border ring-1',
                            selectedMenuType === 'beverage'
                            ? 'bg-blue-500/20 border-blue-500/50 ring-blue-500/30 text-blue-400'
                            : 'bg-zinc-800 border-white/10 ring-white/5 text-zinc-300 hover:bg-zinc-700'
@@ -110,7 +110,7 @@
                         : 'bg-zinc-800 border-white/10 text-zinc-300 hover:bg-emerald-500/15 hover:border-emerald-500/40 hover:text-emerald-400'
                         ]">
                         <div class="flex items-center justify-between">
-                           <span class="text-[14px] font-semibold">Show All</span>
+                           <span class="text-[11px] font-semibold">Show All</span>
                            <span class="text-[12px] text-zinc-500">{{ categoryProducts?.length || 0 }}</span>
                         </div>
                      </button>
@@ -123,7 +123,7 @@
                         : 'bg-zinc-800 border-white/10 text-zinc-300 hover:bg-amber-500/15 hover:border-amber-500/40 hover:text-amber-400'
                         ]">
                         <div class="flex items-center justify-between">
-                           <p class="text-[14px] font-semibold truncate">{{ category.name }}</p>
+                           <p class="text-[11px] font-semibold truncate">{{ category.name }}</p>
                            <span class="text-[12px] text-zinc-500 flex-shrink-0 ml-2">{{
                            category.products?.length || 0 }}</span>
                         </div>
@@ -135,23 +135,23 @@
             <div class="flex flex-col w-[45%] min-h-0">
                <div class="flex flex-col h-full bg-zinc-900 rounded-2xl border border-white/10 overflow-hidden">
                   <div class="p-5 border-b border-white/10 flex-shrink-0 space-y-3">
-                     <h2 class="text-xl font-bold text-white flex items-center gap-2">
+                     <h2 class="text-base font-bold text-white flex items-center gap-2">
                         <i class="ri-shopping-cart-line text-zinc-500"></i>
                         {{ selectedCategory?.name || 'All Products' }}
                      </h2>
                      <input v-model="productSearch" type="text" placeholder="Search products..."
-                        class="w-full px-3 py-2 bg-zinc-800 border border-white/10 rounded-lg text-[13px] text-white placeholder-zinc-500 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30 transition" />
+                        class="w-full px-3 py-2 bg-zinc-800 border border-white/10 rounded-lg text-[11px] text-white placeholder-zinc-500 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30 transition" />
                   </div>
                   <!-- Products List (all products) -->
                   <div class="flex-1 flex flex-col min-h-0 p-3">
                      <div v-if="categoryProducts.length === 0"
                         class="flex flex-col items-center justify-center h-full">
-                        <i class="ri-inbox-line text-3xl text-zinc-600 mb-2"></i>
+                        <i class="ri-inbox-line text-xl text-zinc-600 mb-2"></i>
                         <p class="text-xs text-zinc-500">No products</p>
                      </div>
                      <div v-else-if="filteredProducts.length === 0"
                         class="flex flex-col items-center justify-center h-full">
-                        <i class="ri-search-line text-3xl text-zinc-600 mb-2"></i>
+                        <i class="ri-search-line text-xl text-zinc-600 mb-2"></i>
                         <p class="text-xs text-zinc-500">No products found</p>
                      </div>
                      <div v-else class="grid grid-cols-4 gap-2 overflow-y-auto flex-1 pr-1">
@@ -169,7 +169,7 @@
                                  :src="product.image.replace('/storage/storage/', '/storage/')"
                                  :alt="product.name" class="w-full h-full object-cover" />
                               <div v-else
-                                 class="w-full h-full flex items-center justify-center text-zinc-600 text-sm">
+                                 class="w-full h-full flex items-center justify-center text-zinc-600 text-xs">
                                  <i class="ri-image-line"></i>
                               </div>
                            </div>
@@ -180,12 +180,12 @@
                               </p>
                               <div class="flex flex-wrap items-center gap-1 mt-1">
                                  <p v-if="product.sizes && product.sizes.length > 0"
-                                    class="text-[13px] text-amber-400 font-bold">
+                                    class="text-[11px] text-amber-400 font-bold">
                                     LKR {{Math.min(...product.sizes.map(s => parseFloat(s.price ||
                                     0))).toFixed(0) }} - LKR {{Math.max(...product.sizes.map(s =>
                                     parseFloat(s.price || 0))).toFixed(0) }}
                                  </p>
-                                 <p v-else class="text-[13px] text-amber-400 font-bold">LKR {{
+                                 <p v-else class="text-[11px] text-amber-400 font-bold">LKR {{
                                     product.selling_price }}
                                  </p>
                               </div>
@@ -208,7 +208,7 @@
                      <!-- Tables Selector -->
                      <div class="px-5 pt-5 pb-3 border-b border-white/10 bg-zinc-950/50">
                         <div class="flex items-center justify-between mb-3">
-                           <h3 class="text-sm font-bold text-zinc-400 uppercase tracking-wide">Tables</h3>
+                           <h3 class="text-xs font-bold text-zinc-400 uppercase tracking-wide">Tables</h3>
                            <button @click="addTable"
                               class="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white text-[12px] font-semibold transition active:scale-95"
                               title="Add new table">
@@ -220,7 +220,7 @@
                         <div class="flex gap-2 overflow-x-auto pb-2">
                            <!-- Live Bill Tab -->
                            <button @click="selectedTable = tables.find(t => t.id === 'default')" :class="[
-                              'flex-shrink-0 px-4 py-2.5 rounded-xl font-semibold text-[14px] transition border ring-1',
+                              'flex-shrink-0 px-4 py-2.5 rounded-xl font-semibold text-[11px] transition border ring-1',
                               selectedTable?.id === 'default'
                               ? 'bg-amber-500/20 border-amber-500/50 ring-amber-500/30 text-amber-400'
                               : 'bg-zinc-800 border-white/10 ring-white/5 text-zinc-300 hover:bg-zinc-700 hover:border-amber-500/30'
@@ -232,7 +232,7 @@
                            <div v-for="table in addedTables" :key="table.id" class="flex-shrink-0 relative group">
                               <button @click="selectedTable = table"
                                  :class="[
-                                 'flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-[14px] transition border ring-1 pr-8',
+                                 'flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-[11px] transition border ring-1 pr-8',
                                  selectedTable?.id === table.id
                                  ? 'bg-blue-500/20 border-blue-500/50 ring-blue-500/30 text-blue-400'
                                  : 'bg-zinc-800 border-white/10 ring-white/5 text-zinc-300 hover:bg-zinc-700 hover:border-blue-500/30'
@@ -248,7 +248,7 @@
                               <button @click.stop="removeAddedTable(table.id)"
                                  class="absolute right-1 top-1/2 -translate-y-1/2 w-6 h-6 flex items-center justify-center rounded-lg text-zinc-400 hover:bg-red-500/20 hover:text-red-400 transition"
                                  title="Close table">
-                              <i class="ri-close-line text-sm"></i>
+                              <i class="ri-close-line text-xs"></i>
                               </button>
                            </div>
                         </div>
@@ -258,37 +258,37 @@
                         <div class="flex flex-wrap items-center justify-between w-full gap-3">
                            <!-- Left: title + customer button -->
                            <div class="flex items-center gap-3">
-                              <h2 class="text-2xl font-bold text-white flex items-center gap-2">
+                              <h2 class="text-lg font-bold text-white flex items-center gap-2">
                                  <i class="ri-file-list-3-line text-amber-400"></i>
                                  {{ selectedTable?.id === 'default' ? 'Live Bill' : `Table
                                  ${selectedTable?.number}` }}
                               </h2>
                               <button @click="() => { openEditModal(color); }"
-                                 class="flex items-center gap-2 px-4 py-2.5 bg-zinc-800 text-zinc-300 border border-white/10 rounded-xl hover:bg-zinc-700 hover:text-white transition text-[15px] font-medium"
+                                 class="flex items-center gap-2 px-4 py-2.5 bg-zinc-800 text-zinc-300 border border-white/10 rounded-xl hover:bg-zinc-700 hover:text-white transition text-[12px] font-medium"
                                  title="Customer details">
-                              <i class="ri-user-line text-lg text-zinc-400"></i>
+                              <i class="ri-user-line text-base text-zinc-400"></i>
                               </button>
                            </div>
                            <!-- Right: order type buttons -->
                            <div class="flex items-center gap-2">
                               <!-- Takeaway -->
                               <button @click="selectedTable.order_type = 'takeaway'" :class="[
-                                 'flex items-center gap-2 px-4 py-2.5 rounded-xl ring-1 text-[15px] font-semibold transition active:scale-95',
+                                 'flex items-center gap-2 px-4 py-2.5 rounded-xl ring-1 text-[12px] font-semibold transition active:scale-95',
                                  selectedTable.order_type === 'takeaway'
                                  ? 'bg-amber-500 ring-amber-500 text-zinc-900 shadow-md shadow-amber-500/20'
                                  : 'bg-zinc-800 ring-white/10 text-zinc-300 hover:bg-amber-500/15 hover:ring-amber-500/40 hover:text-amber-400'
                                  ]">
-                              <i class="ri-shopping-bag-3-line text-lg"></i>
+                              <i class="ri-shopping-bag-3-line text-base"></i>
                               <span>Takeaway</span>
                               </button>
                               <!-- In-Room Dining -->
                               <button @click="selectedTable.order_type = 'pickup'" :class="[
-                                 'flex items-center gap-2 px-4 py-2.5 rounded-xl ring-1 text-[15px] font-semibold transition active:scale-95',
+                                 'flex items-center gap-2 px-4 py-2.5 rounded-xl ring-1 text-[12px] font-semibold transition active:scale-95',
                                  selectedTable.order_type === 'pickup'
                                  ? 'bg-violet-600 ring-violet-600 text-white shadow-md'
                                  : 'bg-zinc-800 ring-white/10 text-zinc-300 hover:bg-violet-500/15 hover:ring-violet-500/40 hover:text-violet-400'
                                  ]">
-                              <i class="ri-hotel-bed-line text-lg"></i>
+                              <i class="ri-hotel-bed-line text-base"></i>
                               <span>Delivery</span>
                               </button>
                            </div>
@@ -300,8 +300,8 @@
                      <div class="w-full text-center py-10"
                         v-if="!selectedTable || selectedTable.products.length === 0">
                         <div class="flex flex-col items-center gap-3">
-                           <i class="ri-shopping-basket-line text-5xl text-zinc-700"></i>
-                           <p class="text-lg text-zinc-500 font-medium">No products added yet</p>
+                           <i class="ri-shopping-basket-line text-2xl text-zinc-700"></i>
+                           <p class="text-base text-zinc-500 font-medium">No products added yet</p>
                         </div>
                      </div>
                      <div class="grid grid-cols-2 gap-2 mb-4 max-h-[240px] overflow-y-auto product-list ">
@@ -319,7 +319,7 @@
                               <!-- Top row: name + remove -->
                               <div class="flex items-start justify-between gap-1">
                                  <div class="min-w-0">
-                                    <h3 class="text-[13px] font-bold text-white leading-snug truncate">
+                                    <h3 class="text-[11px] font-bold text-white leading-snug truncate">
                                        {{ item.name }}
                                        <span v-if="item.size?.name"
                                           class="text-[10px] text-amber-400 font-semibold"> ({{
@@ -328,7 +328,7 @@
                                  </div>
                                  <button @click="removeProduct(item.id)"
                                     class="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg text-yellow-400 hover:bg-yellow-400/15 hover:text-yellow-300 transition">
-                                 <i class="ri-delete-bin-6-line text-lg"></i>
+                                 <i class="ri-delete-bin-6-line text-base"></i>
                                  </button>
                               </div>
                               <!-- Bottom row: qty controls left / price + discount right -->
@@ -337,21 +337,21 @@
                                  <div
                                     class="flex items-center gap-0 bg-zinc-700 ring-1 ring-white/10 rounded-lg overflow-hidden">
                                     <button @click="decrementQuantity(item.id)"
-                                       class="w-7 h-7 flex items-center justify-center text-zinc-300 hover:bg-zinc-600 active:scale-90 transition text-sm font-bold">
+                                       class="w-7 h-7 flex items-center justify-center text-zinc-300 hover:bg-zinc-600 active:scale-90 transition text-xs font-bold">
                                     <i class="ri-subtract-line"></i>
                                     </button>
                                     <span
-                                       class="w-7 text-center text-[13px] font-bold text-white select-none">
+                                       class="w-7 text-center text-[11px] font-bold text-white select-none">
                                     {{ item.quantity }}
                                     </span>
                                     <button @click="incrementQuantity(item.id)"
-                                       class="w-7 h-7 flex items-center justify-center text-zinc-300 hover:bg-zinc-600 active:scale-90 transition text-sm font-bold">
+                                       class="w-7 h-7 flex items-center justify-center text-zinc-300 hover:bg-zinc-600 active:scale-90 transition text-xs font-bold">
                                     <i class="ri-add-line"></i>
                                     </button>
                                  </div>
                                  <!-- Price + discount -->
                                  <div class="flex flex-col items-end gap-0.5">
-                                    <p class="text-[13px] font-extrabold text-amber-400 leading-none">
+                                    <p class="text-[11px] font-extrabold text-amber-400 leading-none">
                                        {{
                                        item.apply_discount
                                        ? ((item.selling_price * item.quantity * (100 - item.discount)) /
@@ -387,39 +387,19 @@
 
 
                         <div v-if="!isConfirmOrderModalOpen" class="flex flex-col w-full gap-3">
-                           <!-- All Buttons Row (5 columns) -->
-                           <div class="grid grid-cols-5 gap-2">
-                              <!-- Cash Button -->
-                              <button @click="selectedPaymentMethod = 'cash'" :class="[
-                                 'py-4 px-2 flex flex-col items-center justify-center gap-1.5 text-sm font-bold rounded-2xl border transition-all active:scale-[0.98]',
-                                 selectedPaymentMethod === 'cash'
-                                 ? 'bg-amber-500 hover:bg-amber-600 text-zinc-900 border-amber-400 shadow-lg shadow-amber-500/30'
-                                 : 'bg-amber-500/20 text-amber-400 border-amber-500/40 hover:bg-amber-500/30'
-                                 ]">
-                              <i class="ri-money-dollar-circle-line text-xl"></i>
-                              Cash
-                              </button>
-                              <!-- Card Button -->
-                              <button @click="selectedPaymentMethod = 'card'" :class="[
-                                 'py-4 px-2 flex flex-col items-center justify-center gap-1.5 text-sm font-bold rounded-2xl border transition-all active:scale-[0.98]',
-                                 selectedPaymentMethod === 'card'
-                                 ? 'bg-blue-500 hover:bg-blue-600 text-white border-blue-400 shadow-lg shadow-blue-500/30'
-                                 : 'bg-blue-500/20 text-blue-400 border-blue-500/40 hover:bg-blue-500/30'
-                                 ]">
-                              <i class="ri-bank-card-line text-xl"></i>
-                              Card
-                              </button>
+                           <!-- Action Buttons Row (3 columns) -->
+                           <div class="grid grid-cols-3 gap-2">
                               <!-- Send KOT Button -->
                               <button v-if="selectedTable && selectedTable.products.length > 0"
                                  @click="sendTakeawayKOT" type="button"
-                                 class="py-4 px-2 flex flex-col items-center justify-center gap-1.5 text-sm font-bold rounded-2xl border border-green-500/40 bg-green-500/20 text-green-400 hover:bg-green-500/30 transition-all active:scale-[0.98]">
+                                 class="py-4 px-2 flex flex-col items-center justify-center gap-1.5 text-xs font-bold rounded-2xl border border-green-500/40 bg-green-500/20 text-green-400 hover:bg-green-500/30 transition-all active:scale-[0.98]">
                               <i class="ri-check-double-line text-xl"></i>
                               Send KOT
                               </button>
                               <!-- Get Bill Button -->
                               <button @click="printBillOnly" type="button"
                                  :disabled="!selectedTable || selectedTable.products.length === 0" :class="[
-                                 'py-4 px-2 flex flex-col items-center justify-center gap-1.5 text-sm font-bold rounded-2xl border transition-all active:scale-[0.98]',
+                                 'py-4 px-2 flex flex-col items-center justify-center gap-1.5 text-xs font-bold rounded-2xl border transition-all active:scale-[0.98]',
                                  !selectedTable || selectedTable.products.length === 0
                                  ? 'bg-zinc-800 text-zinc-600 border-white/5 cursor-not-allowed'
                                  : 'bg-purple-500/20 text-purple-400 border-purple-500/40 hover:bg-purple-500/30'
@@ -431,7 +411,7 @@
                               <button
                                  v-if="selectedTable?.id === 'default' && selectedTable.order_type === 'takeaway' && selectedTable.products.length > 0"
                                  @click="holdTakeawayOrder" type="button"
-                                 class="py-4 px-2 flex flex-col items-center justify-center gap-1.5 text-sm font-bold rounded-2xl border border-red-500/40 bg-red-500/20 text-red-400 hover:bg-red-500/30 transition-all active:scale-[0.98]">
+                                 class="py-4 px-2 flex flex-col items-center justify-center gap-1.5 text-xs font-bold rounded-2xl border border-red-500/40 bg-red-500/20 text-red-400 hover:bg-red-500/30 transition-all active:scale-[0.98]">
                               <i class="ri-pause-circle-line text-xl"></i>
                               Hold Order
                               </button>
@@ -439,7 +419,7 @@
                            <!-- Full-Width Confirm Button -->
                            <button @click="isConfirmOrderModalOpen = true" type="button"
                               :disabled="!selectedTable || selectedTable.products.length === 0" :class="[
-                              'w-full py-4 flex items-center justify-center text-lg font-bold rounded-xl transition-all active:scale-[0.98]',
+                              'w-full py-4 flex items-center justify-center text-base font-bold rounded-xl transition-all active:scale-[0.98]',
                               !selectedTable || selectedTable.products.length === 0
                               ? 'bg-zinc-700 text-zinc-500 cursor-not-allowed'
                               : 'bg-green-500 hover:bg-green-600 text-white shadow-lg shadow-green-500/20',
@@ -466,7 +446,7 @@
                         class="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-500/20 ring-1 ring-amber-500/40">
                         <i class="ri-safe-line text-amber-400"></i>
                      </div>
-                     <h3 class="text-2xl font-bold text-white">Open Cash Drawer</h3>
+                     <h3 class="text-lg font-bold text-white">Open Cash Drawer</h3>
                   </div>
                </div>
                <div class="p-5 space-y-4">
@@ -474,11 +454,11 @@
                      Enter the opening balance to start using the POS.
                   </p>
                   <div>
-                     <label class="block text-2xl font-semibold text-zinc-300 mb-2">Opening Balance</label>
+                     <label class="block text-lg font-semibold text-zinc-300 mb-2">Opening Balance</label>
                      <input v-model="openingBalanceInput" type="number" min="0" step="0.01" inputmode="decimal"
                         placeholder="0.00"
-                        class="w-full h-11 px-4 bg-zinc-800 border border-white/10 rounded-xl text-[15px] text-white placeholder-zinc-500 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30 transition" />
-                     <p v-if="openingBalanceError" class="mt-2 text-2xl text-red-400">{{ openingBalanceError }}</p>
+                        class="w-full h-11 px-4 bg-zinc-800 border border-white/10 rounded-xl text-[12px] text-white placeholder-zinc-500 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30 transition" />
+                     <p v-if="openingBalanceError" class="mt-2 text-lg text-red-400">{{ openingBalanceError }}</p>
                   </div>
                   <button @click="submitOpeningBalance" :disabled="isOpeningBalanceSaving"
                      class="w-full h-11 rounded-xl font-bold text-zinc-900 bg-amber-500 hover:bg-amber-400 transition disabled:opacity-60 disabled:cursor-not-allowed">
@@ -500,7 +480,7 @@
                         class="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-500/20 ring-1 ring-amber-500/40">
                         <i class="ri-safe-line text-amber-400"></i>
                      </div>
-                     <h3 class="text-2xl font-bold text-white">Cash Drawer</h3>
+                     <h3 class="text-lg font-bold text-white">Cash Drawer</h3>
                   </div>
                   <button @click="isCashDrawerModalOpen = false"
                      class="w-9 h-9 flex items-center justify-center rounded-xl bg-white/10 text-zinc-400 hover:bg-white/20 hover:text-white transition">
@@ -509,7 +489,7 @@
                </div>
                <div class="p-5 space-y-6">
                   <div v-if="openCashDrawer" class="space-y-3">
-                     <div class="flex items-center justify-between text-lg text-zinc-400">
+                     <div class="flex items-center justify-between text-base text-zinc-400">
                         <span class="text-amber-300 font-semibold">Opening: {{
                         Number(openCashDrawer?.opening_balance || 0).toFixed(2) }} LKR</span>
                         <span class="text-xl">Opened Time : {{ new Date(openCashDrawer.opened_at).toLocaleString()
@@ -519,8 +499,8 @@
                         <label class="block text-xl font-semibold text-zinc-300 mb-2">Closing Balance</label>
                         <input v-model="closingBalanceInput" type="number" min="0" step="0.01" inputmode="decimal"
                            placeholder="0.00"
-                           class="w-full h-11 px-4 bg-zinc-800 border border-white/10 rounded-xl text-[15px] text-white placeholder-zinc-500 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30 transition" />
-                        <p v-if="closingBalanceError" class="mt-2 text-sm text-red-400">{{ closingBalanceError }}
+                           class="w-full h-11 px-4 bg-zinc-800 border border-white/10 rounded-xl text-[12px] text-white placeholder-zinc-500 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30 transition" />
+                        <p v-if="closingBalanceError" class="mt-2 text-xs text-red-400">{{ closingBalanceError }}
                         </p>
                      </div>
                      <button @click="submitClosingBalance" :disabled="isClosingBalanceSaving"
@@ -529,13 +509,13 @@
                      </button>
                   </div>
                   <div v-else class="space-y-3">
-                     <p class="text-sm text-zinc-400">No cash drawer is open. Enter the opening balance to start.</p>
+                     <p class="text-xs text-zinc-400">No cash drawer is open. Enter the opening balance to start.</p>
                      <div>
-                        <label class="block text-sm font-semibold text-zinc-300 mb-2">Opening Balance</label>
+                        <label class="block text-xs font-semibold text-zinc-300 mb-2">Opening Balance</label>
                         <input v-model="openingBalanceInput" type="number" min="0" step="0.01" inputmode="decimal"
                            placeholder="0.00"
-                           class="w-full h-11 px-4 bg-zinc-800 border border-white/10 rounded-xl text-[15px] text-white placeholder-zinc-500 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30 transition" />
-                        <p v-if="openingBalanceError" class="mt-2 text-sm text-red-400">{{ openingBalanceError }}
+                           class="w-full h-11 px-4 bg-zinc-800 border border-white/10 rounded-xl text-[12px] text-white placeholder-zinc-500 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30 transition" />
+                        <p v-if="openingBalanceError" class="mt-2 text-xs text-red-400">{{ openingBalanceError }}
                         </p>
                      </div>
                      <button @click="submitOpeningBalance" :disabled="isOpeningBalanceSaving"
@@ -561,97 +541,194 @@
       <Teleport to="body">
          <div v-if="isConfirmOrderModalOpen" class="fixed inset-0 z-[1000] flex items-center justify-center p-4">
             <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" @click="isConfirmOrderModalOpen = false"></div>
-            <div class="relative bg-zinc-900 rounded-2xl border border-white/10 shadow-2xl w-full max-w-[500px] overflow-hidden flex flex-col">
+            <div class="relative bg-zinc-900 rounded-2xl border border-white/10 shadow-2xl w-full max-w-[920px] overflow-hidden flex flex-col">
                <!-- Header -->
                <div class="flex items-center justify-between px-5 py-4 border-b border-white/10 bg-gradient-to-r from-zinc-900 via-zinc-800 to-zinc-900">
                   <div class="flex items-center gap-3">
                      <div class="w-10 h-10 flex items-center justify-center rounded-xl bg-amber-500/20 ring-1 ring-amber-500/40">
                         <i class="ri-file-list-3-line text-amber-400 text-xl"></i>
                      </div>
-                     <h3 class="text-lg font-bold text-white">Order Summary</h3>
+                     <h3 class="text-base font-bold text-white">Order Summary</h3>
                   </div>
                   <button @click="isConfirmOrderModalOpen = false"
                      class="w-9 h-9 flex items-center justify-center rounded-xl bg-white/10 text-zinc-400 hover:bg-white/20 hover:text-white transition">
                   <i class="ri-close-line text-xl"></i>
                   </button>
                </div>
-               <!-- Body -->
-               <div class="flex-1 overflow-y-auto px-5 py-4 space-y-3">
-                  <!-- Sub Total -->
-                  <div class="flex items-center justify-between">
-                     <p class="text-[15px] text-zinc-400">Sub Total</p>
-                     <p class="text-[15px] font-semibold text-zinc-200">{{ subtotal }} LKR</p>
+               <!-- Body - Two Column Layout -->
+               <div class="flex-1 overflow-y-auto flex gap-4 p-5">
+                  <!-- Left: Bill Summary -->
+                  <div class="flex-1 space-y-4 border-r border-white/10 pr-5">
+                     <h4 class="text-xs font-bold text-zinc-400 uppercase tracking-wide">Bill Summary</h4>
+
+                     <!-- Sub Total -->
+                     <div class="flex items-center justify-between">
+                        <p class="text-[11px] text-zinc-400">Sub Total</p>
+                        <p class="text-[11px] font-semibold text-zinc-200">{{ subtotal }} LKR</p>
+                     </div>
+
+                     <!-- Discount -->
+                     <div class="flex items-center justify-between pb-3 border-b border-white/10">
+                        <p class="text-[11px] text-zinc-400">Discount</p>
+                        <p class="text-[11px] font-semibold text-red-400">( {{ totalDiscount }} LKR )</p>
+                     </div>
+
+                     <!-- Service Charge Dropdown -->
+                     <div v-if="selectedTable?.id !== 'default' && selectedTable?.order_type !== 'pickup'" class="pb-3 border-b border-white/10">
+                        <select v-model="selectedTable.service_charge"
+                           class="w-full py-2.5 text-[11px] font-semibold text-zinc-200 bg-zinc-800 border border-white/10 rounded-lg cursor-pointer focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30 transition">
+                           <option value="" class="bg-zinc-800">Select Service Charge</option>
+                           <option v-for="charge in serviceCharge" :key="charge.id"
+                              :value="parseFloat(charge.service_charge)">
+                              {{ charge.service_charge }}%{{ charge.service_check === true || charge.service_check === 'true' ? ' (Default)' : '' }}
+                           </option>
+                        </select>
+                     </div>
+
+                     <!-- Delivery Charge Dropdown -->
+                     <div v-if="selectedTable?.order_type === 'pickup'" class="pb-3 border-b border-white/10">
+                        <select v-model="selectedTable.delivery_charge"
+                           class="w-full py-2.5 text-[11px] font-semibold text-zinc-200 bg-zinc-800 border border-white/10 rounded-lg cursor-pointer focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30 transition">
+                           <option value="" class="bg-zinc-800">Select Delivery Charge</option>
+                           <option v-for="charge in delivery" :key="charge.id"
+                              :value="charge.delivery_charge">
+                              {{ charge.delivery_charge }} LKR
+                           </option>
+                        </select>
+                     </div>
+
+                     <!-- Shopping Bag Toggle -->
+                     <div class="flex items-center justify-between pb-3 border-b border-white/10">
+                        <div class="flex items-center gap-2">
+                           <p class="text-[11px] text-zinc-400">Shopping Bag</p>
+                           <button
+                              @click="selectedTable.shopping_bag_charge_enabled = !selectedTable.shopping_bag_charge_enabled"
+                              :class="[
+                              'relative w-11 h-6 rounded-full transition-colors duration-200',
+                              selectedTable.shopping_bag_charge_enabled ? 'bg-amber-500' : 'bg-zinc-700'
+                              ]">
+                              <div :class="[
+                                 'absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform duration-200',
+                                 selectedTable.shopping_bag_charge_enabled ? 'translate-x-5' : 'translate-x-0'
+                                 ]" />
+                           </button>
+                        </div>
+                        <p
+                           :class="['text-[11px] font-semibold', selectedTable.shopping_bag_charge_enabled ? 'text-amber-400' : 'text-zinc-500 line-through']">
+                           {{ selectedTable.shopping_bag_charge_enabled ? '10.00' : '0.00' }} LKR
+                        </p>
+                     </div>
+
+                     <!-- Total Amount -->
+                     <div class="flex items-center justify-between pt-3 border-t border-white/10">
+                        <p class="text-base font-bold text-white">Total Amount</p>
+                        <p class="text-xl font-bold text-amber-400">Rs {{ total }}</p>
+                     </div>
+
+                     <!-- Paid Amount -->
+                     <div class="flex items-center justify-between">
+                        <p class="text-[11px] text-zinc-400">Paid Amount</p>
+                        <p class="text-base font-bold text-emerald-400">Rs {{ selectedTable.cash || 0 }}</p>
+                     </div>
+
+                     <!-- Balance -->
+                     <div class="flex items-center justify-between pt-3 border-t border-white/10">
+                        <p class="text-base font-bold text-white">Balance</p>
+                        <p class="text-base font-bold text-zinc-200">Rs {{ balance }}</p>
+                     </div>
                   </div>
-                  <!-- Discount -->
-                  <div class="flex items-center justify-between pb-3 border-b border-white/10">
-                     <p class="text-[15px] text-zinc-400">Discount</p>
-                     <p class="text-[15px] font-semibold text-red-400">( {{ totalDiscount }} LKR )</p>
-                  </div>
-                  <!-- Service Charge Dropdown -->
-                  <div v-if="selectedTable?.id !== 'default' && selectedTable?.order_type !== 'pickup'" class="pb-3 border-b border-white/10">
-                     <select v-model="selectedTable.service_charge"
-                        class="w-full py-2.5 text-[14px] font-semibold text-zinc-200 bg-zinc-800 border border-white/10 rounded-lg cursor-pointer focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30 transition">
-                        <option value="" class="bg-zinc-800">Select Service Charge</option>
-                        <option v-for="charge in serviceCharge" :key="charge.id"
-                           :value="parseFloat(charge.service_charge)">
-                           {{ charge.service_charge }}%{{ charge.service_check === true || charge.service_check === 'true' ? ' (Default)' : '' }}
-                        </option>
-                     </select>
-                  </div>
-                  <!-- Delivery Charge Dropdown -->
-                  <div v-if="selectedTable?.order_type === 'pickup'" class="pb-3 border-b border-white/10">
-                     <select v-model="selectedTable.delivery_charge"
-                        class="w-full py-2.5 text-[14px] font-semibold text-zinc-200 bg-zinc-800 border border-white/10 rounded-lg cursor-pointer focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30 transition">
-                        <option value="" class="bg-zinc-800">Select Delivery Charge</option>
-                        <option v-for="charge in delivery" :key="charge.id"
-                           :value="charge.delivery_charge">
-                           {{ charge.delivery_charge }} LKR
-                        </option>
-                     </select>
-                  </div>
-                  <!-- Shopping Bag Toggle -->
-                  <div class="flex items-center justify-between pb-3 border-b border-white/10">
-                     <div class="flex items-center gap-2">
-                        <p class="text-[15px] text-zinc-400">Shopping Bag</p>
-                        <button
-                           @click="selectedTable.shopping_bag_charge_enabled = !selectedTable.shopping_bag_charge_enabled"
-                           :class="[
-                           'relative w-11 h-6 rounded-full transition-colors duration-200',
-                           selectedTable.shopping_bag_charge_enabled ? 'bg-amber-500' : 'bg-zinc-700'
+
+                  <!-- Right: Payment Method Selection -->
+                  <div class="flex-1 space-y-4">
+                     <h4 class="text-xs font-bold text-zinc-400 uppercase tracking-wide">Payment Method</h4>
+
+                     <!-- Card / Cash Tabs -->
+                     <div class="flex gap-2 border-b border-white/10">
+                        <button @click="selectedPaymentMethod = 'card'" :class="[
+                           'px-4 py-2 font-semibold text-[11px] border-b-2 transition',
+                           selectedPaymentMethod === 'card'
+                           ? 'text-blue-400 border-blue-400'
+                           : 'text-zinc-500 border-transparent hover:text-zinc-400'
                            ]">
-                           <div :class="[
-                              'absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform duration-200',
-                              selectedTable.shopping_bag_charge_enabled ? 'translate-x-5' : 'translate-x-0'
-                              ]" />
+                        <i class="ri-bank-card-line mr-1"></i>Card
+                        </button>
+                        <button @click="selectedPaymentMethod = 'cash'" :class="[
+                           'px-4 py-2 font-semibold text-[11px] border-b-2 transition',
+                           selectedPaymentMethod === 'cash'
+                           ? 'text-amber-400 border-amber-400'
+                           : 'text-zinc-500 border-transparent hover:text-zinc-400'
+                           ]">
+                        <i class="ri-money-dollar-circle-line mr-1"></i>Cash
                         </button>
                      </div>
-                     <p
-                        :class="['text-[15px] font-semibold', selectedTable.shopping_bag_charge_enabled ? 'text-amber-400' : 'text-zinc-500 line-through']">
-                        {{ selectedTable.shopping_bag_charge_enabled ? '10.00' : '0.00' }} LKR
-                     </p>
-                  </div>
-                  <!-- Total -->
-                  <div class="flex items-center justify-between pt-3 border-t border-white/10">
-                     <p class="text-lg font-bold text-white">Total</p>
-                     <p class="text-xl font-bold text-amber-400">{{ total }} LKR</p>
-                  </div>
-                  <!-- Cash Input -->
-                  <div v-if="selectedPaymentMethod === 'cash'" class="pt-2">
-                     <p class="text-[13px] text-zinc-500 mb-2">Cash Amount</p>
-                     <button @click="openCashNumpad"
-                        class="w-full h-12 px-4 flex items-center justify-between gap-2 bg-zinc-800 border border-white/10 rounded-lg hover:border-amber-500 transition">
-                        <span
-                           :class="selectedTable.cash && Number(selectedTable.cash) > 0 ? 'text-white font-bold text-base' : 'text-zinc-500 text-[14px]'">
-                           {{ selectedTable.cash && Number(selectedTable.cash) > 0 ?
-                           Number(selectedTable.cash).toFixed(2) : 'Enter Amount' }}
-                        </span>
-                        <span class="text-[12px] text-zinc-500 font-medium">LKR</span>
-                     </button>
-                  </div>
-                  <!-- Balance -->
-                  <div class="flex items-center justify-between pt-2">
-                     <p class="text-[15px] font-semibold text-zinc-400">Balance</p>
-                     <p class="text-[15px] font-bold text-zinc-200">{{ balance }} LKR</p>
+
+                     <!-- Cash Amount Input -->
+                     <div v-if="selectedPaymentMethod === 'cash'" class="space-y-2">
+                        <p class="text-[12px] text-zinc-500">Enter Amount</p>
+                        <button @click="openCashNumpad"
+                           class="w-full h-12 px-4 flex items-center justify-between gap-2 bg-zinc-800 border border-white/10 rounded-lg hover:border-amber-500 transition">
+                           <span
+                              :class="selectedTable.cash && Number(selectedTable.cash) > 0 ? 'text-white font-bold text-base' : 'text-zinc-500 text-[11px]'">
+                              {{ selectedTable.cash && Number(selectedTable.cash) > 0 ?
+                              Number(selectedTable.cash).toFixed(2) : 'Enter Amount' }}
+                           </span>
+                           <i class="ri-calculator-line text-zinc-400"></i>
+                        </button>
+                        <!-- Quick Amount Buttons -->
+                        <div class="grid grid-cols-4 gap-2">
+                           <button v-for="amount in [500, 1000, 2000, 5000]" :key="amount"
+                              @click="selectedTable.cash = amount"
+                              class="py-2 px-2 rounded-lg bg-amber-500/15 ring-1 ring-amber-500/30 text-amber-400 font-semibold text-xs hover:bg-amber-500/25 active:scale-95 transition">
+                              {{ amount }}
+                           </button>
+                        </div>
+                     </div>
+
+                     <!-- Card Selection -->
+                     <div v-if="selectedPaymentMethod === 'card'" class="space-y-3">
+                        <!-- Card Last 4 Digits & Bank Charge Row -->
+                        <div class="grid grid-cols-2 gap-2">
+                           <!-- Card Last 4 Digits Input -->
+                           <div class="space-y-2">
+                              <p class="text-[11px] text-zinc-500">Card Last 4</p>
+                              <input type="text" placeholder="0000"
+                                 class="w-full h-10 px-3 bg-zinc-800 border border-white/10 rounded-lg text-white font-semibold text-center focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30 transition" />
+                           </div>
+
+                           <!-- Bank Charge Input -->
+                           <div class="space-y-2">
+                              <p class="text-[11px] text-zinc-500">Bank Charge</p>
+                              <input v-model="selectedTable.bank_service_charge" type="number" placeholder="0.00"
+                                 class="w-full h-10 px-3 bg-zinc-800 border border-white/10 rounded-lg text-white font-semibold text-center focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30 transition" />
+                           </div>
+                        </div>
+
+                        <!-- Bank Selection Grid -->
+                        <div class="space-y-2">
+                           <p class="text-[11px] text-zinc-500">Select Bank</p>
+                           <div class="grid grid-cols-3 gap-2 max-h-[220px] overflow-y-auto">
+                              <button v-for="bank in ['Bank of Ceylon', 'DFCC Bank PLC', 'Sampath Bank', 'HSBC', 'NDB Bank', 'Commercial Bank', 'Hatton National Bank', 'Seylan Bank', 'Peoples Bank', 'Nations Trust Bank', 'Standard Charted Bank', 'City Bank']"
+                                 :key="bank"
+                                 @click="selectedTable.bank_name = bank"
+                                 :class="[
+                                 'py-3 px-2 flex flex-col items-center justify-center gap-2 rounded-lg transition border ring-1 hover:bg-blue-500/15',
+                                 selectedTable.bank_name === bank
+                                 ? 'bg-blue-500/20 border-blue-500/50 ring-blue-500/30 shadow-md shadow-blue-500/20'
+                                 : 'bg-zinc-800 border-white/10 ring-white/5'
+                                 ]">
+                                 <!-- Bank Logo -->
+                                 <div class="w-14 h-14 flex items-center justify-center bg-white/5 rounded-lg relative">
+                                    <img :src="`/images/banks/${getBankLogoName(bank)}`" :alt="bank"
+                                       class="w-12 h-12 object-contain"
+                                       @error="$event.target.style.display = 'none'" />
+                                    <i class="ri-bank-line text-zinc-400 text-2xl absolute"></i>
+                                 </div>
+                                 <!-- Bank Name -->
+                                 <span class="text-[9px] font-semibold text-zinc-200 text-center line-clamp-2">{{ bank }}</span>
+                              </button>
+                           </div>
+                        </div>
+                     </div>
                   </div>
                </div>
                <!-- Footer -->
@@ -682,7 +759,7 @@
                <!-- Header -->
                <div class="flex items-center justify-between px-5 py-4 border-b border-white/10">
                   <div>
-                     <h3 class="text-lg font-bold text-white">{{ selectedProductForModal?.name }}</h3>
+                     <h3 class="text-base font-bold text-white">{{ selectedProductForModal?.name }}</h3>
                      <p v-if="selectedProductForModal?.sizes" class="text-[12px] text-amber-400 font-semibold mt-1">
                         {{Math.min(...selectedProductForModal.sizes.map(s => parseFloat(s.price || 0))).toFixed(0)
                         }} - {{Math.max(...selectedProductForModal.sizes.map(s => parseFloat(s.price ||
@@ -697,11 +774,11 @@
                <div class="p-5 space-y-4 flex-1 overflow-y-auto">
                   <!-- Size Selection -->
                   <div>
-                     <label class="block text-sm font-semibold text-zinc-300 mb-3">Select Size</label>
+                     <label class="block text-xs font-semibold text-zinc-300 mb-3">Select Size</label>
                      <div class="grid grid-cols-2 gap-2">
                         <button v-for="size in selectedProductForModal?.sizes" :key="size.id"
                            @click="selectedSizeForModal = size" :class="[
-                           'py-3 px-4 rounded-xl font-semibold text-sm transition border ring-1 flex flex-col items-center gap-1',
+                           'py-3 px-4 rounded-xl font-semibold text-xs transition border ring-1 flex flex-col items-center gap-1',
                            selectedSizeForModal?.id === size.id
                            ? 'bg-amber-500/20 border-amber-500/50 ring-amber-500/30 text-amber-400'
                            : 'bg-zinc-800 border-white/10 ring-white/5 text-zinc-300 hover:border-amber-500/40'
@@ -714,17 +791,17 @@
                   </div>
                   <!-- Quantity Selection -->
                   <div>
-                     <label class="block text-sm font-semibold text-zinc-300 mb-3">Quantity</label>
+                     <label class="block text-xs font-semibold text-zinc-300 mb-3">Quantity</label>
                      <div class="flex items-center gap-2">
                         <button @click="quantityForModal = Math.max(1, quantityForModal - 1)"
                            class="w-10 h-10 flex items-center justify-center rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 transition">
-                        <i class="ri-subtract-line text-lg"></i>
+                        <i class="ri-subtract-line text-base"></i>
                         </button>
                         <input v-model.number="quantityForModal" type="number" min="1"
-                           class="flex-1 h-10 text-center bg-zinc-800 border border-white/10 rounded-lg text-white font-bold text-lg focus:border-amber-500 focus:outline-none" />
+                           class="flex-1 h-10 text-center bg-zinc-800 border border-white/10 rounded-lg text-white font-bold text-base focus:border-amber-500 focus:outline-none" />
                         <button @click="quantityForModal = quantityForModal + 1"
                            class="w-10 h-10 flex items-center justify-center rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 transition">
-                        <i class="ri-add-line text-lg"></i>
+                        <i class="ri-add-line text-base"></i>
                         </button>
                      </div>
                   </div>
@@ -757,7 +834,7 @@
                         class="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-500/20 ring-1 ring-amber-500/40">
                         <i class="ri-bank-line text-amber-400"></i>
                      </div>
-                     <h3 class="text-lg font-bold text-white">Select Bank</h3>
+                     <h3 class="text-base font-bold text-white">Select Bank</h3>
                   </div>
                   <button @click="isBankModalOpen = false"
                      class="w-9 h-9 flex items-center justify-center rounded-xl bg-white/10 text-zinc-400 hover:bg-white/20 hover:text-white transition">
@@ -767,7 +844,7 @@
                <!-- Search -->
                <div class="px-5 py-3 border-b border-white/10">
                   <input v-model="bankQuery" type="text" placeholder="Search bank name..." autofocus
-                     class="w-full h-11 px-4 bg-zinc-800 border border-white/10 rounded-xl text-[15px] text-white placeholder-zinc-500 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30 transition" />
+                     class="w-full h-11 px-4 bg-zinc-800 border border-white/10 rounded-xl text-[12px] text-white placeholder-zinc-500 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30 transition" />
                </div>
                <!-- Bank Grid -->
                <div class="overflow-y-auto flex-1 p-4 bg-zinc-950/40">
@@ -777,7 +854,7 @@
                         <!-- Letter Header -->
                         <div
                            class="sticky top-0 bg-zinc-950/80 backdrop-blur-sm px-4 py-2 rounded-lg border border-white/10">
-                           <h3 class="text-lg font-bold text-amber-400">{{ letter }}</h3>
+                           <h3 class="text-base font-bold text-amber-400">{{ letter }}</h3>
                         </div>
                         <!-- Banks Grid for this Letter -->
                         <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
@@ -801,14 +878,14 @@
                               bank }}</span>
                               <!-- Check Icon -->
                               <i v-if="selectedTable.bank_name === bank"
-                                 class="ri-check-circle-fill text-amber-400 text-2xl absolute top-2 right-2"></i>
+                                 class="ri-check-circle-fill text-amber-400 text-lg absolute top-2 right-2"></i>
                            </button>
                         </div>
                      </div>
                   </div>
                   <div v-else class="flex flex-col items-center justify-center py-12">
-                     <i class="ri-search-line text-4xl text-zinc-700 mb-3"></i>
-                     <p class="text-center text-zinc-500 text-sm">No banks found</p>
+                     <i class="ri-search-line text-2xl text-zinc-700 mb-3"></i>
+                     <p class="text-center text-zinc-500 text-xs">No banks found</p>
                   </div>
                </div>
             </div>
@@ -830,7 +907,7 @@
                      </div>
                      <div>
                         <p class="text-xs font-medium text-zinc-500 uppercase tracking-wider">Cash Payment</p>
-                        <p class="text-[13px] font-semibold text-zinc-400">Total: <span class="text-amber-400">{{
+                        <p class="text-[11px] font-semibold text-zinc-400">Total: <span class="text-amber-400">{{
                            total }} LKR</span>
                         </p>
                      </div>
@@ -843,15 +920,15 @@
                <!-- Display -->
                <div
                   class="mx-5 mb-4 mt-4 px-5 py-4 bg-zinc-800 border border-white/10 rounded-2xl flex items-center justify-between">
-                  <span class="text-4xl font-bold text-white tracking-tight truncate">
+                  <span class="text-2xl font-bold text-white tracking-tight truncate">
                   {{ cashNumpadInput === '' || cashNumpadInput === '0' ? '0' : cashNumpadInput }}
                   </span>
-                  <span class="text-lg font-semibold text-zinc-500 ml-3 flex-shrink-0">LKR</span>
+                  <span class="text-base font-semibold text-zinc-500 ml-3 flex-shrink-0">LKR</span>
                </div>
                <!-- Quick amount buttons -->
                <div class="px-5 mb-4 grid grid-cols-4 gap-2">
                   <button v-for="quick in [500, 1000, 2000, 5000]" :key="quick" @click="numpadSetQuick(quick)"
-                     class="py-2.5 rounded-xl bg-amber-500/15 ring-1 ring-amber-500/30 text-amber-400 font-semibold text-[13px] hover:bg-amber-500/25 active:scale-95 transition">
+                     class="py-2.5 rounded-xl bg-amber-500/15 ring-1 ring-amber-500/30 text-amber-400 font-semibold text-[11px] hover:bg-amber-500/25 active:scale-95 transition">
                   {{ quick.toLocaleString() }}
                   </button>
                </div>
@@ -859,42 +936,42 @@
                <div class="px-5 pb-5 grid grid-cols-3 gap-3">
                   <!-- 7 8 9 -->
                   <button @click="numpadPress('7')"
-                     class="py-5 rounded-2xl bg-zinc-800 border border-white/10 hover:bg-zinc-700 active:scale-95 transition text-2xl font-bold text-white">7</button>
+                     class="py-5 rounded-2xl bg-zinc-800 border border-white/10 hover:bg-zinc-700 active:scale-95 transition text-lg font-bold text-white">7</button>
                   <button @click="numpadPress('8')"
-                     class="py-5 rounded-2xl bg-zinc-800 border border-white/10 hover:bg-zinc-700 active:scale-95 transition text-2xl font-bold text-white">8</button>
+                     class="py-5 rounded-2xl bg-zinc-800 border border-white/10 hover:bg-zinc-700 active:scale-95 transition text-lg font-bold text-white">8</button>
                   <button @click="numpadPress('9')"
-                     class="py-5 rounded-2xl bg-zinc-800 border border-white/10 hover:bg-zinc-700 active:scale-95 transition text-2xl font-bold text-white">9</button>
+                     class="py-5 rounded-2xl bg-zinc-800 border border-white/10 hover:bg-zinc-700 active:scale-95 transition text-lg font-bold text-white">9</button>
                   <!-- 4 5 6 -->
                   <button @click="numpadPress('4')"
-                     class="py-5 rounded-2xl bg-zinc-800 border border-white/10 hover:bg-zinc-700 active:scale-95 transition text-2xl font-bold text-white">4</button>
+                     class="py-5 rounded-2xl bg-zinc-800 border border-white/10 hover:bg-zinc-700 active:scale-95 transition text-lg font-bold text-white">4</button>
                   <button @click="numpadPress('5')"
-                     class="py-5 rounded-2xl bg-zinc-800 border border-white/10 hover:bg-zinc-700 active:scale-95 transition text-2xl font-bold text-white">5</button>
+                     class="py-5 rounded-2xl bg-zinc-800 border border-white/10 hover:bg-zinc-700 active:scale-95 transition text-lg font-bold text-white">5</button>
                   <button @click="numpadPress('6')"
-                     class="py-5 rounded-2xl bg-zinc-800 border border-white/10 hover:bg-zinc-700 active:scale-95 transition text-2xl font-bold text-white">6</button>
+                     class="py-5 rounded-2xl bg-zinc-800 border border-white/10 hover:bg-zinc-700 active:scale-95 transition text-lg font-bold text-white">6</button>
                   <!-- 1 2 3 -->
                   <button @click="numpadPress('1')"
-                     class="py-5 rounded-2xl bg-zinc-800 border border-white/10 hover:bg-zinc-700 active:scale-95 transition text-2xl font-bold text-white">1</button>
+                     class="py-5 rounded-2xl bg-zinc-800 border border-white/10 hover:bg-zinc-700 active:scale-95 transition text-lg font-bold text-white">1</button>
                   <button @click="numpadPress('2')"
-                     class="py-5 rounded-2xl bg-zinc-800 border border-white/10 hover:bg-zinc-700 active:scale-95 transition text-2xl font-bold text-white">2</button>
+                     class="py-5 rounded-2xl bg-zinc-800 border border-white/10 hover:bg-zinc-700 active:scale-95 transition text-lg font-bold text-white">2</button>
                   <button @click="numpadPress('3')"
-                     class="py-5 rounded-2xl bg-zinc-800 border border-white/10 hover:bg-zinc-700 active:scale-95 transition text-2xl font-bold text-white">3</button>
+                     class="py-5 rounded-2xl bg-zinc-800 border border-white/10 hover:bg-zinc-700 active:scale-95 transition text-lg font-bold text-white">3</button>
                   <!-- . 0 ⌫ -->
                   <button @click="numpadPress('.')"
-                     class="py-5 rounded-2xl bg-zinc-800 border border-white/10 hover:bg-zinc-700 active:scale-95 transition text-3xl font-extrabold text-white">.</button>
+                     class="py-5 rounded-2xl bg-zinc-800 border border-white/10 hover:bg-zinc-700 active:scale-95 transition text-xl font-extrabold text-white">.</button>
                   <button @click="numpadPress('0')"
-                     class="py-5 rounded-2xl bg-zinc-800 border border-white/10 hover:bg-zinc-700 active:scale-95 transition text-2xl font-bold text-white">0</button>
+                     class="py-5 rounded-2xl bg-zinc-800 border border-white/10 hover:bg-zinc-700 active:scale-95 transition text-lg font-bold text-white">0</button>
                   <button @click="numpadPress('backspace')"
-                     class="py-5 rounded-2xl bg-zinc-800 border border-white/10 hover:bg-zinc-700 active:scale-95 transition text-2xl text-zinc-400 flex items-center justify-center">
-                  <i class="ri-delete-back-2-line text-2xl"></i>
+                     class="py-5 rounded-2xl bg-zinc-800 border border-white/10 hover:bg-zinc-700 active:scale-95 transition text-lg text-zinc-400 flex items-center justify-center">
+                  <i class="ri-delete-back-2-line text-lg"></i>
                   </button>
                   <!-- Clear (span 1) + Confirm (span 2) -->
                   <button @click="numpadPress('clear')"
-                     class="py-5 rounded-2xl bg-red-500/15 ring-1 ring-red-500/30 text-red-400 font-bold text-lg hover:bg-red-500/25 active:scale-95 transition">
+                     class="py-5 rounded-2xl bg-red-500/15 ring-1 ring-red-500/30 text-red-400 font-bold text-base hover:bg-red-500/25 active:scale-95 transition">
                   Clear
                   </button>
                   <button @click="confirmCashNumpad"
                      class="col-span-2 py-5 rounded-2xl bg-amber-500 hover:bg-amber-400 text-zinc-900 font-bold text-xl tracking-wide shadow-lg shadow-amber-500/20 active:scale-[0.98] transition flex items-center justify-center gap-2">
-                  <i class="ri-check-line text-2xl"></i> Confirm
+                  <i class="ri-check-line text-lg"></i> Confirm
                   </button>
                </div>
             </div>
@@ -920,7 +997,7 @@
                            <i class="ri-receipt-line text-amber-400 text-xl"></i>
                         </div>
                         <div>
-                           <h3 class="text-lg font-bold text-white leading-none">Last Orders</h3>
+                           <h3 class="text-base font-bold text-white leading-none">Last Orders</h3>
                            <p class="text-[12px] text-zinc-400 mt-0.5">Most recent 20 transactions</p>
                         </div>
                      </div>
@@ -932,15 +1009,15 @@
                   <!-- Loading -->
                   <div v-if="lastOrdersLoading" class="flex-1 flex items-center justify-center py-20">
                      <div class="flex flex-col items-center gap-3">
-                        <i class="ri-loader-4-line text-4xl text-zinc-600 animate-spin"></i>
-                        <p class="text-zinc-500 text-[14px] font-medium">Loading orders...</p>
+                        <i class="ri-loader-4-line text-2xl text-zinc-600 animate-spin"></i>
+                        <p class="text-zinc-500 text-[11px] font-medium">Loading orders...</p>
                      </div>
                   </div>
                   <!-- Empty -->
                   <div v-else-if="lastOrders.length === 0" class="flex-1 flex items-center justify-center py-20">
                      <div class="flex flex-col items-center gap-3">
-                        <i class="ri-shopping-basket-line text-5xl text-zinc-700"></i>
-                        <p class="text-zinc-500 text-[15px] font-medium">No orders found</p>
+                        <i class="ri-shopping-basket-line text-2xl text-zinc-700"></i>
+                        <p class="text-zinc-500 text-[12px] font-medium">No orders found</p>
                      </div>
                   </div>
                   <!-- Order list -->
@@ -956,7 +1033,7 @@
                               <span
                                  class="block text-[11px] font-bold text-zinc-500 uppercase tracking-wider">Order
                               No</span>
-                              <span class="text-[14px] font-extrabold text-white leading-tight">#{{ order.order_id
+                              <span class="text-[11px] font-extrabold text-white leading-tight">#{{ order.order_id
                               }}</span>
                            </div>
                            <!-- Status: order type + payment -->
@@ -1004,7 +1081,7 @@
                         </button>
                         <!-- Expanded items -->
                         <div v-if="order._expanded" class="px-4 pb-4 border-t border-white/10 bg-zinc-900/60">
-                           <table class="w-full mt-3 text-[13px]">
+                           <table class="w-full mt-3 text-[11px]">
                               <thead>
                                  <tr class="text-left">
                                     <th class="pb-2 font-semibold text-zinc-500 w-[40%]">Item</th>
@@ -1052,10 +1129,10 @@
                                     </td>
                                  </tr>
                                  <tr>
-                                    <td colspan="3" class="pt-3 text-right font-bold text-zinc-400 text-[13px]">
+                                    <td colspan="3" class="pt-3 text-right font-bold text-zinc-400 text-[11px]">
                                        Total
                                     </td>
-                                    <td class="pt-3 text-right font-extrabold text-amber-400 text-[14px]">{{
+                                    <td class="pt-3 text-right font-extrabold text-amber-400 text-[11px]">{{
                                        calcOrderTotal(order) }} LKR
                                     </td>
                                  </tr>
@@ -1088,7 +1165,7 @@
                            <i class="ri-money-dollar-circle-line text-rose-400 text-xl"></i>
                         </div>
                         <div>
-                           <h3 class="text-lg font-bold text-white leading-none">Record Expense</h3>
+                           <h3 class="text-base font-bold text-white leading-none">Record Expense</h3>
                            <p class="text-[12px] text-zinc-400 mt-0.5">From cash drawer</p>
                         </div>
                      </div>
@@ -1101,7 +1178,7 @@
                   <div class="px-6 py-6 space-y-5">
                      <!-- Expense Reason -->
                      <div>
-                        <label class="block text-sm font-semibold text-zinc-300 mb-2">Expense Reason <span
+                        <label class="block text-xs font-semibold text-zinc-300 mb-2">Expense Reason <span
                            class="text-rose-400">*</span></label>
                         <input v-model="newExpense.reason" type="text"
                            placeholder="e.g., Cleaning supplies, Miscellaneous, etc."
@@ -1109,13 +1186,13 @@
                      </div>
                      <!-- Amount -->
                      <div>
-                        <label class="block text-sm font-semibold text-zinc-300 mb-2">Amount (LKR) <span
+                        <label class="block text-xs font-semibold text-zinc-300 mb-2">Amount (LKR) <span
                            class="text-rose-400">*</span></label>
                         <input v-model="newExpense.amount" type="number" placeholder="0.00" step="0.01" min="0"
                            class="w-full px-4 py-3 bg-zinc-800 border border-white/10 rounded-xl text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent transition" />
                      </div>
                      <!-- Display Info -->
-                     <div class="bg-zinc-800/50 rounded-xl p-4 border border-white/5 space-y-2 text-[13px]">
+                     <div class="bg-zinc-800/50 rounded-xl p-4 border border-white/5 space-y-2 text-[11px]">
                         <div class="flex justify-between text-zinc-400">
                            <span>Date:</span>
                            <span class="text-white font-medium">{{ new Date().toLocaleDateString() }}</span>
@@ -1167,7 +1244,7 @@
                            <i class="ri-alarm-warning-line text-amber-400 text-xl ongoing-ring-icon"></i>
                         </div>
                         <div>
-                           <h3 class="text-lg font-bold text-white leading-none">Ongoing Takeaway Orders</h3>
+                           <h3 class="text-base font-bold text-white leading-none">Ongoing Takeaway Orders</h3>
                            <p class="text-[12px] text-zinc-400 mt-0.5">{{ heldTakeawayOrders.length }} order{{
                               heldTakeawayOrders.length !== 1 ? 's' : '' }} on hold — click to restore
                            </p>
@@ -1194,8 +1271,8 @@
                   <!-- Empty state -->
                   <div v-if="heldTakeawayOrders.length === 0" class="flex-1 flex items-center justify-center py-20">
                      <div class="flex flex-col items-center gap-3">
-                        <i class="ri-shopping-bag-3-line text-5xl text-zinc-700"></i>
-                        <p class="text-zinc-500 text-[15px] font-medium">No held takeaway orders</p>
+                        <i class="ri-shopping-bag-3-line text-2xl text-zinc-700"></i>
+                        <p class="text-zinc-500 text-[12px] font-medium">No held takeaway orders</p>
                      </div>
                   </div>
                   <!-- BOX VIEW -->
@@ -1208,7 +1285,7 @@
                         <button @click.stop="removeHeldTakeawayOrder(held.id)"
                            class="absolute top-3 right-3 w-7 h-7 flex items-center justify-center rounded-lg text-zinc-600 hover:bg-red-500/15 hover:text-red-400 transition"
                            title="Remove held order">
-                        <i class="ri-delete-bin-6-line text-sm"></i>
+                        <i class="ri-delete-bin-6-line text-xs"></i>
                         </button>
                         <!-- Order badge + order id -->
                         <div class="flex items-center gap-2">
@@ -1221,7 +1298,7 @@
                         <!-- Items list (up to 4) -->
                         <ul class="space-y-1 flex-1">
                            <li v-for="(item, idx) in held.products.slice(0, 4)" :key="item.id"
-                              class="flex items-center justify-between text-[13px]">
+                              class="flex items-center justify-between text-[11px]">
                               <span class="text-zinc-300 truncate pr-2">{{ item.name }}</span>
                               <span class="text-zinc-500 flex-shrink-0">× {{ item.quantity }}</span>
                            </li>
@@ -1252,7 +1329,7 @@
                         <div
                            class="absolute inset-0 flex items-center justify-center rounded-2xl bg-amber-500/0 group-hover:bg-amber-500/8 transition pointer-events-none">
                            <span
-                              class="opacity-0 group-hover:opacity-100 transition text-[13px] font-bold text-amber-400 bg-zinc-900/90 px-3 py-1 rounded-lg ring-1 ring-amber-500/40">
+                              class="opacity-0 group-hover:opacity-100 transition text-[11px] font-bold text-amber-400 bg-zinc-900/90 px-3 py-1 rounded-lg ring-1 ring-amber-500/40">
                            <i class="ri-arrow-go-back-line mr-1"></i>Restore Order
                            </span>
                         </div>
@@ -1271,7 +1348,7 @@
                         <!-- Order info -->
                         <div class="flex-1 min-w-0">
                            <div class="flex items-center gap-2 flex-wrap">
-                              <span class="text-[14px] font-extrabold text-white">#{{ held.orderId }}</span>
+                              <span class="text-[11px] font-extrabold text-white">#{{ held.orderId }}</span>
                               <span class="text-[11px] text-zinc-500">{{ held.products.length }} item{{
                               held.products.length !== 1 ? 's' : '' }}</span>
                               <span v-if="held.customer?.name" class="text-[11px] text-zinc-400 font-medium">· {{
@@ -1308,7 +1385,7 @@
                         <button @click.stop="removeHeldTakeawayOrder(held.id)"
                            class="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg text-zinc-600 hover:bg-red-500/15 hover:text-red-400 transition"
                            title="Remove">
-                        <i class="ri-delete-bin-6-line text-sm"></i>
+                        <i class="ri-delete-bin-6-line text-xs"></i>
                         </button>
                      </div>
                   </div>
