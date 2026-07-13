@@ -717,11 +717,11 @@
                                  : 'bg-zinc-800 border-white/10 ring-white/5'
                                  ]">
                                  <!-- Bank Logo -->
-                                 <div class="w-14 h-14 flex items-center justify-center bg-white/5 rounded-lg relative">
+                                 <div class="w-35 h-35flex items-center justify-center bg-white/5 rounded-lg relative">
                                     <img :src="`/images/banks/${getBankLogoName(bank)}`" :alt="bank"
-                                       class="w-12 h-12 object-contain"
+                                       class="w-30 h-30 object-contain"
                                        @error="$event.target.style.display = 'none'" />
-                                    <i class="ri-bank-line text-zinc-400 text-2xl absolute"></i>
+                                    <!-- <i class="ri-bank-line text-zinc-400 text-2xl absolute"></i> -->
                                  </div>
                                  <!-- Bank Name -->
                                  <span class="text-[9px] font-semibold text-zinc-200 text-center line-clamp-2">{{ bank }}</span>
