@@ -737,9 +737,138 @@
                      class="flex-1 py-3 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-semibold transition">
                   Cancel
                   </button>
-                  <button @click="submitOrder; isConfirmOrderModalOpen = false"
+                  <button @click="isPreviewModalOpen = true; isConfirmOrderModalOpen = false"
                      class="flex-1 py-3 rounded-lg bg-green-500 hover:bg-green-600 text-white font-bold transition">
                   Confirm & Submit
+                  </button>
+               </div>
+            </div>
+         </div>
+      </Teleport>
+      <!-- Bill Preview Modal -->
+      <Teleport to="body">
+         <div v-if="isPreviewModalOpen" class="fixed inset-0 z-[1001] flex items-center justify-center p-4">
+            <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" @click="isPreviewModalOpen = false"></div>
+            <div class="relative bg-zinc-900 rounded-2xl border border-white/10 shadow-2xl w-full max-w-[600px] overflow-hidden flex flex-col max-h-[90vh]">
+               <!-- Header -->
+               <div class="flex items-center justify-between px-5 py-4 border-b border-white/10 bg-gradient-to-r from-zinc-900 via-zinc-800 to-zinc-900 flex-shrink-0">
+                  <div class="flex items-center gap-3">
+                     <div class="w-10 h-10 flex items-center justify-center rounded-xl bg-amber-500/20 ring-1 ring-amber-500/40">
+                        <i class="ri-file-list-3-line text-amber-400 text-xl"></i>
+                     </div>
+                     <h3 class="text-base font-bold text-white">Bill Preview</h3>
+                  </div>
+                  <button @click="isPreviewModalOpen = false"
+                     class="w-9 h-9 flex items-center justify-center rounded-xl bg-white/10 text-zinc-400 hover:bg-white/20 hover:text-white transition">
+                  <i class="ri-close-line text-xl"></i>
+                  </button>
+               </div>
+               <!-- Preview Content -->
+               <div class="flex-1 overflow-y-auto p-5 space-y-4 bg-zinc-950/40">
+                  <!-- Order Details Header -->
+                  <div class="bg-zinc-800 rounded-xl p-4 border border-white/10">
+                     <div class="grid grid-cols-2 gap-4">
+                        <div>
+                           <p class="text-[11px] text-zinc-400 uppercase tracking-wide">Order Type</p>
+                           <p class="text-base font-bold text-white mt-1">
+                              <i :class="selectedTable.order_type === 'takeaway' ? 'ri-shopping-bag-3-line' : selectedTable.order_type === 'pickup' ? 'ri-hotel-bed-line' : 'ri-restaurant-line'" class="mr-2"></i>
+                              {{ selectedTable.order_type === 'takeaway' ? 'Takeaway' : selectedTable.order_type === 'pickup' ? 'Delivery' : 'Dine-In' }}
+                           </p>
+                        </div>
+                        <div>
+                           <p class="text-[11px] text-zinc-400 uppercase tracking-wide">Payment Method</p>
+                           <p class="text-base font-bold text-white mt-1">
+                              <i :class="selectedPaymentMethod === 'card' ? 'ri-bank-card-line' : 'ri-money-dollar-circle-line'" class="mr-2"></i>
+                              {{ selectedPaymentMethod === 'card' ? 'Card' : 'Cash' }}
+                           </p>
+                        </div>
+                     </div>
+                  </div>
+                  <!-- Customer Info -->
+                  <div v-if="customer.name" class="bg-zinc-800 rounded-xl p-4 border border-white/10">
+                     <p class="text-[11px] text-zinc-400 uppercase tracking-wide mb-2">Customer</p>
+                     <p class="text-base font-semibold text-white">{{ customer.name }}</p>
+                     <p v-if="customer.contactNumber" class="text-[11px] text-zinc-500 mt-1">{{ customer.contactNumber }}</p>
+                  </div>
+                  <!-- Items Summary -->
+                  <div class="bg-zinc-800 rounded-xl p-4 border border-white/10">
+                     <p class="text-[11px] text-zinc-400 uppercase tracking-wide mb-3">Order Items</p>
+                     <div class="space-y-2 max-h-[180px] overflow-y-auto">
+                        <div v-for="item in selectedTable.products" :key="item.cart_key || item.id" class="flex items-center justify-between pb-2 border-b border-white/5 last:border-0">
+                           <div class="flex-1">
+                              <p class="text-[12px] font-semibold text-white">{{ item.name }}</p>
+                              <p v-if="item.size?.name" class="text-[10px] text-zinc-500">{{ item.size.name }}</p>
+                           </div>
+                           <div class="text-right flex-shrink-0 ml-2">
+                              <p class="text-[12px] text-zinc-300">× {{ item.quantity }}</p>
+                              <p class="text-[11px] font-bold text-amber-400">
+                                 {{
+                                 item.apply_discount
+                                 ? ((item.selling_price * item.quantity * (100 - item.discount)) / 100).toFixed(2)
+                                 : (item.selling_price * item.quantity).toFixed(2)
+                                 }} LKR
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+                  <!-- Bill Summary -->
+                  <div class="bg-zinc-800 rounded-xl p-4 border border-white/10 space-y-3">
+                     <div class="flex items-center justify-between pb-3 border-b border-white/10">
+                        <p class="text-[11px] text-zinc-400">Sub Total</p>
+                        <p class="text-[11px] font-semibold text-zinc-200">{{ subtotal }} LKR</p>
+                     </div>
+                     <div v-if="totalDiscount > 0" class="flex items-center justify-between pb-3 border-b border-white/10">
+                        <p class="text-[11px] text-zinc-400">Discount</p>
+                        <p class="text-[11px] font-semibold text-red-400">( {{ totalDiscount }} LKR )</p>
+                     </div>
+                     <div v-if="selectedTable.service_charge > 0 && selectedTable.id !== 'default' && selectedTable.order_type !== 'pickup'" class="flex items-center justify-between pb-3 border-b border-white/10">
+                        <p class="text-[11px] text-zinc-400">Service Charge ({{ selectedTable.service_charge }}%)</p>
+                        <p class="text-[11px] font-semibold text-zinc-200">+{{ ((parseFloat(subtotal) * selectedTable.service_charge) / 100).toFixed(2) }} LKR</p>
+                     </div>
+                     <div v-if="selectedTable.delivery_charge > 0 && selectedTable.order_type === 'pickup'" class="flex items-center justify-between pb-3 border-b border-white/10">
+                        <p class="text-[11px] text-zinc-400">Delivery Charge</p>
+                        <p class="text-[11px] font-semibold text-zinc-200">+{{ selectedTable.delivery_charge }} LKR</p>
+                     </div>
+                     <div v-if="selectedTable.shopping_bag_charge_enabled" class="flex items-center justify-between pb-3 border-b border-white/10">
+                        <p class="text-[11px] text-zinc-400">Shopping Bag</p>
+                        <p class="text-[11px] font-semibold text-zinc-200">+10.00 LKR</p>
+                     </div>
+                     <div v-if="selectedTable.bank_service_charge > 0 && selectedPaymentMethod === 'card'" class="flex items-center justify-between pb-3 border-b border-white/10">
+                        <p class="text-[11px] text-zinc-400">Bank Charge ({{ selectedTable.bank_service_charge }}%)</p>
+                        <p class="text-[11px] font-semibold text-zinc-200">+{{ ((parseFloat(total) * selectedTable.bank_service_charge) / 100).toFixed(2) }} LKR</p>
+                     </div>
+                     <!-- Total -->
+                     <div class="flex items-center justify-between pt-3 border-t border-white/10">
+                        <p class="text-base font-bold text-white">Total Amount</p>
+                        <p class="text-xl font-bold text-amber-400">Rs {{ total }}</p>
+                     </div>
+                  </div>
+                  <!-- Payment Info -->
+                  <div v-if="selectedPaymentMethod === 'cash'" class="bg-green-500/10 rounded-xl p-4 border border-green-500/30">
+                     <div class="flex items-center justify-between mb-2">
+                        <p class="text-[11px] text-green-400 uppercase tracking-wide font-semibold">Paid Amount</p>
+                        <p class="text-lg font-bold text-green-400">Rs {{ selectedTable.cash || 0 }}</p>
+                     </div>
+                     <div class="flex items-center justify-between">
+                        <p class="text-[11px] text-green-400 uppercase tracking-wide font-semibold">Balance</p>
+                        <p class="text-lg font-bold text-green-400">Rs {{ balance }}</p>
+                     </div>
+                  </div>
+                  <div v-else class="bg-blue-500/10 rounded-xl p-4 border border-blue-500/30">
+                     <p class="text-[11px] text-blue-400 uppercase tracking-wide font-semibold mb-1">Card Payment</p>
+                     <p v-if="selectedTable.bank_name" class="text-base font-bold text-blue-400">{{ selectedTable.bank_name }}</p>
+                  </div>
+               </div>
+               <!-- Footer -->
+               <div class="flex gap-3 p-5 border-t border-white/10 flex-shrink-0">
+                  <button @click="isPreviewModalOpen = false"
+                     class="flex-1 py-3 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-semibold transition">
+                  Back
+                  </button>
+                  <button @click="submitOrder(); isPreviewModalOpen = false"
+                     class="flex-1 py-3 rounded-lg bg-green-500 hover:bg-green-600 text-white font-bold transition flex items-center justify-center gap-2">
+                  <i class="ri-check-line"></i> Confirm & Print
                   </button>
                </div>
             </div>
@@ -1521,6 +1650,7 @@
    const isSuccessModalOpen = ref(false);
    const isAlertModalOpen = ref(false);
    const isConfirmOrderModalOpen = ref(false);
+   const isPreviewModalOpen = ref(false);
    const message = ref("");
    const isOpeningBalanceModalOpen = ref(false);
    const openingBalanceInput = ref("");
