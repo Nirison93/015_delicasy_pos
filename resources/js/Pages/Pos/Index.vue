@@ -147,12 +147,12 @@
                      <div v-if="categoryProducts.length === 0"
                         class="flex flex-col items-center justify-center h-full">
                         <i class="ri-inbox-line text-xl text-zinc-600 mb-2"></i>
-                        <p class="text-xs text-zinc-500">No products</p>
+                        <p class="text-md text-zinc-500">No products</p>
                      </div>
                      <div v-else-if="filteredProducts.length === 0"
                         class="flex flex-col items-center justify-center h-full">
                         <i class="ri-search-line text-xl text-zinc-600 mb-2"></i>
-                        <p class="text-xs text-zinc-500">No products found</p>
+                        <p class="text-md text-zinc-500">No products found</p>
                      </div>
                      <div v-else class="grid grid-cols-4 gap-2 overflow-y-auto flex-1 pr-1">
                         <button v-for="product in filteredProducts" :key="product.id"
@@ -169,7 +169,7 @@
                                  :src="product.image.replace('/storage/storage/', '/storage/')"
                                  :alt="product.name" class="w-full h-full object-cover" />
                               <div v-else
-                                 class="w-full h-full flex items-center justify-center text-zinc-600 text-xs">
+                                 class="w-full h-full flex items-center justify-center text-zinc-600 text-md">
                                  <i class="ri-image-line"></i>
                               </div>
                            </div>
@@ -208,7 +208,7 @@
                      <!-- Tables Selector -->
                      <div class="px-5 pt-5 pb-3 border-b border-white/10 bg-zinc-950/50">
                         <div class="flex items-center justify-between mb-3">
-                           <h3 class="text-xs font-bold text-zinc-400 uppercase tracking-wide">Tables</h3>
+                           <h3 class="text-md font-bold text-zinc-400 uppercase tracking-wide">Tables</h3>
                            <button @click="addTable"
                               class="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white text-[12px] font-semibold transition active:scale-95"
                               title="Add new table">
@@ -248,7 +248,7 @@
                               <button @click.stop="removeAddedTable(table.id)"
                                  class="absolute right-1 top-1/2 -translate-y-1/2 w-6 h-6 flex items-center justify-center rounded-lg text-zinc-400 hover:bg-red-500/20 hover:text-red-400 transition"
                                  title="Close table">
-                              <i class="ri-close-line text-xs"></i>
+                              <i class="ri-close-line text-md"></i>
                               </button>
                            </div>
                         </div>
@@ -337,7 +337,7 @@
                                  <div
                                     class="flex items-center gap-0 bg-zinc-700 ring-1 ring-white/10 rounded-lg overflow-hidden">
                                     <button @click="decrementQuantity(item.id)"
-                                       class="w-7 h-7 flex items-center justify-center text-zinc-300 hover:bg-zinc-600 active:scale-90 transition text-xs font-bold">
+                                       class="w-7 h-7 flex items-center justify-center text-zinc-300 hover:bg-zinc-600 active:scale-90 transition text-md font-bold">
                                     <i class="ri-subtract-line"></i>
                                     </button>
                                     <span
@@ -345,7 +345,7 @@
                                     {{ item.quantity }}
                                     </span>
                                     <button @click="incrementQuantity(item.id)"
-                                       class="w-7 h-7 flex items-center justify-center text-zinc-300 hover:bg-zinc-600 active:scale-90 transition text-xs font-bold">
+                                       class="w-7 h-7 flex items-center justify-center text-zinc-300 hover:bg-zinc-600 active:scale-90 transition text-md font-bold">
                                     <i class="ri-add-line"></i>
                                     </button>
                                  </div>
@@ -392,14 +392,14 @@
                               <!-- Send KOT Button -->
                               <button v-if="selectedTable && selectedTable.products.length > 0"
                                  @click="sendTakeawayKOT" type="button"
-                                 class="py-4 px-2 flex flex-col items-center justify-center gap-1.5 text-xs font-bold rounded-2xl border border-green-500/40 bg-green-500/20 text-green-400 hover:bg-green-500/30 transition-all active:scale-[0.98]">
+                                 class="py-4 px-2 flex flex-col items-center justify-center gap-1.5 text-md font-bold rounded-2xl border border-green-500/40 bg-green-500/20 text-green-400 hover:bg-green-500/30 transition-all active:scale-[0.98]">
                               <i class="ri-check-double-line text-xl"></i>
                               Send KOT
                               </button>
                               <!-- Get Bill Button -->
                               <button @click="printBillOnly" type="button"
                                  :disabled="!selectedTable || selectedTable.products.length === 0" :class="[
-                                 'py-4 px-2 flex flex-col items-center justify-center gap-1.5 text-xs font-bold rounded-2xl border transition-all active:scale-[0.98]',
+                                 'py-4 px-2 flex flex-col items-center justify-center gap-1.5 text-md font-bold rounded-2xl border transition-all active:scale-[0.98]',
                                  !selectedTable || selectedTable.products.length === 0
                                  ? 'bg-zinc-800 text-zinc-600 border-white/5 cursor-not-allowed'
                                  : 'bg-purple-500/20 text-purple-400 border-purple-500/40 hover:bg-purple-500/30'
@@ -411,7 +411,7 @@
                               <button
                                  v-if="selectedTable?.id === 'default' && selectedTable.order_type === 'takeaway' && selectedTable.products.length > 0"
                                  @click="holdTakeawayOrder" type="button"
-                                 class="py-4 px-2 flex flex-col items-center justify-center gap-1.5 text-xs font-bold rounded-2xl border border-red-500/40 bg-red-500/20 text-red-400 hover:bg-red-500/30 transition-all active:scale-[0.98]">
+                                 class="py-4 px-2 flex flex-col items-center justify-center gap-1.5 text-md font-bold rounded-2xl border border-red-500/40 bg-red-500/20 text-red-400 hover:bg-red-500/30 transition-all active:scale-[0.98]">
                               <i class="ri-pause-circle-line text-xl"></i>
                               Hold Order
                               </button>
@@ -500,7 +500,7 @@
                         <input v-model="closingBalanceInput" type="number" min="0" step="0.01" inputmode="decimal"
                            placeholder="0.00"
                            class="w-full h-11 px-4 bg-zinc-800 border border-white/10 rounded-xl text-[12px] text-white placeholder-zinc-500 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30 transition" />
-                        <p v-if="closingBalanceError" class="mt-2 text-xs text-red-400">{{ closingBalanceError }}
+                        <p v-if="closingBalanceError" class="mt-2 text-md text-red-400">{{ closingBalanceError }}
                         </p>
                      </div>
                      <button @click="submitClosingBalance" :disabled="isClosingBalanceSaving"
@@ -509,13 +509,13 @@
                      </button>
                   </div>
                   <div v-else class="space-y-3">
-                     <p class="text-xs text-zinc-400">No cash drawer is open. Enter the opening balance to start.</p>
+                     <p class="text-md text-zinc-400">No cash drawer is open. Enter the opening balance to start.</p>
                      <div>
-                        <label class="block text-xs font-semibold text-zinc-300 mb-2">Opening Balance</label>
+                        <label class="block text-md font-semibold text-zinc-300 mb-2">Opening Balance</label>
                         <input v-model="openingBalanceInput" type="number" min="0" step="0.01" inputmode="decimal"
                            placeholder="0.00"
                            class="w-full h-11 px-4 bg-zinc-800 border border-white/10 rounded-xl text-[12px] text-white placeholder-zinc-500 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30 transition" />
-                        <p v-if="openingBalanceError" class="mt-2 text-xs text-red-400">{{ openingBalanceError }}
+                        <p v-if="openingBalanceError" class="mt-2 text-md text-red-400">{{ openingBalanceError }}
                         </p>
                      </div>
                      <button @click="submitOpeningBalance" :disabled="isOpeningBalanceSaving"
@@ -559,7 +559,7 @@
                <div class="flex-1  flex gap-4 p-5">
                   <!-- Left: Bill Summary -->
                   <div class="flex-1 space-y-4 border-r border-white/10 pr-5">
-                     <h4 class="text-xs font-bold text-zinc-400 uppercase tracking-wide">Bill Summary</h4>
+                     <h4 class="text-md font-bold text-zinc-400 uppercase tracking-wide">Bill Summary</h4>
 
                      <!-- Sub Total -->
                      <div class="flex items-center justify-between">
@@ -640,25 +640,27 @@
 
                   <!-- Right: Payment Method Selection -->
                   <div class="flex-1 space-y-4">
-                     <h4 class="text-xs font-bold text-zinc-400 uppercase tracking-wide">Payment Method</h4>
+                     <h4 class="text-md font-bold text-zinc-400 uppercase tracking-wide">Payment Method</h4>
 
                      <!-- Card / Cash Tabs -->
-                     <div class="flex gap-2 border-b border-white/10">
-                        <button @click="selectedPaymentMethod = 'card'" :class="[
-                           'px-4 py-2 font-semibold text-[11px] border-b-2 transition',
-                           selectedPaymentMethod === 'card'
-                           ? 'text-blue-400 border-blue-400'
-                           : 'text-zinc-500 border-transparent hover:text-zinc-400'
-                           ]">
-                        <i class="ri-bank-card-line mr-1"></i>Card
-                        </button>
+                     <div class="flex gap-3">
+
                         <button @click="selectedPaymentMethod = 'cash'" :class="[
-                           'px-4 py-2 font-semibold text-[11px] border-b-2 transition',
+                           'flex-1 px-3 sm:px-4 py-2 sm:py-3 font-semibold text-md sm:text-sm md:text-base rounded-lg border-2 transition active:scale-95',
                            selectedPaymentMethod === 'cash'
-                           ? 'text-amber-400 border-amber-400'
-                           : 'text-zinc-500 border-transparent hover:text-zinc-400'
+                           ? 'bg-amber-500 border-amber-500 text-white shadow-lg shadow-amber-500/20'
+                           : 'bg-zinc-800 border-white/10 text-zinc-400 hover:bg-zinc-700 hover:border-amber-500/30'
                            ]">
-                        <i class="ri-money-dollar-circle-line mr-1"></i>Cash
+                        <i class="ri-money-dollar-circle-line mr-2"></i>Cash
+                        </button>
+
+                              <button @click="selectedPaymentMethod = 'card'" :class="[
+                           'flex-1 px-3 sm:px-4 py-2 sm:py-3 font-semibold text-md sm:text-sm md:text-base rounded-lg border-2 transition active:scale-95',
+                           selectedPaymentMethod === 'card'
+                           ? 'bg-blue-500 border-blue-500 text-white shadow-lg shadow-blue-500/20'
+                           : 'bg-zinc-800 border-white/10 text-zinc-400 hover:bg-zinc-700 hover:border-blue-500/30'
+                           ]">
+                        <i class="ri-bank-card-line mr-2"></i>Card
                         </button>
                      </div>
 
@@ -686,21 +688,17 @@
 
                      <!-- Card Selection -->
                      <div v-if="selectedPaymentMethod === 'card'" class="space-y-3">
-                        <!-- Card Last 4 Digits & Bank Charge Row -->
-                        <div class="grid grid-cols-2 gap-2">
-                           <!-- Card Last 4 Digits Input -->
-                           <div class="space-y-2">
-                              <p class="text-[11px] text-zinc-500">Card Last 4</p>
-                              <input type="text" placeholder="0000"
-                                 class="w-full h-10 px-3 bg-zinc-800 border border-white/10 rounded-lg text-white font-semibold text-center focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30 transition" />
-                           </div>
-
-                           <!-- Bank Charge Input -->
-                           <div class="space-y-2">
-                              <p class="text-[11px] text-zinc-500">Bank Charge</p>
-                              <input v-model="selectedTable.bank_service_charge" type="number" placeholder="0.00"
-                                 class="w-full h-10 px-3 bg-zinc-800 border border-white/10 rounded-lg text-white font-semibold text-center focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30 transition" />
-                           </div>
+                        <!-- Bank Charge Selection -->
+                        <div class="space-y-2">
+                           <p class="text-[11px] text-zinc-500 font-semibold">Bank Charge</p>
+                           <select v-model="selectedTable.bank_service_charge"
+                              class="w-full py-2.5 text-[12px] font-semibold text-zinc-200 bg-zinc-800 border border-white/10 rounded-lg cursor-pointer focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30 transition">
+                              <option value="" class="bg-zinc-800">Select Bank Charge</option>
+                              <option v-for="charge in bankCharge" :key="charge.id"
+                                 :value="parseFloat(charge.bank_charge)">
+                                 {{ charge.bank_charge }}%
+                              </option>
+                           </select>
                         </div>
 
                         <!-- Bank Selection with Logos -->
@@ -733,7 +731,7 @@
 
                 <i
                     v-if="selectedTable.bank_name === bank"
-                    class="ri-check-circle-fill text-blue-400 text-xs"
+                    class="ri-check-circle-fill text-blue-400 text-md"
                 ></i>
             </button>
         </div>
@@ -914,11 +912,11 @@
                <div class="p-5 space-y-4 flex-1 overflow-y-auto">
                   <!-- Size Selection -->
                   <div>
-                     <label class="block text-xs font-semibold text-zinc-300 mb-3">Select Size</label>
+                     <label class="block text-md font-semibold text-zinc-300 mb-3">Select Size</label>
                      <div class="grid grid-cols-2 gap-2">
                         <button v-for="size in selectedProductForModal?.sizes" :key="size.id"
                            @click="selectedSizeForModal = size" :class="[
-                           'py-3 px-4 rounded-xl font-semibold text-xs transition border ring-1 flex flex-col items-center gap-1',
+                           'py-3 px-4 rounded-xl font-semibold text-md transition border ring-1 flex flex-col items-center gap-1',
                            selectedSizeForModal?.id === size.id
                            ? 'bg-amber-500/20 border-amber-500/50 ring-amber-500/30 text-amber-400'
                            : 'bg-zinc-800 border-white/10 ring-white/5 text-zinc-300 hover:border-amber-500/40'
@@ -931,7 +929,7 @@
                   </div>
                   <!-- Quantity Selection -->
                   <div>
-                     <label class="block text-xs font-semibold text-zinc-300 mb-3">Quantity</label>
+                     <label class="block text-md font-semibold text-zinc-300 mb-3">Quantity</label>
                      <div class="flex items-center gap-2">
                         <button @click="quantityForModal = Math.max(1, quantityForModal - 1)"
                            class="w-10 h-10 flex items-center justify-center rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 transition">
@@ -1025,7 +1023,7 @@
                   </div>
                   <div v-else class="flex flex-col items-center justify-center py-12">
                      <i class="ri-search-line text-xl text-zinc-700 mb-3"></i>
-                     <p class="text-center text-zinc-500 text-xs">No banks found</p>
+                     <p class="text-center text-zinc-500 text-md">No banks found</p>
                   </div>
                </div>
             </div>
@@ -1046,7 +1044,7 @@
                         <i class="ri-calculator-line text-amber-400 text-xl"></i>
                      </div>
                      <div>
-                        <p class="text-xs font-medium text-zinc-500 uppercase tracking-wider">Cash Payment</p>
+                        <p class="text-md font-medium text-zinc-500 uppercase tracking-wider">Cash Payment</p>
                         <p class="text-[11px] font-semibold text-zinc-400">Total: <span class="text-amber-400">{{
                            total }} LKR</span>
                         </p>
@@ -1318,7 +1316,7 @@
                   <div class="px-6 py-6 space-y-5">
                      <!-- Expense Reason -->
                      <div>
-                        <label class="block text-xs font-semibold text-zinc-300 mb-2">Expense Reason <span
+                        <label class="block text-md font-semibold text-zinc-300 mb-2">Expense Reason <span
                            class="text-rose-400">*</span></label>
                         <input v-model="newExpense.reason" type="text"
                            placeholder="e.g., Cleaning supplies, Miscellaneous, etc."
@@ -1326,7 +1324,7 @@
                      </div>
                      <!-- Amount -->
                      <div>
-                        <label class="block text-xs font-semibold text-zinc-300 mb-2">Amount (LKR) <span
+                        <label class="block text-md font-semibold text-zinc-300 mb-2">Amount (LKR) <span
                            class="text-rose-400">*</span></label>
                         <input v-model="newExpense.amount" type="number" placeholder="0.00" step="0.01" min="0"
                            class="w-full px-4 py-3 bg-zinc-800 border border-white/10 rounded-xl text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent transition" />
@@ -1425,7 +1423,7 @@
                         <button @click.stop="removeHeldTakeawayOrder(held.id)"
                            class="absolute top-3 right-3 w-7 h-7 flex items-center justify-center rounded-lg text-zinc-600 hover:bg-red-500/15 hover:text-red-400 transition"
                            title="Remove held order">
-                        <i class="ri-delete-bin-6-line text-xs"></i>
+                        <i class="ri-delete-bin-6-line text-md"></i>
                         </button>
                         <!-- Order badge + order id -->
                         <div class="flex items-center gap-2">
@@ -1525,7 +1523,7 @@
                         <button @click.stop="removeHeldTakeawayOrder(held.id)"
                            class="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg text-zinc-600 hover:bg-red-500/15 hover:text-red-400 transition"
                            title="Remove">
-                        <i class="ri-delete-bin-6-line text-xs"></i>
+                        <i class="ri-delete-bin-6-line text-md"></i>
                         </button>
                      </div>
                   </div>
