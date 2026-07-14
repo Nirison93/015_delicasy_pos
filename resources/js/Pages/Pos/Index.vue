@@ -704,39 +704,41 @@
                         </div>
 
                         <!-- Bank Selection with Logos -->
-                        <div class="space-y-2">
-                           <p class="text-[11px] text-zinc-500 font-semibold">Select Bank</p>
-                           <div class="relative bank-scroll-container">
-                              <div class="overflow-x-auto scroll-smooth" style="scroll-behavior: smooth;">
-                                 <div class="flex gap-3 pb-2 min-w-min px-1">
-                                    <button v-for="bank in ['Bank of Ceylon', 'DFCC Bank PLC', 'Sampath Bank', 'HSBC', 'NDB Bank', 'Commercial Bank', 'Hatton National Bank', 'Seylan Bank', 'Peoples Bank', 'Nations Trust Bank', 'Standard Charted Bank', 'City Bank']"
-                                       :key="bank"
-                                       @click="selectedTable.bank_name = bank"
-                                       :class="[
-                                       'flex-shrink-0 w-32 py-3 px-2 flex flex-col items-center justify-center gap-2 rounded-lg transition border ring-1 hover:scale-105',
-                                       selectedTable.bank_name === bank
-                                       ? 'bg-blue-500/20 border-blue-500/50 ring-blue-500/30 shadow-md shadow-blue-500/20'
-                                       : 'bg-zinc-800 border-white/10 ring-white/5 hover:border-blue-500/30 hover:bg-blue-500/10'
-                                       ]">
-                                       <!-- Bank Logo -->
-                                       <div class="w-12 h-12 flex items-center justify-center bg-white/5 rounded-lg flex-shrink-0">
-                                          <img :src="`/images/banks/${getBankLogoName(bank)}`" :alt="bank"
-                                             class="w-10 h-10 object-contain"
-                                             @error="handleLogoError" />
-                                       </div>
-                                       <!-- Bank Name -->
-                                       <span class="text-[9px] font-semibold text-zinc-200 text-center line-clamp-2 leading-tight">{{ bank }}</span>
-                                       <!-- Check Icon -->
-                                       <i v-if="selectedTable.bank_name === bank" class="ri-check-circle-fill text-blue-400 text-xs"></i>
-                                    </button>
-                                 </div>
-                              </div>
-                              <!-- Scroll Indicator -->
-                              <div class="absolute right-0 top-1/2 -translate-y-1/2 pointer-events-none">
-                                 <i class="ri-arrow-right-s-line text-zinc-600 text-xl"></i>
-                              </div>
-                           </div>
-                        </div>
+                     <div class="space-y-2">
+    <p class="text-[11px] text-zinc-500 font-semibold">Select Bank</p>
+
+    <div class="max-h-80 overflow-y-auto pr-2">
+        <div class="grid grid-cols-2 gap-3">
+            <button
+                v-for="bank in ['Bank of Ceylon', 'DFCC Bank PLC', 'Sampath Bank', 'HSBC', 'NDB Bank', 'Commercial Bank', 'Hatton National Bank', 'Seylan Bank', 'Peoples Bank', 'Nations Trust Bank', 'Standard Chartered Bank', 'City Bank']"
+                :key="bank"
+                @click="selectedTable.bank_name = bank"
+                :class="[
+                    'w-full py-3 px-2 flex flex-col items-center justify-center gap-2 rounded-lg transition border ring-1 hover:scale-105',
+                    selectedTable.bank_name === bank
+                        ? 'bg-blue-500/20 border-blue-500/50 ring-blue-500/30 shadow-md shadow-blue-500/20'
+                        : 'bg-zinc-800 border-white/10 ring-white/5 hover:border-blue-500/30 hover:bg-blue-500/10'
+                ]"
+            >
+                <div
+                    class="w-16 h-16 rounded-lg bg-cover bg-center bg-no-repeat"
+                    :style="{ backgroundImage: `url('/images/banks/${getBankLogoName(bank)}')` }"
+                    :alt="bank"
+                />
+
+
+                <span class="text-[9px] font-semibold text-zinc-200 text-center">
+                    {{ bank }}
+                </span>
+
+                <i
+                    v-if="selectedTable.bank_name === bank"
+                    class="ri-check-circle-fill text-blue-400 text-xs"
+                ></i>
+            </button>
+        </div>
+    </div>
+</div>
                      </div>
                   </div>
                </div>

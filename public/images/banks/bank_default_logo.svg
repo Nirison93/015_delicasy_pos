@@ -1,8 +1,18 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
-    <rect width="200" height="200" fill="#4a4a4a"/>
-    <path d="M60 120 L100 70 L140 120 Z" fill="#9a9a9a" stroke="white" stroke-width="2"/>
-    <rect x="70" y="120" width="60" height="50" fill="#9a9a9a" stroke="white" stroke-width="2"/>
-    <rect x="80" y="135" width="15" height="20" fill="#4a4a4a"/>
-    <rect x="105" y="135" width="15" height="20" fill="#4a4a4a"/>
-    <text x="100" y="175" font-size="12" fill="white" text-anchor="middle" font-family="Arial, sans-serif">BANK</text>
+    <!-- Default Bank Logo - Generic -->
+    <defs>
+        <linearGradient id="defaultGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#4a4a4a;stop-opacity:1" />
+            <stop offset="100%" style="stop-color:#2a2a2a;stop-opacity:1" />
+        </linearGradient>
+    </defs>
+    <rect width="200" height="200" fill="url(#defaultGradient)"/>
+    <g fill="white" opacity="0.9">
+        <path d="M50 130 L100 70 L150 130 Z" stroke="white" stroke-width="2" fill="none"/>
+        <rect x="60" y="130" width="80" height="55" stroke="white" stroke-width="2" fill="none"/>
+        <rect x="70" y="145" width="12" height="20" fill="white"/>
+        <rect x="94" y="145" width="12" height="20" fill="white"/>
+        <rect x="118" y="145" width="12" height="20" fill="white"/>
+    </g>
+    <text x="100" y="175" font-size="14" fill="white" text-anchor="middle" font-family="Arial, sans-serif" font-weight="bold">BANK</text>
 </svg>
