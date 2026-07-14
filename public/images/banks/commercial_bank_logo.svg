@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+    <rect width="200" height="200" fill="#1a3a52"/>
+    <circle cx="100" cy="100" r="80" fill="#2c5aa0"/>
+    <text x="100" y="120" font-size="32" font-weight="bold" fill="white" text-anchor="middle" font-family="Arial, sans-serif">CB</text>
+    <text x="100" y="150" font-size="10" fill="white" text-anchor="middle" font-family="Arial, sans-serif">Commercial Bank</text>
+</svg>

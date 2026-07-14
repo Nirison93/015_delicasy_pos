@@ -556,7 +556,7 @@
                   </button>
                </div>
                <!-- Body - Two Column Layout -->
-               <div class="flex-1 overflow-y-auto flex gap-4 p-5">
+               <div class="flex-1  flex gap-4 p-5">
                   <!-- Left: Bill Summary -->
                   <div class="flex-1 space-y-4 border-r border-white/10 pr-5">
                      <h4 class="text-xs font-bold text-zinc-400 uppercase tracking-wide">Bill Summary</h4>
@@ -703,29 +703,38 @@
                            </div>
                         </div>
 
-                        <!-- Bank Selection Grid -->
+                        <!-- Bank Selection with Logos -->
                         <div class="space-y-2">
-                           <p class="text-[11px] text-zinc-500">Select Bank</p>
-                           <div class="grid grid-cols-3 gap-2 max-h-[220px] overflow-y-auto">
-                              <button v-for="bank in ['Bank of Ceylon', 'DFCC Bank PLC', 'Sampath Bank', 'HSBC', 'NDB Bank', 'Commercial Bank', 'Hatton National Bank', 'Seylan Bank', 'Peoples Bank', 'Nations Trust Bank', 'Standard Charted Bank', 'City Bank']"
-                                 :key="bank"
-                                 @click="selectedTable.bank_name = bank"
-                                 :class="[
-                                 'py-3 px-2 flex flex-col items-center justify-center gap-2 rounded-lg transition border ring-1 hover:bg-blue-500/15',
-                                 selectedTable.bank_name === bank
-                                 ? 'bg-blue-500/20 border-blue-500/50 ring-blue-500/30 shadow-md shadow-blue-500/20'
-                                 : 'bg-zinc-800 border-white/10 ring-white/5'
-                                 ]">
-                                 <!-- Bank Logo -->
-                                 <div class="w-35 h-35flex items-center justify-center bg-white/5 rounded-lg relative">
-                                    <img :src="`/images/banks/${getBankLogoName(bank)}`" :alt="bank"
-                                       class="w-30 h-30 object-contain"
-                                       @error="$event.target.style.display = 'none'" />
-                                    <!-- <i class="ri-bank-line text-zinc-400 text-2xl absolute"></i> -->
+                           <p class="text-[11px] text-zinc-500 font-semibold">Select Bank</p>
+                           <div class="relative bank-scroll-container">
+                              <div class="overflow-x-auto scroll-smooth" style="scroll-behavior: smooth;">
+                                 <div class="flex gap-3 pb-2 min-w-min px-1">
+                                    <button v-for="bank in ['Bank of Ceylon', 'DFCC Bank PLC', 'Sampath Bank', 'HSBC', 'NDB Bank', 'Commercial Bank', 'Hatton National Bank', 'Seylan Bank', 'Peoples Bank', 'Nations Trust Bank', 'Standard Charted Bank', 'City Bank']"
+                                       :key="bank"
+                                       @click="selectedTable.bank_name = bank"
+                                       :class="[
+                                       'flex-shrink-0 w-32 py-3 px-2 flex flex-col items-center justify-center gap-2 rounded-lg transition border ring-1 hover:scale-105',
+                                       selectedTable.bank_name === bank
+                                       ? 'bg-blue-500/20 border-blue-500/50 ring-blue-500/30 shadow-md shadow-blue-500/20'
+                                       : 'bg-zinc-800 border-white/10 ring-white/5 hover:border-blue-500/30 hover:bg-blue-500/10'
+                                       ]">
+                                       <!-- Bank Logo -->
+                                       <div class="w-12 h-12 flex items-center justify-center bg-white/5 rounded-lg flex-shrink-0">
+                                          <img :src="`/images/banks/${getBankLogoName(bank)}`" :alt="bank"
+                                             class="w-10 h-10 object-contain"
+                                             @error="handleLogoError" />
+                                       </div>
+                                       <!-- Bank Name -->
+                                       <span class="text-[9px] font-semibold text-zinc-200 text-center line-clamp-2 leading-tight">{{ bank }}</span>
+                                       <!-- Check Icon -->
+                                       <i v-if="selectedTable.bank_name === bank" class="ri-check-circle-fill text-blue-400 text-xs"></i>
+                                    </button>
                                  </div>
-                                 <!-- Bank Name -->
-                                 <span class="text-[9px] font-semibold text-zinc-200 text-center line-clamp-2">{{ bank }}</span>
-                              </button>
+                              </div>
+                              <!-- Scroll Indicator -->
+                              <div class="absolute right-0 top-1/2 -translate-y-1/2 pointer-events-none">
+                                 <i class="ri-arrow-right-s-line text-zinc-600 text-xl"></i>
+                              </div>
                            </div>
                         </div>
                      </div>
@@ -999,7 +1008,7 @@
                                  class="w-28 h-28 flex items-center justify-center mb-4 bg-white/5 rounded-lg flex-shrink-0">
                                  <img :src="`/images/banks/${getBankLogoName(bank)}`" :alt="bank"
                                     class="w-24 h-24 object-contain"
-                                    @error="$event.target.style.display = 'none'" />
+                                    @error="handleLogoError" />
                               </div>
                               <!-- Bank Name -->
                               <span
@@ -1942,64 +1951,70 @@
    };
 
    const getBankLogoName = (bankName) => {
-       // Convert bank name to filename format
-       // Examples: "Bank of Ceylon" -> "bank_of_ceylon_logo.jpg"
        const logoMap = {
-           "Alliance Finance Co PLC": "alliance_finance_logo.jpg",
-           "Amana Bank": "amana_bank_logo.jpg",
-           "American Express Bank Ltd": "amex_bank_logo.jpg",
-           "Asia Asset Finance PLC": "asia_asset_finance_logo.jpg",
-           "Bank of Ceylon": "boc_bank_logo_001.jpg",
-           "Bank of China": "bank_of_china_logo.jpg",
-           "CDB": "cdb_logo.jpg",
-           "Cargils Bank Ltd": "cargils_bank_logo.jpg",
-           "Central Bank of Sri Lanka": "central_bank_logo.jpg",
-           "Central Finance PLC": "central_finance_logo.jpg",
-           "City Bank": "city_bank_logo.jpg",
-           "Commercial Bank": "commercial_bank_logo.jpg",
-           "Commercial Credit": "commercial_credit_logo.jpg",
-           "Cooperative Regional Rural Bank LTD": "cooperative_rural_bank_logo.jpg",
-           "DFCC Bank PLC": "dfcc_bank_logo.jpg",
-           "Deutsche Bank": "deutsche_bank_logo.jpg",
-           "Dialog Finance PLC": "dialog_finance_logo.jpg",
-           "Fintrex Finance Limited": "fintrex_finance_logo.jpg",
-           "HDFC Bank": "hdfc_bank_logo.jpg",
-           "HNB Finance PLC": "hnb_finance_logo.jpg",
-           "HSBC": "hsbc_logo.jpg",
-           "Hatton National Bank": "hatton_national_bank_logo.jpg",
-           "Indian Bank": "indian_bank_logo.jpg",
-           "Indian Overseas Bank": "indian_overseas_bank_logo.jpg",
-           "Kanrich Finance Bank": "kanrich_finance_logo.jpg",
-           "LB Finance": "lb_finance_logo.jpg",
-           "LOLC Development Finance Plc": "lolc_dev_finance_logo.jpg",
-           "LOLC Finance Plc": "lolc_finance_logo.jpg",
-           "Lanka Credit and Business Finance Limited": "lanka_credit_business_finance_logo.jpg",
-           "MBSL": "mbsl_logo.jpg",
-           "MCB": "mcb_logo.jpg",
-           "Mercantile Investment": "mercantile_investment_logo.jpg",
-           "NDB Bank": "ndb_bank_logo.jpg",
-           "NSB": "nsb_logo.jpg",
-           "Nations Trust Bank": "nations_trust_bank_logo.jpg",
-           "Peoples Leasing and Finance PLC": "peoples_leasing_finance_logo.jpg",
-           "Pan Asia Bank": "pan_asia_bank_logo.jpg",
-           "Peoples Bank": "peoples_bank_logo.jpg",
-           "Public Bank Berhad": "public_bank_logo.jpg",
-           "RDB": "rdb_logo.jpg",
-           "Richard Pieris Finance": "richard_pieris_finance_logo.jpg",
-           "SDB": "sdb_logo.jpg",
-           "SENKADAGALA FINANCE": "senkadagala_finance_logo.jpg",
-           "SMIB": "smib_logo.jpg",
-           "Sampath Bank": "sampath_bank_logo.jpg",
-           "Sarvodaya Development Finace LTD": "sarvodaya_dev_finance_logo.jpg",
-           "Seylan Bank": "seylan_bank_logo.jpg",
-           "Singer Finance(Lanka) Bank": "singer_finance_logo.jpg",
-           "Siyapatha Finance PLC": "siyapatha_finance_logo.jpg",
-           "Softlogic Finance PLC": "softlogic_finance_logo.jpg",
-           "Standard Charted Bank": "standard_chartered_bank_logo.jpg",
-           "State Bank of India": "state_bank_india_logo.jpg",
-           "Union Bank": "union_bank_logo.jpg",
+           "Alliance Finance Co PLC": "alliance_finance_logo.svg",
+           "Amana Bank": "amana_bank_logo.svg",
+           "American Express Bank Ltd": "amex_bank_logo.svg",
+           "Asia Asset Finance PLC": "asia_asset_finance_logo.svg",
+           "Bank of Ceylon": "boc_bank_logo_001.svg",
+           "Bank of China": "bank_of_china_logo.svg",
+           "CDB": "cdb_logo.svg",
+           "Cargils Bank Ltd": "cargils_bank_logo.svg",
+           "Central Bank of Sri Lanka": "central_bank_logo.svg",
+           "Central Finance PLC": "central_finance_logo.svg",
+           "City Bank": "city_bank_logo.svg",
+           "Commercial Bank": "commercial_bank_logo.svg",
+           "Commercial Credit": "commercial_credit_logo.svg",
+           "Cooperative Regional Rural Bank LTD": "cooperative_rural_bank_logo.svg",
+           "DFCC Bank PLC": "dfcc_bank_logo.svg",
+           "Deutsche Bank": "deutsche_bank_logo.svg",
+           "Dialog Finance PLC": "dialog_finance_logo.svg",
+           "Fintrex Finance Limited": "fintrex_finance_logo.svg",
+           "HDFC Bank": "hdfc_bank_logo.svg",
+           "HNB Finance PLC": "hnb_finance_logo.svg",
+           "HSBC": "hsbc_logo.svg",
+           "Hatton National Bank": "hatton_national_bank_logo.svg",
+           "Indian Bank": "indian_bank_logo.svg",
+           "Indian Overseas Bank": "indian_overseas_bank_logo.svg",
+           "Kanrich Finance Bank": "kanrich_finance_logo.svg",
+           "LB Finance": "lb_finance_logo.svg",
+           "LOLC Development Finance Plc": "lolc_dev_finance_logo.svg",
+           "LOLC Finance Plc": "lolc_finance_logo.svg",
+           "Lanka Credit and Business Finance Limited": "lanka_credit_business_finance_logo.svg",
+           "MBSL": "mbsl_logo.svg",
+           "MCB": "mcb_logo.svg",
+           "Mercantile Investment": "mercantile_investment_logo.svg",
+           "NDB Bank": "ndb_bank_logo.svg",
+           "NSB": "nsb_logo.svg",
+           "Nations Trust Bank": "nations_trust_bank_logo.svg",
+           "Peoples Leasing and Finance PLC": "peoples_leasing_finance_logo.svg",
+           "Pan Asia Bank": "pan_asia_bank_logo.svg",
+           "Peoples Bank": "peoples_bank_logo.svg",
+           "Public Bank Berhad": "public_bank_logo.svg",
+           "RDB": "rdb_logo.svg",
+           "Richard Pieris Finance": "richard_pieris_finance_logo.svg",
+           "SDB": "sdb_logo.svg",
+           "SENKADAGALA FINANCE": "senkadagala_finance_logo.svg",
+           "SMIB": "smib_logo.svg",
+           "Sampath Bank": "sampath_bank_logo.svg",
+           "Sarvodaya Development Finace LTD": "sarvodaya_dev_finance_logo.svg",
+           "Seylan Bank": "seylan_bank_logo.svg",
+           "Singer Finance(Lanka) Bank": "singer_finance_logo.svg",
+           "Siyapatha Finance PLC": "siyapatha_finance_logo.svg",
+           "Softlogic Finance PLC": "softlogic_finance_logo.svg",
+           "Standard Charted Bank": "standard_chartered_bank_logo.svg",
+           "State Bank of India": "state_bank_india_logo.svg",
+           "Union Bank": "union_bank_logo.svg",
        };
-       return logoMap[bankName] || "bank_default_logo.jpg";
+       return logoMap[bankName] || "bank_default_logo.svg";
+   };
+
+   const handleLogoError = (event) => {
+       event.target.style.display = 'none';
+       const container = event.target.parentElement;
+       if (container) {
+           container.innerHTML = '<i class="ri-building-line text-zinc-500 text-2xl"></i>';
+       }
    };
 
    const checkOpenCashDrawer = async () => {
@@ -3403,5 +3418,35 @@ border-radius: 3px;
 }
 .pos-page ::-webkit-scrollbar-thumb:hover {
 background: rgb(148 163 184);
+}
+/* Hide scrollbar for bank selection */
+.scrollbar-hide {
+-ms-overflow-style: none;
+scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+display: none;
+}
+/* Bank scroll container - only for logo section */
+.bank-scroll-container {
+width: 100%;
+}
+.bank-scroll-container > div {
+scrollbar-width: thin;
+scrollbar-color: rgb(59, 130, 246) rgb(39, 39, 42);
+}
+.bank-scroll-container > div::-webkit-scrollbar {
+height: 6px;
+}
+.bank-scroll-container > div::-webkit-scrollbar-track {
+background-color: rgb(39, 39, 42);
+border-radius: 3px;
+}
+.bank-scroll-container > div::-webkit-scrollbar-thumb {
+background-color: rgb(59, 130, 246);
+border-radius: 3px;
+}
+.bank-scroll-container > div::-webkit-scrollbar-thumb:hover {
+background-color: rgb(96, 165, 250);
 }
 </style>

@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+    <rect width="200" height="200" fill="#c41e3a"/>
+    <circle cx="100" cy="100" r="80" fill="#da2035"/>
+    <text x="100" y="120" font-size="30" font-weight="bold" fill="white" text-anchor="middle" font-family="Arial, sans-serif">NTB</text>
+    <text x="100" y="150" font-size="9" fill="white" text-anchor="middle" font-family="Arial, sans-serif">Nations Trust</text>
+</svg>

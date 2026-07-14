@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+    <rect width="200" height="200" fill="#0066b3"/>
+    <circle cx="100" cy="100" r="80" fill="#0080cc"/>
+    <text x="100" y="120" font-size="28" font-weight="bold" fill="white" text-anchor="middle" font-family="Arial, sans-serif">SC</text>
+    <text x="100" y="150" font-size="10" fill="white" text-anchor="middle" font-family="Arial, sans-serif">Standard Chartered</text>
+</svg>

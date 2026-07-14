@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+    <rect width="200" height="200" fill="#1a472a"/>
+    <circle cx="100" cy="100" r="80" fill="#2ecc71"/>
+    <text x="100" y="120" font-size="42" font-weight="bold" fill="white" text-anchor="middle" font-family="Arial, sans-serif">BOC</text>
+    <text x="100" y="150" font-size="12" fill="white" text-anchor="middle" font-family="Arial, sans-serif">Bank of Ceylon</text>
+</svg>

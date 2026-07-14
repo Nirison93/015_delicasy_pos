@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+    <rect width="200" height="200" fill="#003a70"/>
+    <circle cx="100" cy="100" r="80" fill="#0066cc"/>
+    <text x="100" y="120" font-size="36" font-weight="bold" fill="white" text-anchor="middle" font-family="Arial, sans-serif">SB</text>
+    <text x="100" y="150" font-size="11" fill="white" text-anchor="middle" font-family="Arial, sans-serif">Sampath Bank</text>
+</svg>
