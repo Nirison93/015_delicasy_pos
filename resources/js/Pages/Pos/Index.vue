@@ -8,9 +8,9 @@
             <div class="flex items-center gap-3">
                <Link href="/"
                   class="w-11 h-11 flex items-center justify-center rounded-xl bg-zinc-800 border border-white/10 text-zinc-400 hover:bg-zinc-700 hover:text-white transition">
-               <i class="ri-arrow-left-s-line text-base"></i>
+               <i class="ri-arrow-left-s-line text-md"></i>
                </Link>
-               <h1 class="text-base font-bold text-white tracking-wide uppercase">
+               <h1 class="text-md font-bold text-white tracking-wide uppercase">
                   Point of Sale
                </h1>
             </div>
@@ -20,12 +20,12 @@
                <!-- Last Order List button -->
                <button @click="openExpensesModal"
                   class="flex items-center gap-2 px-4 py-2.5 bg-zinc-800 rounded-xl border border-white/10 text-zinc-300 hover:bg-zinc-700 hover:text-white transition text-[11px] font-semibold">
-               <i class="ri-money-dollar-circle-line text-base"></i>
+               <i class="ri-money-dollar-circle-line text-md"></i>
                Expenses
                </button>
                <button @click="openLastOrders"
                   class="flex items-center gap-2 px-4 py-2.5 bg-zinc-800 rounded-xl border border-white/10 text-zinc-300 hover:bg-zinc-700 hover:text-white transition text-[11px] font-semibold">
-               <i class="ri-receipt-line text-base"></i>
+               <i class="ri-receipt-line text-md"></i>
                Last Orders
                </button>
                <!-- Ongoing Takeaway Orders button (shown only when there are held orders) -->
@@ -34,7 +34,7 @@
                   :class="{ 'ring-anim': heldTakeawayOrders.length > 0 }"
                   :style="heldTakeawayOrders.length === 0 ? 'opacity:0.38; pointer-events:none;' : ''"
                   title="Ongoing Takeaway Orders">
-               <i class="ri-alarm-warning-line text-base"
+               <i class="ri-alarm-warning-line text-md"
                   :class="heldTakeawayOrders.length > 0 ? 'ongoing-ring-icon' : ''"></i>
                Ongoing Orders
                <span v-if="heldTakeawayOrders.length > 0"
@@ -54,7 +54,7 @@
                <div class="flex items-center gap-2 px-4 py-2 bg-zinc-800 rounded-xl border border-white/10">
                   <div
                      class="w-8 h-8 flex items-center justify-center rounded-lg bg-amber-500/20 ring-1 ring-amber-500/30">
-                     <i class="ri-user-line text-amber-400 text-base"></i>
+                     <i class="ri-user-line text-amber-400 text-md"></i>
                   </div>
                   <span class="text-[11px] font-semibold text-zinc-200">{{ loggedInUser?.name }}</span>
                </div>
@@ -62,13 +62,13 @@
                <button @click="openCashDrawerModal"
                   class="flex items-center gap-2 px-4 py-2.5 bg-amber-500/15 rounded-xl border border-amber-500/40 text-amber-300 hover:bg-amber-500/25 hover:text-amber-200 transition text-[11px] font-semibold"
                   title="Open/Close Cash Drawer">
-               <i class="ri-safe-line text-base"></i>
+               <i class="ri-safe-line text-md"></i>
                Cash Drawer
                </button>
                <!-- Logout -->
                <Link href="/logout" method="post" as="button"
                   class="flex items-center gap-2 px-4 py-2.5 bg-zinc-800 rounded-xl border border-white/10 text-zinc-300 hover:bg-red-500/15 hover:border-red-500/40 hover:text-red-400 transition text-[11px] font-semibold">
-               <i class="ri-logout-box-r-line text-base"></i>
+               <i class="ri-logout-box-r-line text-md"></i>
                Logout
                </Link>
             </div>
@@ -78,7 +78,7 @@
             <div class="flex flex-col w-[18%] min-h-0">
                <div class="flex flex-col h-full bg-zinc-900 rounded-2xl border border-white/10 overflow-hidden">
                   <div class="p-5 border-b border-white/10 flex-shrink-0 space-y-3">
-                     <h2 class="text-base font-bold text-white flex items-center gap-2">
+                     <h2 class="text-md font-bold text-white flex items-center gap-2">
                         <i class="ri-menu-line text-zinc-500"></i> Categories
                      </h2>
                      <!-- Menu Type Filter Buttons -->
@@ -135,7 +135,7 @@
             <div class="flex flex-col w-[45%] min-h-0">
                <div class="flex flex-col h-full bg-zinc-900 rounded-2xl border border-white/10 overflow-hidden">
                   <div class="p-5 border-b border-white/10 flex-shrink-0 space-y-3">
-                     <h2 class="text-base font-bold text-white flex items-center gap-2">
+                     <h2 class="text-md font-bold text-white flex items-center gap-2">
                         <i class="ri-shopping-cart-line text-zinc-500"></i>
                         {{ selectedCategory?.name || 'All Products' }}
                      </h2>
@@ -212,7 +212,7 @@
                            <button @click="addTable"
                               class="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white text-[12px] font-semibold transition active:scale-95"
                               title="Add new table">
-                           <i class="ri-add-line text-base"></i>
+                           <i class="ri-add-line text-md"></i>
                            Add Table
                            </button>
                         </div>
@@ -225,7 +225,7 @@
                               ? 'bg-amber-500/20 border-amber-500/50 ring-amber-500/30 text-amber-400'
                               : 'bg-zinc-800 border-white/10 ring-white/5 text-zinc-300 hover:bg-zinc-700 hover:border-amber-500/30'
                               ]">
-                           <i class="ri-receipt-line text-base mr-2"></i>
+                           <i class="ri-receipt-line text-md mr-2"></i>
                            Live Bill
                            </button>
                            <!-- Restaurant Tables -->
@@ -237,7 +237,7 @@
                                  ? 'bg-blue-500/20 border-blue-500/50 ring-blue-500/30 text-blue-400'
                                  : 'bg-zinc-800 border-white/10 ring-white/5 text-zinc-300 hover:bg-zinc-700 hover:border-blue-500/30'
                                  ]">
-                                 <i class="ri-table-2 text-base"></i>
+                                 <i class="ri-table-2 text-md"></i>
                                  Table {{ table.number }}
                                  <span v-if="table.products?.length > 0"
                                     class="ml-1 min-w-[20px] h-5 flex items-center justify-center bg-red-500 text-white text-[10px] font-bold rounded-full px-1">
@@ -258,7 +258,7 @@
                         <div class="flex flex-wrap items-center justify-between w-full gap-3">
                            <!-- Left: title + customer button -->
                            <div class="flex items-center gap-3">
-                              <h2 class="text-base font-bold text-white flex items-center gap-2">
+                              <h2 class="text-md font-bold text-white flex items-center gap-2">
                                  <i class="ri-file-list-3-line text-amber-400"></i>
                                  {{ selectedTable?.id === 'default' ? 'Live Bill' : `Table
                                  ${selectedTable?.number}` }}
@@ -266,7 +266,7 @@
                               <button @click="() => { openEditModal(color); }"
                                  class="flex items-center gap-2 px-4 py-2.5 bg-zinc-800 text-zinc-300 border border-white/10 rounded-xl hover:bg-zinc-700 hover:text-white transition text-[12px] font-medium"
                                  title="Customer details">
-                              <i class="ri-user-line text-base text-zinc-400"></i>
+                              <i class="ri-user-line text-md text-zinc-400"></i>
                               </button>
                            </div>
                            <!-- Right: order type buttons -->
@@ -278,7 +278,7 @@
                                  ? 'bg-amber-500 ring-amber-500 text-zinc-900 shadow-md shadow-amber-500/20'
                                  : 'bg-zinc-800 ring-white/10 text-zinc-300 hover:bg-amber-500/15 hover:ring-amber-500/40 hover:text-amber-400'
                                  ]">
-                              <i class="ri-shopping-bag-3-line text-base"></i>
+                              <i class="ri-shopping-bag-3-line text-md"></i>
                               <span>Takeaway</span>
                               </button>
                               <!-- In-Room Dining -->
@@ -288,7 +288,7 @@
                                  ? 'bg-violet-600 ring-violet-600 text-white shadow-md'
                                  : 'bg-zinc-800 ring-white/10 text-zinc-300 hover:bg-violet-500/15 hover:ring-violet-500/40 hover:text-violet-400'
                                  ]">
-                              <i class="ri-hotel-bed-line text-base"></i>
+                              <i class="ri-hotel-bed-line text-md"></i>
                               <span>Delivery</span>
                               </button>
                            </div>
@@ -301,7 +301,7 @@
                         v-if="!selectedTable || selectedTable.products.length === 0">
                         <div class="flex flex-col items-center gap-3">
                            <i class="ri-shopping-basket-line text-xl text-zinc-700"></i>
-                           <p class="text-base text-zinc-500 font-medium">No products added yet</p>
+                           <p class="text-md text-zinc-500 font-medium">No products added yet</p>
                         </div>
                      </div>
                      <div class="grid grid-cols-2 gap-2 mb-4 max-h-[240px] overflow-y-auto product-list ">
@@ -328,7 +328,7 @@
                                  </div>
                                  <button @click="removeProduct(item.id)"
                                     class="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg text-yellow-400 hover:bg-yellow-400/15 hover:text-yellow-300 transition">
-                                 <i class="ri-delete-bin-6-line text-base"></i>
+                                 <i class="ri-delete-bin-6-line text-md"></i>
                                  </button>
                               </div>
                               <!-- Bottom row: qty controls left / price + discount right -->
@@ -419,7 +419,7 @@
                            <!-- Full-Width Confirm Button -->
                            <button @click="isConfirmOrderModalOpen = true" type="button"
                               :disabled="!selectedTable || selectedTable.products.length === 0" :class="[
-                              'w-full py-4 flex items-center justify-center text-base font-bold rounded-xl transition-all active:scale-[0.98]',
+                              'w-full py-4 flex items-center justify-center text-md font-bold rounded-xl transition-all active:scale-[0.98]',
                               !selectedTable || selectedTable.products.length === 0
                               ? 'bg-zinc-700 text-zinc-500 cursor-not-allowed'
                               : 'bg-green-500 hover:bg-green-600 text-white shadow-lg shadow-green-500/20',
@@ -446,7 +446,7 @@
                         class="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-500/20 ring-1 ring-amber-500/40">
                         <i class="ri-safe-line text-amber-400"></i>
                      </div>
-                     <h3 class="text-base font-bold text-white">Open Cash Drawer</h3>
+                     <h3 class="text-md font-bold text-white">Open Cash Drawer</h3>
                   </div>
                </div>
                <div class="p-5 space-y-4">
@@ -454,11 +454,11 @@
                      Enter the opening balance to start using the POS.
                   </p>
                   <div>
-                     <label class="block text-base font-semibold text-zinc-300 mb-2">Opening Balance</label>
+                     <label class="block text-md font-semibold text-zinc-300 mb-2">Opening Balance</label>
                      <input v-model="openingBalanceInput" type="number" min="0" step="0.01" inputmode="decimal"
                         placeholder="0.00"
                         class="w-full h-11 px-4 bg-zinc-800 border border-white/10 rounded-xl text-[12px] text-white placeholder-zinc-500 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30 transition" />
-                     <p v-if="openingBalanceError" class="mt-2 text-base text-red-400">{{ openingBalanceError }}</p>
+                     <p v-if="openingBalanceError" class="mt-2 text-md text-red-400">{{ openingBalanceError }}</p>
                   </div>
                   <button @click="submitOpeningBalance" :disabled="isOpeningBalanceSaving"
                      class="w-full h-11 rounded-xl font-bold text-zinc-900 bg-amber-500 hover:bg-amber-400 transition disabled:opacity-60 disabled:cursor-not-allowed">
@@ -480,7 +480,7 @@
                         class="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-500/20 ring-1 ring-amber-500/40">
                         <i class="ri-safe-line text-amber-400"></i>
                      </div>
-                     <h3 class="text-base font-bold text-white">Cash Drawer</h3>
+                     <h3 class="text-md font-bold text-white">Cash Drawer</h3>
                   </div>
                   <button @click="isCashDrawerModalOpen = false"
                      class="w-9 h-9 flex items-center justify-center rounded-xl bg-white/10 text-zinc-400 hover:bg-white/20 hover:text-white transition">
@@ -489,7 +489,7 @@
                </div>
                <div class="p-5 space-y-6">
                   <div v-if="openCashDrawer" class="space-y-3">
-                     <div class="flex items-center justify-between text-base text-zinc-400">
+                     <div class="flex items-center justify-between text-md text-zinc-400">
                         <span class="text-amber-300 font-semibold">Opening: {{
                         Number(openCashDrawer?.opening_balance || 0).toFixed(2) }} LKR</span>
                         <span class="text-xl">Opened Time : {{ new Date(openCashDrawer.opened_at).toLocaleString()
@@ -548,7 +548,7 @@
                      <div class="w-10 h-10 flex items-center justify-center rounded-xl bg-amber-500/20 ring-1 ring-amber-500/40">
                         <i class="ri-file-list-3-line text-amber-400 text-xl"></i>
                      </div>
-                     <h3 class="text-base font-bold text-white">Order Summary</h3>
+                     <h3 class="text-md font-bold text-white">Order Summary</h3>
                   </div>
                   <button @click="isConfirmOrderModalOpen = false"
                      class="w-9 h-9 flex items-center justify-center rounded-xl bg-white/10 text-zinc-400 hover:bg-white/20 hover:text-white transition">
@@ -621,20 +621,20 @@
 
                      <!-- Total Amount -->
                      <div class="flex items-center justify-between pt-3 border-t border-white/10">
-                        <p class="text-base font-bold text-white">Total Amount</p>
+                        <p class="text-md font-bold text-white">Total Amount</p>
                         <p class="text-xl font-bold text-amber-400">Rs {{ total }}</p>
                      </div>
 
                      <!-- Paid Amount -->
                      <div class="flex items-center justify-between">
                         <p class="text-[12px] text-zinc-400">Paid Amount</p>
-                        <p class="text-base font-bold text-emerald-400">Rs {{ selectedTable.cash || 0 }}</p>
+                        <p class="text-md font-bold text-emerald-400">Rs {{ selectedTable.cash || 0 }}</p>
                      </div>
 
                      <!-- Balance -->
                      <div class="flex items-center justify-between pt-3 border-t border-white/10">
-                        <p class="text-base font-bold text-white">Balance</p>
-                        <p class="text-base font-bold text-zinc-200">Rs {{ balance }}</p>
+                        <p class="text-md font-bold text-white">Balance</p>
+                        <p class="text-md font-bold text-zinc-200">Rs {{ balance }}</p>
                      </div>
                   </div>
 
@@ -646,7 +646,7 @@
                      <div class="flex gap-3">
 
                         <button @click="selectedPaymentMethod = 'cash'" :class="[
-                           'flex-1 px-3 sm:px-4 py-2 sm:py-3 font-semibold text-md sm:text-sm md:text-base rounded-lg border-2 transition active:scale-95',
+                           'flex-1 px-3 sm:px-4 py-2 sm:py-3 font-semibold text-md sm:text-sm md:text-md rounded-lg border-2 transition active:scale-95',
                            selectedPaymentMethod === 'cash'
                            ? 'bg-amber-500 border-amber-500 text-white shadow-lg shadow-amber-500/20'
                            : 'bg-zinc-800 border-white/10 text-zinc-400 hover:bg-zinc-700 hover:border-amber-500/30'
@@ -655,7 +655,7 @@
                         </button>
 
                               <button @click="selectedPaymentMethod = 'card'" :class="[
-                           'flex-1 px-3 sm:px-4 py-2 sm:py-3 font-semibold text-md sm:text-sm md:text-base rounded-lg border-2 transition active:scale-95',
+                           'flex-1 px-3 sm:px-4 py-2 sm:py-3 font-semibold text-md sm:text-sm md:text-md rounded-lg border-2 transition active:scale-95',
                            selectedPaymentMethod === 'card'
                            ? 'bg-blue-500 border-blue-500 text-white shadow-lg shadow-blue-500/20'
                            : 'bg-zinc-800 border-white/10 text-zinc-400 hover:bg-zinc-700 hover:border-blue-500/30'
@@ -670,7 +670,7 @@
                         <button @click="openCashNumpad"
                            class="w-full h-12 px-4 flex items-center justify-between gap-2 bg-zinc-800 border border-white/10 rounded-lg hover:border-amber-500 transition">
                            <span
-                              :class="selectedTable.cash && Number(selectedTable.cash) > 0 ? 'text-white font-bold text-base' : 'text-zinc-500 text-[11px]'">
+                              :class="selectedTable.cash && Number(selectedTable.cash) > 0 ? 'text-white font-bold text-md' : 'text-zinc-500 text-[11px]'">
                               {{ selectedTable.cash && Number(selectedTable.cash) > 0 ?
                               Number(selectedTable.cash).toFixed(2) : 'Enter Amount' }}
                            </span>
@@ -765,7 +765,7 @@
                      <div class="w-10 h-10 flex items-center justify-center rounded-xl bg-amber-500/20 ring-1 ring-amber-500/40">
                         <i class="ri-file-list-3-line text-amber-400 text-xl"></i>
                      </div>
-                     <h3 class="text-base font-bold text-white">Bill Preview</h3>
+                     <h3 class="text-md font-bold text-white">Bill Preview</h3>
                   </div>
                   <button @click="isPreviewModalOpen = false"
                      class="w-9 h-9 flex items-center justify-center rounded-xl bg-white/10 text-zinc-400 hover:bg-white/20 hover:text-white transition">
@@ -779,14 +779,14 @@
                      <div class="grid grid-cols-2 gap-4">
                         <div>
                            <p class="text-[11px] text-zinc-400 uppercase tracking-wide">Order Type</p>
-                           <p class="text-base font-bold text-white mt-1">
+                           <p class="text-md font-bold text-white mt-1">
                               <i :class="selectedTable.order_type === 'takeaway' ? 'ri-shopping-bag-3-line' : selectedTable.order_type === 'pickup' ? 'ri-hotel-bed-line' : 'ri-restaurant-line'" class="mr-2"></i>
                               {{ selectedTable.order_type === 'takeaway' ? 'Takeaway' : selectedTable.order_type === 'pickup' ? 'Delivery' : 'Dine-In' }}
                            </p>
                         </div>
                         <div>
                            <p class="text-[11px] text-zinc-400 uppercase tracking-wide">Payment Method</p>
-                           <p class="text-base font-bold text-white mt-1">
+                           <p class="text-md font-bold text-white mt-1">
                               <i :class="selectedPaymentMethod === 'card' ? 'ri-bank-card-line' : 'ri-money-dollar-circle-line'" class="mr-2"></i>
                               {{ selectedPaymentMethod === 'card' ? 'Card' : 'Cash' }}
                            </p>
@@ -796,7 +796,7 @@
                   <!-- Customer Info -->
                   <div v-if="customer.name" class="bg-zinc-800 rounded-xl p-4 border border-white/10">
                      <p class="text-[11px] text-zinc-400 uppercase tracking-wide mb-2">Customer</p>
-                     <p class="text-base font-semibold text-white">{{ customer.name }}</p>
+                     <p class="text-md font-semibold text-white">{{ customer.name }}</p>
                      <p v-if="customer.contactNumber" class="text-[11px] text-zinc-500 mt-1">{{ customer.contactNumber }}</p>
                   </div>
                   <!-- Items Summary -->
@@ -849,7 +849,7 @@
                      </div>
                      <!-- Total -->
                      <div class="flex items-center justify-between pt-3 border-t border-white/10">
-                        <p class="text-base font-bold text-white">Total Amount</p>
+                        <p class="text-md font-bold text-white">Total Amount</p>
                         <p class="text-xl font-bold text-amber-400">Rs {{ total }}</p>
                      </div>
                   </div>
@@ -857,16 +857,16 @@
                   <div v-if="selectedPaymentMethod === 'cash'" class="bg-green-500/10 rounded-xl p-4 border border-green-500/30">
                      <div class="flex items-center justify-between mb-2">
                         <p class="text-[12px] text-green-400 uppercase tracking-wide font-semibold">Paid Amount</p>
-                        <p class="text-base font-bold text-green-400">Rs {{ selectedTable.cash || 0 }}</p>
+                        <p class="text-md font-bold text-green-400">Rs {{ selectedTable.cash || 0 }}</p>
                      </div>
                      <div class="flex items-center justify-between">
                         <p class="text-[12px] text-green-400 uppercase tracking-wide font-semibold">Balance</p>
-                        <p class="text-base font-bold text-green-400">Rs {{ balance }}</p>
+                        <p class="text-md font-bold text-green-400">Rs {{ balance }}</p>
                      </div>
                   </div>
                   <div v-else class="bg-blue-500/10 rounded-xl p-4 border border-blue-500/30">
                      <p class="text-[11px] text-blue-400 uppercase tracking-wide font-semibold mb-1">Card Payment</p>
-                     <p v-if="selectedTable.bank_name" class="text-base font-bold text-blue-400">{{ selectedTable.bank_name }}</p>
+                     <p v-if="selectedTable.bank_name" class="text-md font-bold text-blue-400">{{ selectedTable.bank_name }}</p>
                   </div>
                </div>
                <!-- Footer -->
@@ -897,7 +897,7 @@
                <!-- Header -->
                <div class="flex items-center justify-between px-5 py-4 border-b border-white/10">
                   <div>
-                     <h3 class="text-base font-bold text-white">{{ selectedProductForModal?.name }}</h3>
+                     <h3 class="text-md font-bold text-white">{{ selectedProductForModal?.name }}</h3>
                      <p v-if="selectedProductForModal?.sizes" class="text-[12px] text-amber-400 font-semibold mt-1">
                         {{Math.min(...selectedProductForModal.sizes.map(s => parseFloat(s.price || 0))).toFixed(0)
                         }} - {{Math.max(...selectedProductForModal.sizes.map(s => parseFloat(s.price ||
@@ -933,13 +933,13 @@
                      <div class="flex items-center gap-2">
                         <button @click="quantityForModal = Math.max(1, quantityForModal - 1)"
                            class="w-10 h-10 flex items-center justify-center rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 transition">
-                        <i class="ri-subtract-line text-base"></i>
+                        <i class="ri-subtract-line text-md"></i>
                         </button>
                         <input v-model.number="quantityForModal" type="number" min="1"
-                           class="flex-1 h-10 text-center bg-zinc-800 border border-white/10 rounded-lg text-white font-bold text-base focus:border-amber-500 focus:outline-none" />
+                           class="flex-1 h-10 text-center bg-zinc-800 border border-white/10 rounded-lg text-white font-bold text-md focus:border-amber-500 focus:outline-none" />
                         <button @click="quantityForModal = quantityForModal + 1"
                            class="w-10 h-10 flex items-center justify-center rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 transition">
-                        <i class="ri-add-line text-base"></i>
+                        <i class="ri-add-line text-md"></i>
                         </button>
                      </div>
                   </div>
@@ -972,7 +972,7 @@
                         class="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-500/20 ring-1 ring-amber-500/40">
                         <i class="ri-bank-line text-amber-400"></i>
                      </div>
-                     <h3 class="text-base font-bold text-white">Select Bank</h3>
+                     <h3 class="text-md font-bold text-white">Select Bank</h3>
                   </div>
                   <button @click="isBankModalOpen = false"
                      class="w-9 h-9 flex items-center justify-center rounded-xl bg-white/10 text-zinc-400 hover:bg-white/20 hover:text-white transition">
@@ -992,7 +992,7 @@
                         <!-- Letter Header -->
                         <div
                            class="sticky top-0 bg-zinc-950/80 backdrop-blur-sm px-4 py-2 rounded-lg border border-white/10">
-                           <h3 class="text-base font-bold text-amber-400">{{ letter }}</h3>
+                           <h3 class="text-md font-bold text-amber-400">{{ letter }}</h3>
                         </div>
                         <!-- Banks Grid for this Letter -->
                         <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
@@ -1012,11 +1012,11 @@
                               </div>
                               <!-- Bank Name -->
                               <span
-                                 class="text-center text-base font-bold text-white leading-snug line-clamp-3">{{
+                                 class="text-center text-md font-bold text-white leading-snug line-clamp-3">{{
                               bank }}</span>
                               <!-- Check Icon -->
                               <i v-if="selectedTable.bank_name === bank"
-                                 class="ri-check-circle-fill text-amber-400 text-base absolute top-2 right-2"></i>
+                                 class="ri-check-circle-fill text-amber-400 text-md absolute top-2 right-2"></i>
                            </button>
                         </div>
                      </div>
@@ -1061,7 +1061,7 @@
                   <span class="text-xl font-bold text-white tracking-tight truncate">
                   {{ cashNumpadInput === '' || cashNumpadInput === '0' ? '0' : cashNumpadInput }}
                   </span>
-                  <span class="text-base font-semibold text-zinc-500 ml-3 flex-shrink-0">LKR</span>
+                  <span class="text-md font-semibold text-zinc-500 ml-3 flex-shrink-0">LKR</span>
                </div>
                <!-- Quick amount buttons -->
                <div class="px-5 mb-4 grid grid-cols-4 gap-2">
@@ -1074,42 +1074,42 @@
                <div class="px-5 pb-5 grid grid-cols-3 gap-3">
                   <!-- 7 8 9 -->
                   <button @click="numpadPress('7')"
-                     class="py-5 rounded-2xl bg-zinc-800 border border-white/10 hover:bg-zinc-700 active:scale-95 transition text-base font-bold text-white">7</button>
+                     class="py-5 rounded-2xl bg-zinc-800 border border-white/10 hover:bg-zinc-700 active:scale-95 transition text-md font-bold text-white">7</button>
                   <button @click="numpadPress('8')"
-                     class="py-5 rounded-2xl bg-zinc-800 border border-white/10 hover:bg-zinc-700 active:scale-95 transition text-base font-bold text-white">8</button>
+                     class="py-5 rounded-2xl bg-zinc-800 border border-white/10 hover:bg-zinc-700 active:scale-95 transition text-md font-bold text-white">8</button>
                   <button @click="numpadPress('9')"
-                     class="py-5 rounded-2xl bg-zinc-800 border border-white/10 hover:bg-zinc-700 active:scale-95 transition text-base font-bold text-white">9</button>
+                     class="py-5 rounded-2xl bg-zinc-800 border border-white/10 hover:bg-zinc-700 active:scale-95 transition text-md font-bold text-white">9</button>
                   <!-- 4 5 6 -->
                   <button @click="numpadPress('4')"
-                     class="py-5 rounded-2xl bg-zinc-800 border border-white/10 hover:bg-zinc-700 active:scale-95 transition text-base font-bold text-white">4</button>
+                     class="py-5 rounded-2xl bg-zinc-800 border border-white/10 hover:bg-zinc-700 active:scale-95 transition text-md font-bold text-white">4</button>
                   <button @click="numpadPress('5')"
-                     class="py-5 rounded-2xl bg-zinc-800 border border-white/10 hover:bg-zinc-700 active:scale-95 transition text-base font-bold text-white">5</button>
+                     class="py-5 rounded-2xl bg-zinc-800 border border-white/10 hover:bg-zinc-700 active:scale-95 transition text-md font-bold text-white">5</button>
                   <button @click="numpadPress('6')"
-                     class="py-5 rounded-2xl bg-zinc-800 border border-white/10 hover:bg-zinc-700 active:scale-95 transition text-base font-bold text-white">6</button>
+                     class="py-5 rounded-2xl bg-zinc-800 border border-white/10 hover:bg-zinc-700 active:scale-95 transition text-md font-bold text-white">6</button>
                   <!-- 1 2 3 -->
                   <button @click="numpadPress('1')"
-                     class="py-5 rounded-2xl bg-zinc-800 border border-white/10 hover:bg-zinc-700 active:scale-95 transition text-base font-bold text-white">1</button>
+                     class="py-5 rounded-2xl bg-zinc-800 border border-white/10 hover:bg-zinc-700 active:scale-95 transition text-md font-bold text-white">1</button>
                   <button @click="numpadPress('2')"
-                     class="py-5 rounded-2xl bg-zinc-800 border border-white/10 hover:bg-zinc-700 active:scale-95 transition text-base font-bold text-white">2</button>
+                     class="py-5 rounded-2xl bg-zinc-800 border border-white/10 hover:bg-zinc-700 active:scale-95 transition text-md font-bold text-white">2</button>
                   <button @click="numpadPress('3')"
-                     class="py-5 rounded-2xl bg-zinc-800 border border-white/10 hover:bg-zinc-700 active:scale-95 transition text-base font-bold text-white">3</button>
+                     class="py-5 rounded-2xl bg-zinc-800 border border-white/10 hover:bg-zinc-700 active:scale-95 transition text-md font-bold text-white">3</button>
                   <!-- . 0 ⌫ -->
                   <button @click="numpadPress('.')"
                      class="py-5 rounded-2xl bg-zinc-800 border border-white/10 hover:bg-zinc-700 active:scale-95 transition text-xl font-extrabold text-white">.</button>
                   <button @click="numpadPress('0')"
-                     class="py-5 rounded-2xl bg-zinc-800 border border-white/10 hover:bg-zinc-700 active:scale-95 transition text-base font-bold text-white">0</button>
+                     class="py-5 rounded-2xl bg-zinc-800 border border-white/10 hover:bg-zinc-700 active:scale-95 transition text-md font-bold text-white">0</button>
                   <button @click="numpadPress('backspace')"
-                     class="py-5 rounded-2xl bg-zinc-800 border border-white/10 hover:bg-zinc-700 active:scale-95 transition text-base text-zinc-400 flex items-center justify-center">
-                  <i class="ri-delete-back-2-line text-base"></i>
+                     class="py-5 rounded-2xl bg-zinc-800 border border-white/10 hover:bg-zinc-700 active:scale-95 transition text-md text-zinc-400 flex items-center justify-center">
+                  <i class="ri-delete-back-2-line text-md"></i>
                   </button>
                   <!-- Clear (span 1) + Confirm (span 2) -->
                   <button @click="numpadPress('clear')"
-                     class="py-5 rounded-2xl bg-red-500/15 ring-1 ring-red-500/30 text-red-400 font-bold text-base hover:bg-red-500/25 active:scale-95 transition">
+                     class="py-5 rounded-2xl bg-red-500/15 ring-1 ring-red-500/30 text-red-400 font-bold text-md hover:bg-red-500/25 active:scale-95 transition">
                   Clear
                   </button>
                   <button @click="confirmCashNumpad"
                      class="col-span-2 py-5 rounded-2xl bg-amber-500 hover:bg-amber-400 text-zinc-900 font-bold text-xl tracking-wide shadow-lg shadow-amber-500/20 active:scale-[0.98] transition flex items-center justify-center gap-2">
-                  <i class="ri-check-line text-base"></i> Confirm
+                  <i class="ri-check-line text-md"></i> Confirm
                   </button>
                </div>
             </div>
@@ -1135,7 +1135,7 @@
                            <i class="ri-receipt-line text-amber-400 text-xl"></i>
                         </div>
                         <div>
-                           <h3 class="text-base font-bold text-white leading-none">Last Orders</h3>
+                           <h3 class="text-md font-bold text-white leading-none">Last Orders</h3>
                            <p class="text-[12px] text-zinc-400 mt-0.5">Most recent 20 transactions</p>
                         </div>
                      </div>
@@ -1215,7 +1215,7 @@
                            </div>
                            <!-- Expand indicator -->
                            <i
-                              :class="['ri-arrow-down-s-line text-zinc-500 text-base flex-shrink-0 transition-transform', order._expanded ? 'rotate-180' : '']"></i>
+                              :class="['ri-arrow-down-s-line text-zinc-500 text-md flex-shrink-0 transition-transform', order._expanded ? 'rotate-180' : '']"></i>
                         </button>
                         <!-- Expanded items -->
                         <div v-if="order._expanded" class="px-4 pb-4 border-t border-white/10 bg-zinc-900/60">
@@ -1303,7 +1303,7 @@
                            <i class="ri-money-dollar-circle-line text-rose-400 text-xl"></i>
                         </div>
                         <div>
-                           <h3 class="text-base font-bold text-white leading-none">Record Expense</h3>
+                           <h3 class="text-md font-bold text-white leading-none">Record Expense</h3>
                            <p class="text-[12px] text-zinc-400 mt-0.5">From cash drawer</p>
                         </div>
                      </div>
@@ -1382,7 +1382,7 @@
                            <i class="ri-alarm-warning-line text-amber-400 text-xl ongoing-ring-icon"></i>
                         </div>
                         <div>
-                           <h3 class="text-base font-bold text-white leading-none">Ongoing Takeaway Orders</h3>
+                           <h3 class="text-md font-bold text-white leading-none">Ongoing Takeaway Orders</h3>
                            <p class="text-[12px] text-zinc-400 mt-0.5">{{ heldTakeawayOrders.length }} order{{
                               heldTakeawayOrders.length !== 1 ? 's' : '' }} on hold — click to restore
                            </p>
@@ -1393,12 +1393,12 @@
                         <button @click="ongoingViewMode = 'box'"
                            :class="['w-9 h-9 flex items-center justify-center rounded-xl ring-1 transition', ongoingViewMode === 'box' ? 'bg-amber-500/20 ring-amber-500/50 text-amber-400' : 'bg-zinc-800 ring-white/10 text-zinc-400 hover:text-white']"
                            title="Box view">
-                        <i class="ri-layout-grid-line text-base"></i>
+                        <i class="ri-layout-grid-line text-md"></i>
                         </button>
                         <button @click="ongoingViewMode = 'list'"
                            :class="['w-9 h-9 flex items-center justify-center rounded-xl ring-1 transition', ongoingViewMode === 'list' ? 'bg-amber-500/20 ring-amber-500/50 text-amber-400' : 'bg-zinc-800 ring-white/10 text-zinc-400 hover:text-white']"
                            title="List view">
-                        <i class="ri-list-unordered text-base"></i>
+                        <i class="ri-list-unordered text-md"></i>
                         </button>
                         <button @click="isOngoingTakeawayOpen = false"
                            class="ml-1 w-9 h-9 flex items-center justify-center rounded-xl bg-white/10 text-zinc-400 hover:bg-white/20 hover:text-white transition">
