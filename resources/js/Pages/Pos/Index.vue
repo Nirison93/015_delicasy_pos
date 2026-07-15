@@ -2502,8 +2502,10 @@
    };
 
    const submitOrder = async () => {
-       const hasOpenDrawer = await checkOpenCashDrawer();
-       if (!hasOpenDrawer) {
+       // Drawer status is already tracked reactively (kept in sync on mount and whenever
+       // it's opened/closed) — checking it here avoids an extra network round-trip before
+       // submitting. The backend still re-validates and returns a 423 if it's actually closed.
+       if (!openCashDrawer.value) {
            isAlertModalOpen.value = true;
            message.value = "Opening balance required. Please open the cash drawer to continue.";
            return;
