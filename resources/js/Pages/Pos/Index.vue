@@ -679,17 +679,27 @@
 
                      <!-- Card Selection -->
                      <div v-if="selectedPaymentMethod === 'card'" class="space-y-4">
-                        <!-- Bank Charge Selection -->
-                        <div class="space-y-2">
-                           <p class="text-lg text-zinc-500 font-semibold">Bank Charge</p>
-                           <select v-model="selectedTable.bank_service_charge"
-                              class="w-full py-4 px-3 text-xl font-semibold text-zinc-200 bg-zinc-800 border border-white/10 rounded-lg cursor-pointer focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30 transition">
-                              <option value="" class="bg-zinc-800">Select Bank Charge</option>
-                              <option v-for="charge in bankCharge" :key="charge.id"
-                                 :value="parseFloat(charge.bank_charge)">
-                                 {{ charge.bank_charge }}%
-                              </option>
-                           </select>
+                        <!-- Bank Charge + Card Last 4 Row (2 columns) -->
+                        <div class="grid grid-cols-2 gap-3">
+                           <!-- Bank Charge Selection -->
+                           <div class="space-y-2">
+                              <p class="text-lg text-zinc-500 font-semibold">Bank Charge</p>
+                              <select v-model="selectedTable.bank_service_charge"
+                                 class="w-full py-4 px-3 text-xl font-semibold text-zinc-200 bg-zinc-800 border border-white/10 rounded-lg cursor-pointer focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30 transition">
+                                 <option v-for="charge in bankCharge" :key="charge.id"
+                                    :value="parseFloat(charge.bank_service_charge)">
+                                    {{ charge.bank_service_charge }}% {{ charge.service_check === true || charge.service_check === 'true' ? '(Default)' : '' }}
+                                 </option>
+                              </select>
+                           </div>
+
+                           <!-- Card Last 4 Digits Input -->
+                           <div class="space-y-2">
+                              <p class="text-lg text-zinc-500 font-semibold">Card Last 4</p>
+                              <input v-model="selectedTable.card_last4" type="text" placeholder="****"
+                                 maxlength="4" inputmode="numeric"
+                                 class="w-full py-4 px-3 text-xl font-semibold text-zinc-200 bg-zinc-800 border border-white/10 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30 transition placeholder-zinc-600" />
+                           </div>
                         </div>
 
                         <!-- Bank Selection with Logos -->
@@ -728,6 +738,7 @@
         </div>
     </div>
 </div>
+
                      </div>
                   </div>
                </div>
@@ -2075,6 +2086,17 @@
 
    onMounted(async () => {
        await checkOpenCashDrawer();
+
+       // Set default bank charge on all tables
+       const defaultBankCharge = bankCharge.find(charge => charge.service_check === true || charge.service_check === 'true');
+       if (defaultBankCharge) {
+           tables.value.forEach(table => {
+               if (!table.bank_service_charge) {
+                   table.bank_service_charge = parseFloat(defaultBankCharge.bank_service_charge);
+               }
+           });
+       }
+
        // Sync the default table's orderId with the backend value on every page load
        const defaultTable = tables.value.find(t => t.id === 'default');
        if (defaultTable && props.nextOrderId) {
@@ -2414,6 +2436,10 @@
            console.error('Failed to save table to DB:', e);
        }
 
+       // Get default bank charge
+       const defaultBankCharge = bankCharge.find(charge => charge.service_check === true || charge.service_check === 'true');
+       const defaultChargeValue = defaultBankCharge ? parseFloat(defaultBankCharge.bank_service_charge) : "";
+
        const newTable = {
            id: dbId,
            number: newNumber,
@@ -2427,7 +2453,7 @@
            order_type: "",
            delivery_charge: "",
            service_charge: "",
-           bank_service_charge: "",
+           bank_service_charge: defaultChargeValue,
            kotStatus: "pending",
            lastKotSnapshot: null,
        };
