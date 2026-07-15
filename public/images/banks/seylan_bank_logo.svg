@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+    <!-- Seylan Bank - Official Dark Blue -->
+    <defs>
+        <linearGradient id="seylanGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#00308c;stop-opacity:1" />
+            <stop offset="100%" style="stop-color:#0047a3;stop-opacity:1" />
+        </linearGradient>
+    </defs>
+    <rect width="200" height="200" fill="url(#seylanGradient)"/>
+    <rect x="50" y="55" width="100" height="90" fill="white" rx="6"/>
+    <text x="100" y="110" font-size="32" font-weight="bold" fill="#0047a3" text-anchor="middle" font-family="Arial, sans-serif">SB</text>
+    <circle cx="100" cy="70" r="3" fill="#0047a3"/>
+    <text x="100" y="160" font-size="12" fill="white" text-anchor="middle" font-family="Arial, sans-serif">Seylan Bank PLC</text>
+</svg>

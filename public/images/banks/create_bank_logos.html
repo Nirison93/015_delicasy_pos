@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Bank Logo Generator</title>
+</head>
+<body>
+    <h1>Bank Logo Placeholder Generator</h1>
+    <p>This creates placeholder logos. Replace these SVGs with actual bank logos later.</p>
+
+    <script>
+        const banks = {
+            "alliance_finance_logo.jpg": "AFC",
+            "amana_bank_logo.jpg": "AB",
+            "amex_bank_logo.jpg": "AX",
+            "asia_asset_finance_logo.jpg": "AAF",
+            "boc_bank_logo_001.jpg": "BOC",
+            "bank_of_china_logo.jpg": "BOC",
+            "cdb_logo.jpg": "CDB",
+            "cargils_bank_logo.jpg": "CB",
+            "central_bank_logo.jpg": "CBL",
+            "central_finance_logo.jpg": "CF",
+            "city_bank_logo.jpg": "CB",
+            "commercial_bank_logo.jpg": "CB",
+            "commercial_credit_logo.jpg": "CC",
+            "cooperative_rural_bank_logo.jpg": "CRB",
+            "dfcc_bank_logo.jpg": "DFCC",
+            "deutsche_bank_logo.jpg": "DB",
+            "dialog_finance_logo.jpg": "DF",
+            "fintrex_finance_logo.jpg": "FF",
+            "hdfc_bank_logo.jpg": "HDFC",
+            "hnb_finance_logo.jpg": "HNB",
+            "hsbc_logo.jpg": "HSBC",
+            "hatton_national_bank_logo.jpg": "HNB",
+            "indian_bank_logo.jpg": "IB",
+            "indian_overseas_bank_logo.jpg": "IOB",
+            "kanrich_finance_logo.jpg": "KF",
+            "lb_finance_logo.jpg": "LBF",
+            "lolc_dev_finance_logo.jpg": "LOLC",
+            "lolc_finance_logo.jpg": "LOLC",
+            "lanka_credit_business_finance_logo.jpg": "LCBF",
+            "mbsl_logo.jpg": "MBSL",
+            "mcb_logo.jpg": "MCB",
+            "mercantile_investment_logo.jpg": "MI",
+            "ndb_bank_logo.jpg": "NDB",
+            "nsb_logo.jpg": "NSB",
+            "nations_trust_bank_logo.jpg": "NTB",
+            "peoples_leasing_finance_logo.jpg": "PLF",
+            "pan_asia_bank_logo.jpg": "PAB",
+            "peoples_bank_logo.jpg": "PB",
+            "public_bank_logo.jpg": "PB",
+            "rdb_logo.jpg": "RDB",
+            "richard_pieris_finance_logo.jpg": "RPF",
+            "sdb_logo.jpg": "SDB",
+            "senkadagala_finance_logo.jpg": "SF",
+            "smib_logo.jpg": "SMIB",
+            "sampath_bank_logo.jpg": "SB",
+            "sarvodaya_dev_finance_logo.jpg": "SDF",
+            "seylan_bank_logo.jpg": "SB",
+            "singer_finance_logo.jpg": "SF",
+            "siyapatha_finance_logo.jpg": "SP",
+            "softlogic_finance_logo.jpg": "SLF",
+            "standard_chartered_bank_logo.jpg": "SC",
+            "state_bank_india_logo.jpg": "SBI",
+            "union_bank_logo.jpg": "UB",
+            "bank_default_logo.jpg": "BANK"
+        };
+
+        function generateSVG(initials) {
+            const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A', '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E2'];
+            const color = colors[Math.abs(initials.charCodeAt(0)) % colors.length];
+
+            return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+                <rect width="200" height="200" fill="${color}"/>
+                <text x="100" y="115" font-size="48" font-weight="bold" fill="white" text-anchor="middle" font-family="Arial">
+                    ${initials}
+                </text>
+            </svg>`;
+        }
+
+        // Display all bank logos
+        let html = '<h2>Generated Logos (SVG):</h2>';
+        for (const [filename, initials] of Object.entries(banks)) {
+            html += `<div style="margin: 10px;">
+                <h4>${filename}</h4>
+                <div style="width: 100px; height: 100px; border: 1px solid #ccc;">
+                    ${generateSVG(initials)}
+                </div>
+            </div>`;
+        }
+        document.body.innerHTML += html;
+    </script>
+</body>
+</html>
