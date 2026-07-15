@@ -216,18 +216,8 @@
                            Add Table
                            </button>
                         </div>
-                        <!-- Tables & Live Bill Tabs -->
+                        <!-- Tables Tabs -->
                         <div class="flex gap-2 overflow-x-auto pb-2">
-                           <!-- Live Bill Tab -->
-                           <button @click="selectedTable = tables.find(t => t.id === 'default')" :class="[
-                              'flex-shrink-0 px-4 py-2.5 rounded-xl font-semibold text-[11px] transition border ring-1',
-                              selectedTable?.id === 'default'
-                              ? 'bg-amber-500/20 border-amber-500/50 ring-amber-500/30 text-amber-400'
-                              : 'bg-zinc-800 border-white/10 ring-white/5 text-zinc-300 hover:bg-zinc-700 hover:border-amber-500/30'
-                              ]">
-                           <i class="ri-receipt-line text-md mr-2"></i>
-                           Live Bill
-                           </button>
                            <!-- Restaurant Tables -->
                            <div v-for="table in addedTables" :key="table.id" class="flex-shrink-0 relative group">
                               <button @click="selectedTable = table"
@@ -260,8 +250,9 @@
                            <div class="flex items-center gap-3">
                               <h2 class="text-md font-bold text-white flex items-center gap-2">
                                  <i class="ri-file-list-3-line text-amber-400"></i>
-                                 {{ selectedTable?.id === 'default' ? 'Live Bill' : `Table
-                                 ${selectedTable?.number}` }}
+                                 {{ selectedTable?.id === 'default'
+                                 ? (selectedTable.order_type === 'pickup' ? 'Delivery' : 'Takeaway')
+                                 : `Table ${selectedTable?.number}` }}
                               </h2>
                               <button @click="() => { openEditModal(color); }"
                                  class="flex items-center gap-2 px-4 py-2.5 bg-zinc-800 text-zinc-300 border border-white/10 rounded-xl hover:bg-zinc-700 hover:text-white transition text-[12px] font-medium"
@@ -272,9 +263,9 @@
                            <!-- Right: order type buttons -->
                            <div class="flex items-center gap-2">
                               <!-- Takeaway -->
-                              <button @click="selectedTable.order_type = 'takeaway'" :class="[
+                              <button @click="setLiveBillOrderType('takeaway')" :class="[
                                  'flex items-center gap-2 px-4 py-2.5 rounded-xl ring-1 text-[12px] font-semibold transition active:scale-95',
-                                 selectedTable.order_type === 'takeaway'
+                                 selectedTable?.id === 'default' && selectedTable.order_type === 'takeaway'
                                  ? 'bg-amber-500 ring-amber-500 text-zinc-900 shadow-md shadow-amber-500/20'
                                  : 'bg-zinc-800 ring-white/10 text-zinc-300 hover:bg-amber-500/15 hover:ring-amber-500/40 hover:text-amber-400'
                                  ]">
@@ -282,9 +273,9 @@
                               <span>Takeaway</span>
                               </button>
                               <!-- In-Room Dining -->
-                              <button @click="selectedTable.order_type = 'pickup'" :class="[
+                              <button @click="setLiveBillOrderType('pickup')" :class="[
                                  'flex items-center gap-2 px-4 py-2.5 rounded-xl ring-1 text-[12px] font-semibold transition active:scale-95',
-                                 selectedTable.order_type === 'pickup'
+                                 selectedTable?.id === 'default' && selectedTable.order_type === 'pickup'
                                  ? 'bg-violet-600 ring-violet-600 text-white shadow-md'
                                  : 'bg-zinc-800 ring-white/10 text-zinc-300 hover:bg-violet-500/15 hover:ring-violet-500/40 hover:text-violet-400'
                                  ]">
@@ -2027,7 +2018,7 @@
    const _defaultSaved = _rawSaved?.find(t => t.id === 'default');
    const _defaultTable = _defaultSaved || {
        id: "default",
-       number: 0, // Live Bill — not a real table number
+       number: 0, // walk-in cart — not a real table number
        orderId: props.nextOrderId || 'Delicasy/0001',
        products: [],
        cash: 0.0,
@@ -2035,13 +2026,17 @@
        custom_discount: 0.0,
        custom_discount_type: "percent",
        kitchen_note: "",
-       order_type: "",
+       order_type: "takeaway",
        delivery_charge: "",
        service_charge: "",
        bank_service_charge: "",
        shopping_bag_charge_enabled: true,
        lastKotSnapshot: null,
    };
+   // Always come back to Takeaway by default (e.g. an empty walk-in cart left over from a previous session)
+   if (!_defaultTable.order_type && (!_defaultTable.products || _defaultTable.products.length === 0)) {
+       _defaultTable.order_type = "takeaway";
+   }
    // Build initial table list from the DB (restaurant_tables) + restore any saved cart state
    const _dbTables = (props.restaurantTables || []).map(dbTable => {
        const saved = _rawSaved?.find(t => t.id === dbTable.id);
@@ -2067,13 +2062,8 @@
    });
    const savedTables = [_defaultTable, ..._dbTables];
    const tables = ref(savedTables);
-   // Restore selectedTable only if it still exists in the current table list
-   const _resSel = JSON.parse(localStorage.getItem("selectedTable"));
-   const selectedTable = ref(
-       (_resSel && savedTables.find(t => t.id === _resSel.id))
-           ? (_resSel.id === 'default' ? _defaultTable : savedTables.find(t => t.id === _resSel.id))
-           : savedTables[0]
-   );
+   // Always land back on the Takeaway (walk-in) cart after a page refresh
+   const selectedTable = ref(_defaultTable);
 
    /* ========= Derived lists ========= */
    // const fixedTables = computed(() =>
@@ -2455,6 +2445,16 @@
        selectedTable.value = table;
        // Always show the true next sequential ID from the DB when switching tables
        selectedTable.value.orderId = await fetchNextOrderId();
+   };
+
+   /* Switch to the walk-in cart (id: 'default') and set its order type — the
+      Takeaway/Delivery buttons are the only way to reach this cart, so they must
+      never mutate a real table's order type. */
+   const setLiveBillOrderType = (type) => {
+       const liveBill = tables.value.find(t => t.id === 'default');
+       if (!liveBill) return;
+       selectedTable.value = liveBill;
+       liveBill.order_type = type;
    };
 
    /* Remove ADDED table (not fixed) — also deletes from the DB */
