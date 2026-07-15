@@ -699,7 +699,7 @@
     <div class="max-h-96 overflow-y-auto pr-2">
         <div class="grid grid-cols-2 gap-4">
             <button
-                v-for="bank in ['Bank of Ceylon', 'DFCC Bank PLC', 'Sampath Bank', 'HSBC', 'NDB Bank', 'Commercial Bank', 'Hatton National Bank', 'Seylan Bank', 'Peoples Bank', 'Nations Trust Bank', 'Standard Chartered Bank', 'City Bank']"
+                v-for="bank in ['Bank of Ceylon', 'DFCC Bank PLC', 'Sampath Bank',  'NDB Bank', 'Commercial Bank', 'Hatton National Bank', 'Seylan Bank', 'Peoples Bank', 'Nations Trust Bank', 'City Bank']"
                 :key="bank"
                 @click="selectedTable.bank_name = bank"
                 :class="[
@@ -1768,13 +1768,12 @@
        "Bank of Ceylon", "Bank of China", "CDB", "Cargils Bank Ltd", "Central Bank of Sri Lanka", "Central Finance PLC",
        "City Bank", "Commercial Bank", "Commercial Credit", "Cooperative Regional Rural Bank LTD",
        "DFCC Bank PLC", "Deutsche Bank", "Dialog Finance PLC", "Fintrex Finance Limited",
-       "HDFC Bank", "HNB Finance PLC", "HSBC", "Hatton National Bank", "Indian Bank", "Indian Overseas Bank",
+       "HDFC Bank", "HNB Finance PLC", "Hatton National Bank", "Indian Bank", "Indian Overseas Bank",
        "Kanrich Finance Bank", "LB Finance", "LOLC Development Finance Plc", "LOLC Finance Plc", "Lanka Credit and Business Finance Limited",
        "MBSL", "MCB", "Mercantile Investment", "NDB Bank", "NSB", "Nations Trust Bank",
        "Peoples Leasing and Finance PLC", "Pan Asia Bank", "Peoples Bank", "Public Bank Berhad",
        "RDB", "Richard Pieris Finance", "SDB", "SENKADAGALA FINANCE", "SMIB", "Sampath Bank",
-       "Sarvodaya Development Finace LTD", "Seylan Bank", "Singer Finance(Lanka) Bank", "Siyapatha Finance PLC", "Softlogic Finance PLC",
-       "Standard Charted Bank", "State Bank of India", "Union Bank"
+       "Sarvodaya Development Finace LTD", "Seylan Bank", "Singer Finance(Lanka) Bank", "Siyapatha Finance PLC", "Softlogic Finance PLC",  "State Bank of India", "Union Bank"
    ]);
    const query = ref("");
    const filteredBanks = computed(() =>
@@ -1817,24 +1816,24 @@
            "Amana Bank": "amana_bank_logo.svg",
            "American Express Bank Ltd": "amex_bank_logo.svg",
            "Asia Asset Finance PLC": "asia_asset_finance_logo.svg",
-           "Bank of Ceylon": "boc_bank_logo_001.svg",
+           "Bank of Ceylon": "boc.png",
            "Bank of China": "bank_of_china_logo.svg",
            "CDB": "cdb_logo.svg",
            "Cargils Bank Ltd": "cargils_bank_logo.svg",
            "Central Bank of Sri Lanka": "central_bank_logo.svg",
            "Central Finance PLC": "central_finance_logo.svg",
-           "City Bank": "city_bank_logo.svg",
-           "Commercial Bank": "commercial_bank_logo.svg",
+           "City Bank": "citi.png",
+           "Commercial Bank": "commercial_bank_logo.png",
            "Commercial Credit": "commercial_credit_logo.svg",
            "Cooperative Regional Rural Bank LTD": "cooperative_rural_bank_logo.svg",
-           "DFCC Bank PLC": "dfcc_bank_logo.svg",
+           "DFCC Bank PLC": "dfcc.png",
            "Deutsche Bank": "deutsche_bank_logo.svg",
            "Dialog Finance PLC": "dialog_finance_logo.svg",
            "Fintrex Finance Limited": "fintrex_finance_logo.svg",
            "HDFC Bank": "hdfc_bank_logo.svg",
            "HNB Finance PLC": "hnb_finance_logo.svg",
-           "HSBC": "hsbc_logo.svg",
-           "Hatton National Bank": "hatton_national_bank_logo.svg",
+
+           "Hatton National Bank": "hnb.png",
            "Indian Bank": "indian_bank_logo.svg",
            "Indian Overseas Bank": "indian_overseas_bank_logo.svg",
            "Kanrich Finance Bank": "kanrich_finance_logo.svg",
@@ -1845,25 +1844,25 @@
            "MBSL": "mbsl_logo.svg",
            "MCB": "mcb_logo.svg",
            "Mercantile Investment": "mercantile_investment_logo.svg",
-           "NDB Bank": "ndb_bank_logo.svg",
+           "NDB Bank": "ndb.png",
            "NSB": "nsb_logo.svg",
-           "Nations Trust Bank": "nations_trust_bank_logo.svg",
+           "Nations Trust Bank": "nations_trust_bank.png",
            "Peoples Leasing and Finance PLC": "peoples_leasing_finance_logo.svg",
            "Pan Asia Bank": "pan_asia_bank_logo.svg",
-           "Peoples Bank": "peoples_bank_logo.svg",
+           "Peoples Bank": "peoples_bank.png",
            "Public Bank Berhad": "public_bank_logo.svg",
            "RDB": "rdb_logo.svg",
            "Richard Pieris Finance": "richard_pieris_finance_logo.svg",
            "SDB": "sdb_logo.svg",
            "SENKADAGALA FINANCE": "senkadagala_finance_logo.svg",
            "SMIB": "smib_logo.svg",
-           "Sampath Bank": "sampath_bank_logo.svg",
+           "Sampath Bank": "sampathbank.png",
            "Sarvodaya Development Finace LTD": "sarvodaya_dev_finance_logo.svg",
-           "Seylan Bank": "seylan_bank_logo.svg",
+           "Seylan Bank": "seylan.png",
            "Singer Finance(Lanka) Bank": "singer_finance_logo.svg",
            "Siyapatha Finance PLC": "siyapatha_finance_logo.svg",
            "Softlogic Finance PLC": "softlogic_finance_logo.svg",
-           "Standard Charted Bank": "standard_chartered_bank_logo.svg",
+
            "State Bank of India": "state_bank_india_logo.svg",
            "Union Bank": "union_bank_logo.svg",
        };
