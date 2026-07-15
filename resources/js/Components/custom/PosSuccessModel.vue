@@ -84,7 +84,7 @@ import {
   TransitionChild,
   TransitionRoot,
 } from "@headlessui/vue";
-import { computed, watch } from "vue";
+import { computed } from "vue";
 import { ref } from "vue";
 import { useForm, usePage } from "@inertiajs/vue3";
 
@@ -149,19 +149,6 @@ const props = defineProps({
     default: null
   }
 });
-
-// Auto-print when modal opens
-watch(
-  () => props.open,
-  (newValue) => {
-    if (newValue === true) {
-      // Delay to ensure DOM is ready
-      setTimeout(() => {
-        handlePrintReceipt();
-      }, 300);
-    }
-  }
-);
 
 const handlePrintReceipt = () => {
   // Calculate totals from props.products
