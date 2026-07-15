@@ -154,7 +154,7 @@
                         <i class="ri-search-line text-xl text-zinc-600 mb-2"></i>
                         <p class="text-md text-zinc-500">No products found</p>
                      </div>
-                     <div v-else class="grid grid-cols-4 gap-2 overflow-y-auto flex-1 pr-1">
+                     <div v-else class="grid content-start grid-cols-4 gap-2 overflow-y-auto flex-1 pr-1">
                         <button v-for="product in filteredProducts" :key="product.id"
                            @click="addProductToCart(product)" :disabled="product.is_sold_out"
                            class="relative w-full flex flex-col items-stretch gap-2 p-2 rounded-lg transition-all duration-200 h-[180px]"
@@ -541,42 +541,42 @@
       <Teleport to="body">
          <div v-if="isConfirmOrderModalOpen" class="fixed inset-0 z-[1000] flex items-center justify-center p-4">
             <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" @click="isConfirmOrderModalOpen = false"></div>
-            <div class="relative bg-zinc-900 rounded-2xl border border-white/10 shadow-2xl w-full max-w-[920px] overflow-hidden flex flex-col">
+            <div class="relative bg-zinc-900 rounded-2xl border border-white/10 shadow-2xl w-full max-w-[1100px] max-h-[92vh] overflow-hidden flex flex-col">
                <!-- Header -->
-               <div class="flex items-center justify-between px-5 py-4 border-b border-white/10 bg-gradient-to-r from-zinc-900 via-zinc-800 to-zinc-900">
+               <div class="flex items-center justify-between px-6 py-5 border-b border-white/10 bg-gradient-to-r from-zinc-900 via-zinc-800 to-zinc-900 flex-shrink-0">
                   <div class="flex items-center gap-3">
-                     <div class="w-10 h-10 flex items-center justify-center rounded-xl bg-amber-500/20 ring-1 ring-amber-500/40">
-                        <i class="ri-file-list-3-line text-amber-400 text-xl"></i>
+                     <div class="w-14 h-14 flex items-center justify-center rounded-xl bg-amber-500/20 ring-1 ring-amber-500/40">
+                        <i class="ri-file-list-3-line text-amber-400 text-3xl"></i>
                      </div>
-                     <h3 class="text-md font-bold text-white">Order Summary</h3>
+                     <h3 class="text-3xl font-bold text-white">Order Summary</h3>
                   </div>
                   <button @click="isConfirmOrderModalOpen = false"
-                     class="w-9 h-9 flex items-center justify-center rounded-xl bg-white/10 text-zinc-400 hover:bg-white/20 hover:text-white transition">
-                  <i class="ri-close-line text-xl"></i>
+                     class="w-12 h-12 flex items-center justify-center rounded-xl bg-white/10 text-zinc-400 hover:bg-white/20 hover:text-white transition">
+                  <i class="ri-close-line text-3xl"></i>
                   </button>
                </div>
                <!-- Body - Two Column Layout -->
-               <div class="flex-1  flex gap-4 p-5">
+               <div class="flex-1 overflow-y-auto flex gap-6 p-6">
                   <!-- Left: Bill Summary -->
-                  <div class="flex-1 space-y-4 border-r border-white/10 pr-5">
-                     <h4 class="text-md font-bold text-zinc-400 uppercase tracking-wide">Bill Summary</h4>
+                  <div class="flex-1 space-y-5 border-r border-white/10 pr-6">
+                     <h4 class="text-xl font-bold text-zinc-400 uppercase tracking-wide">Bill Summary</h4>
 
                      <!-- Sub Total -->
                      <div class="flex items-center justify-between">
-                        <p class="text-[12px] text-zinc-400">Sub Total</p>
-                        <p class="text-[12px] font-semibold text-zinc-200">{{ subtotal }} LKR</p>
+                        <p class="text-xl text-zinc-400">Sub Total</p>
+                        <p class="text-xl font-semibold text-zinc-200">{{ subtotal }} LKR</p>
                      </div>
 
                      <!-- Discount -->
-                     <div class="flex items-center justify-between pb-3 border-b border-white/10">
-                        <p class="text-[12px] text-zinc-400">Discount</p>
-                        <p class="text-[12px] font-semibold text-red-400">( {{ totalDiscount }} LKR )</p>
+                     <div class="flex items-center justify-between pb-4 border-b border-white/10">
+                        <p class="text-xl text-zinc-400">Discount</p>
+                        <p class="text-xl font-semibold text-red-400">( {{ totalDiscount }} LKR )</p>
                      </div>
 
                      <!-- Service Charge Dropdown -->
-                     <div v-if="selectedTable?.id !== 'default' && selectedTable?.order_type !== 'pickup'" class="pb-3 border-b border-white/10">
+                     <div v-if="selectedTable?.id !== 'default' && selectedTable?.order_type !== 'pickup'" class="pb-4 border-b border-white/10">
                         <select v-model="selectedTable.service_charge"
-                           class="w-full py-2.5 text-[12px] font-semibold text-zinc-200 bg-zinc-800 border border-white/10 rounded-lg cursor-pointer focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30 transition">
+                           class="w-full py-4 px-3 text-xl font-semibold text-zinc-200 bg-zinc-800 border border-white/10 rounded-lg cursor-pointer focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30 transition">
                            <option value="" class="bg-zinc-800">Select Service Charge</option>
                            <option v-for="charge in serviceCharge" :key="charge.id"
                               :value="parseFloat(charge.service_charge)">
@@ -586,9 +586,9 @@
                      </div>
 
                      <!-- Delivery Charge Dropdown -->
-                     <div v-if="selectedTable?.order_type === 'pickup'" class="pb-3 border-b border-white/10">
+                     <div v-if="selectedTable?.order_type === 'pickup'" class="pb-4 border-b border-white/10">
                         <select v-model="selectedTable.delivery_charge"
-                           class="w-full py-2.5 text-[12px] font-semibold text-zinc-200 bg-zinc-800 border border-white/10 rounded-lg cursor-pointer focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30 transition">
+                           class="w-full py-4 px-3 text-xl font-semibold text-zinc-200 bg-zinc-800 border border-white/10 rounded-lg cursor-pointer focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30 transition">
                            <option value="" class="bg-zinc-800">Select Delivery Charge</option>
                            <option v-for="charge in delivery" :key="charge.id"
                               :value="charge.delivery_charge">
@@ -598,55 +598,55 @@
                      </div>
 
                      <!-- Shopping Bag Toggle -->
-                     <div class="flex items-center justify-between pb-3 border-b border-white/10">
-                        <div class="flex items-center gap-2">
-                           <p class="text-[12px] text-zinc-400">Shopping Bag</p>
+                     <div class="flex items-center justify-between pb-4 border-b border-white/10">
+                        <div class="flex items-center gap-3">
+                           <p class="text-xl text-zinc-400">Shopping Bag</p>
                            <button
                               @click="selectedTable.shopping_bag_charge_enabled = !selectedTable.shopping_bag_charge_enabled"
                               :class="[
-                              'relative w-11 h-6 rounded-full transition-colors duration-200',
+                              'relative w-16 h-9 rounded-full transition-colors duration-200',
                               selectedTable.shopping_bag_charge_enabled ? 'bg-amber-500' : 'bg-zinc-700'
                               ]">
                               <div :class="[
-                                 'absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform duration-200',
-                                 selectedTable.shopping_bag_charge_enabled ? 'translate-x-5' : 'translate-x-0'
+                                 'absolute top-1 left-1 w-7 h-7 bg-white rounded-full transition-transform duration-200',
+                                 selectedTable.shopping_bag_charge_enabled ? 'translate-x-7' : 'translate-x-0'
                                  ]" />
                            </button>
                         </div>
                         <p
-                           :class="['text-[12px] font-semibold', selectedTable.shopping_bag_charge_enabled ? 'text-amber-400' : 'text-zinc-500 line-through']">
+                           :class="['text-xl font-semibold', selectedTable.shopping_bag_charge_enabled ? 'text-amber-400' : 'text-zinc-500 line-through']">
                            {{ selectedTable.shopping_bag_charge_enabled ? '10.00' : '0.00' }} LKR
                         </p>
                      </div>
 
                      <!-- Total Amount -->
-                     <div class="flex items-center justify-between pt-3 border-t border-white/10">
-                        <p class="text-md font-bold text-white">Total Amount</p>
-                        <p class="text-xl font-bold text-amber-400">Rs {{ total }}</p>
+                     <div class="flex items-center justify-between pt-4 border-t border-white/10">
+                        <p class="text-2xl font-bold text-white">Total Amount</p>
+                        <p class="text-3xl font-bold text-amber-400">Rs {{ total }}</p>
                      </div>
 
                      <!-- Paid Amount -->
                      <div class="flex items-center justify-between">
-                        <p class="text-[12px] text-zinc-400">Paid Amount</p>
-                        <p class="text-md font-bold text-emerald-400">Rs {{ selectedTable.cash || 0 }}</p>
+                        <p class="text-xl text-zinc-400">Paid Amount</p>
+                        <p class="text-2xl font-bold text-emerald-400">Rs {{ selectedTable.cash || 0 }}</p>
                      </div>
 
                      <!-- Balance -->
-                     <div class="flex items-center justify-between pt-3 border-t border-white/10">
-                        <p class="text-md font-bold text-white">Balance</p>
-                        <p class="text-md font-bold text-zinc-200">Rs {{ balance }}</p>
+                     <div class="flex items-center justify-between pt-4 border-t border-white/10">
+                        <p class="text-2xl font-bold text-white">Balance</p>
+                        <p class="text-2xl font-bold text-zinc-200">Rs {{ balance }}</p>
                      </div>
                   </div>
 
                   <!-- Right: Payment Method Selection -->
-                  <div class="flex-1 space-y-4">
-                     <h4 class="text-md font-bold text-zinc-400 uppercase tracking-wide">Payment Method</h4>
+                  <div class="flex-1 space-y-5">
+                     <h4 class="text-xl font-bold text-zinc-400 uppercase tracking-wide">Payment Method</h4>
 
                      <!-- Card / Cash Tabs -->
-                     <div class="flex gap-3">
+                     <div class="flex gap-4">
 
                         <button @click="selectedPaymentMethod = 'cash'" :class="[
-                           'flex-1 px-3 sm:px-4 py-2 sm:py-3 font-semibold text-md sm:text-sm md:text-md rounded-lg border-2 transition active:scale-95',
+                           'flex-1 px-4 py-5 font-bold text-2xl rounded-xl border-2 transition active:scale-95',
                            selectedPaymentMethod === 'cash'
                            ? 'bg-amber-500 border-amber-500 text-white shadow-lg shadow-amber-500/20'
                            : 'bg-zinc-800 border-white/10 text-zinc-400 hover:bg-zinc-700 hover:border-amber-500/30'
@@ -655,7 +655,7 @@
                         </button>
 
                               <button @click="selectedPaymentMethod = 'card'" :class="[
-                           'flex-1 px-3 sm:px-4 py-2 sm:py-3 font-semibold text-md sm:text-sm md:text-md rounded-lg border-2 transition active:scale-95',
+                           'flex-1 px-4 py-5 font-bold text-2xl rounded-xl border-2 transition active:scale-95',
                            selectedPaymentMethod === 'card'
                            ? 'bg-blue-500 border-blue-500 text-white shadow-lg shadow-blue-500/20'
                            : 'bg-zinc-800 border-white/10 text-zinc-400 hover:bg-zinc-700 hover:border-blue-500/30'
@@ -665,34 +665,34 @@
                      </div>
 
                      <!-- Cash Amount Input -->
-                     <div v-if="selectedPaymentMethod === 'cash'" class="space-y-2">
-                        <p class="text-[12px] text-zinc-500">Enter Amount</p>
+                     <div v-if="selectedPaymentMethod === 'cash'" class="space-y-3">
+                        <p class="text-xl text-zinc-500">Enter Amount</p>
                         <button @click="openCashNumpad"
-                           class="w-full h-12 px-4 flex items-center justify-between gap-2 bg-zinc-800 border border-white/10 rounded-lg hover:border-amber-500 transition">
+                           class="w-full h-20 px-5 flex items-center justify-between gap-2 bg-zinc-800 border border-white/10 rounded-xl hover:border-amber-500 transition">
                            <span
-                              :class="selectedTable.cash && Number(selectedTable.cash) > 0 ? 'text-white font-bold text-md' : 'text-zinc-500 text-[11px]'">
+                              :class="selectedTable.cash && Number(selectedTable.cash) > 0 ? 'text-white font-bold text-2xl' : 'text-zinc-500 text-xl'">
                               {{ selectedTable.cash && Number(selectedTable.cash) > 0 ?
                               Number(selectedTable.cash).toFixed(2) : 'Enter Amount' }}
                            </span>
-                           <i class="ri-calculator-line text-zinc-400"></i>
+                           <i class="ri-calculator-line text-zinc-400 text-3xl"></i>
                         </button>
                         <!-- Quick Amount Buttons -->
-                        <div class="grid grid-cols-4 gap-2">
+                        <div class="grid grid-cols-4 gap-3">
                            <button v-for="amount in [500, 1000, 2000, 5000]" :key="amount"
                               @click="selectedTable.cash = amount"
-                              class="py-2 px-1 rounded-lg bg-amber-500/15 ring-1 ring-amber-500/30 text-amber-400 font-semibold text-lg hover:bg-amber-500/25 active:scale-95 transition">
+                              class="py-4 px-1 rounded-xl bg-amber-500/15 ring-1 ring-amber-500/30 text-amber-400 font-bold text-2xl hover:bg-amber-500/25 active:scale-95 transition">
                               {{ amount }}
                            </button>
                         </div>
                      </div>
 
                      <!-- Card Selection -->
-                     <div v-if="selectedPaymentMethod === 'card'" class="space-y-3">
+                     <div v-if="selectedPaymentMethod === 'card'" class="space-y-4">
                         <!-- Bank Charge Selection -->
                         <div class="space-y-2">
-                           <p class="text-[11px] text-zinc-500 font-semibold">Bank Charge</p>
+                           <p class="text-lg text-zinc-500 font-semibold">Bank Charge</p>
                            <select v-model="selectedTable.bank_service_charge"
-                              class="w-full py-2.5 text-[12px] font-semibold text-zinc-200 bg-zinc-800 border border-white/10 rounded-lg cursor-pointer focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30 transition">
+                              class="w-full py-4 px-3 text-xl font-semibold text-zinc-200 bg-zinc-800 border border-white/10 rounded-lg cursor-pointer focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30 transition">
                               <option value="" class="bg-zinc-800">Select Bank Charge</option>
                               <option v-for="charge in bankCharge" :key="charge.id"
                                  :value="parseFloat(charge.bank_charge)">
@@ -703,35 +703,35 @@
 
                         <!-- Bank Selection with Logos -->
                      <div class="space-y-2">
-    <p class="text-[11px] text-zinc-500 font-semibold">Select Bank</p>
+    <p class="text-lg text-zinc-500 font-semibold">Select Bank</p>
 
-    <div class="max-h-80 overflow-y-auto pr-2">
-        <div class="grid grid-cols-2 gap-3">
+    <div class="max-h-96 overflow-y-auto pr-2">
+        <div class="grid grid-cols-2 gap-4">
             <button
                 v-for="bank in ['Bank of Ceylon', 'DFCC Bank PLC', 'Sampath Bank', 'HSBC', 'NDB Bank', 'Commercial Bank', 'Hatton National Bank', 'Seylan Bank', 'Peoples Bank', 'Nations Trust Bank', 'Standard Chartered Bank', 'City Bank']"
                 :key="bank"
                 @click="selectedTable.bank_name = bank"
                 :class="[
-                    'w-full py-3 px-2 flex flex-col items-center justify-center gap-2 rounded-lg transition border ring-1 hover:scale-105',
+                    'w-full py-4 px-2 flex flex-col items-center justify-center gap-2 rounded-xl transition border ring-1 hover:scale-105',
                     selectedTable.bank_name === bank
                         ? 'bg-blue-500/20 border-blue-500/50 ring-blue-500/30 shadow-md shadow-blue-500/20'
                         : 'bg-zinc-800 border-white/10 ring-white/5 hover:border-blue-500/30 hover:bg-blue-500/10'
                 ]"
             >
                 <div
-                    class="w-16 h-16 rounded-lg bg-cover bg-center bg-no-repeat"
+                    class="w-20 h-20 rounded-lg bg-cover bg-center bg-no-repeat"
                     :style="{ backgroundImage: `url('/images/banks/${getBankLogoName(bank)}')` }"
                     :alt="bank"
                 />
 
 
-                <span class="text-[9px] font-semibold text-zinc-200 text-center">
+                <span class="text-sm font-semibold text-zinc-200 text-center">
                     {{ bank }}
                 </span>
 
                 <i
                     v-if="selectedTable.bank_name === bank"
-                    class="ri-check-circle-fill text-blue-400 text-md"
+                    class="ri-check-circle-fill text-blue-400 text-xl"
                 ></i>
             </button>
         </div>
@@ -741,13 +741,13 @@
                   </div>
                </div>
                <!-- Footer -->
-               <div class="flex gap-3 p-5 border-t border-white/10">
+               <div class="flex gap-4 p-6 border-t border-white/10 flex-shrink-0">
                   <button @click="isConfirmOrderModalOpen = false"
-                     class="flex-1 py-3 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-semibold transition">
+                     class="flex-1 py-5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-bold text-2xl transition">
                   Cancel
                   </button>
                   <button @click="submitOrder(); isConfirmOrderModalOpen = false"
-                     class="flex-1 py-3 rounded-lg bg-green-500 hover:bg-green-600 text-white font-bold transition">
+                     class="flex-1 py-5 rounded-xl bg-green-500 hover:bg-green-600 text-white font-bold text-2xl transition">
                   Confirm & Submit
                   </button>
                </div>

@@ -200,7 +200,7 @@
                            <template v-else>
                               <template v-if="(products.data?.length || 0) > 0">
                                  <!-- Product Grid -->
-                                 <div class="grid gap-3 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 2xl:grid-cols-6 pb-4">
+                                 <div class="grid content-start gap-3 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 2xl:grid-cols-6 pb-4">
                                     <div
                                        v-for="group in groupedProducts"
                                        :key="group.key"
