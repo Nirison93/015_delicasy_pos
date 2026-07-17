@@ -19,7 +19,6 @@ const form = useForm({
   email: "",
   website: "",
   logo: null,       // must be File or null (never a string URL)
-  enable_virtual_keyboard: true,
 });
 
 // Only update preview with string URL; do NOT assign it to form.logo
@@ -33,7 +32,6 @@ watch(
       form.email = ci.email || "";
       form.website = ci.website || "";
       form.logo = null; // keep null unless a new file is chosen
-      form.enable_virtual_keyboard = ci.enable_virtual_keyboard !== false;
       previewLogoUrl.value = ci.logo ? `${ci.logo}` : null;
     } else {
       form.reset();
@@ -187,35 +185,6 @@ const submit = () => {
                 <p v-if="form.errors.address" class="mt-1.5 text-[13px] text-red-500 font-medium">{{ form.errors.address }}</p>
               </div>
 
-            </div>
-
-            <!-- Divider -->
-            <div class="my-7 border-t border-slate-100"></div>
-
-            <!-- POS Settings -->
-            <div>
-              <p class="text-[13px] font-semibold text-slate-500 uppercase tracking-wider mb-4">POS Settings</p>
-              <div class="flex items-center justify-between p-4 rounded-xl bg-slate-50 ring-1 ring-slate-200">
-                <div>
-                  <p class="text-[14px] font-semibold text-slate-800">Virtual Keyboard</p>
-                  <p class="text-[12px] text-slate-500 mt-0.5">Enable virtual on-screen keyboard for amount input on POS page</p>
-                </div>
-                <button
-                  type="button"
-                  @click="form.enable_virtual_keyboard = !form.enable_virtual_keyboard"
-                  :class="[
-                    'relative w-16 h-9 rounded-full transition-colors duration-200 flex-shrink-0',
-                    form.enable_virtual_keyboard ? 'bg-blue-500' : 'bg-slate-300'
-                  ]"
-                >
-                  <div
-                    :class="[
-                      'absolute top-1 left-1 w-7 h-7 bg-white rounded-full transition-transform duration-200',
-                      form.enable_virtual_keyboard ? 'translate-x-7' : 'translate-x-0'
-                    ]"
-                  />
-                </button>
-              </div>
             </div>
 
             <!-- Divider -->

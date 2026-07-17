@@ -16,11 +16,6 @@ class CompanyInfo extends Model
         'email',
         'website',
         'logo',
-        'enable_virtual_keyboard',
-    ];
-
-    protected $casts = [
-        'enable_virtual_keyboard' => 'boolean',
     ];
 
 }
