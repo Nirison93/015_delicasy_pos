@@ -446,7 +446,12 @@
                   </p>
                   <div>
                      <label class="block text-md font-semibold text-zinc-300 mb-2">Opening Balance</label>
-                     <input v-model="openingBalanceInput" type="number" min="0" step="0.01" inputmode="decimal"
+                     <input
+                        :value="openingBalanceInput"
+                        @input="openingBalanceInput = sanitizeAmountInput($event.target.value)"
+                        type="text"
+                        inputmode="decimal"
+                        autocomplete="off"
                         placeholder="0.00"
                         class="w-full h-11 px-4 bg-zinc-800 border border-white/10 rounded-xl text-[12px] text-white placeholder-zinc-500 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30 transition" />
                      <p v-if="openingBalanceError" class="mt-2 text-md text-red-400">{{ openingBalanceError }}</p>
@@ -488,7 +493,12 @@
                      </div>
                      <div>
                         <label class="block text-xl font-semibold text-zinc-300 mb-2">Closing Balance</label>
-                        <input v-model="closingBalanceInput" type="number" min="0" step="0.01" inputmode="decimal"
+                        <input
+                           :value="closingBalanceInput"
+                           @input="closingBalanceInput = sanitizeAmountInput($event.target.value)"
+                           type="text"
+                           inputmode="decimal"
+                           autocomplete="off"
                            placeholder="0.00"
                            class="w-full h-11 px-4 bg-zinc-800 border border-white/10 rounded-xl text-[12px] text-white placeholder-zinc-500 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30 transition" />
                         <p v-if="closingBalanceError" class="mt-2 text-md text-red-400">{{ closingBalanceError }}
@@ -503,7 +513,12 @@
                      <p class="text-md text-zinc-400">No cash drawer is open. Enter the opening balance to start.</p>
                      <div>
                         <label class="block text-md font-semibold text-zinc-300 mb-2">Opening Balance</label>
-                        <input v-model="openingBalanceInput" type="number" min="0" step="0.01" inputmode="decimal"
+                        <input
+                           :value="openingBalanceInput"
+                           @input="openingBalanceInput = sanitizeAmountInput($event.target.value)"
+                           type="text"
+                           inputmode="decimal"
+                           autocomplete="off"
                            placeholder="0.00"
                            class="w-full h-11 px-4 bg-zinc-800 border border-white/10 rounded-xl text-[12px] text-white placeholder-zinc-500 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30 transition" />
                         <p v-if="openingBalanceError" class="mt-2 text-md text-red-400">{{ openingBalanceError }}
@@ -658,19 +673,27 @@
                      <!-- Cash Amount Input -->
                      <div v-if="selectedPaymentMethod === 'cash'" class="space-y-3">
                         <p class="text-xl text-zinc-500">Enter Amount</p>
-                        <button @click="openCashNumpad"
-                           class="w-full h-20 px-5 flex items-center justify-between gap-2 bg-zinc-800 border border-white/10 rounded-xl hover:border-amber-500 transition">
-                           <span
-                              :class="selectedTable.cash && Number(selectedTable.cash) > 0 ? 'text-white font-bold text-2xl' : 'text-zinc-500 text-xl'">
-                              {{ selectedTable.cash && Number(selectedTable.cash) > 0 ?
-                              Number(selectedTable.cash).toFixed(2) : 'Enter Amount' }}
-                           </span>
-                           <i class="ri-calculator-line text-zinc-400 text-3xl"></i>
-                        </button>
+                        <div class="flex gap-2">
+                           <input
+                              :value="cashAmountDisplay"
+                              @input="updateCashAmount($event)"
+                              type="text"
+                              inputmode="decimal"
+                              autocomplete="off"
+                              placeholder="Enter amount"
+                              @focus="props.companyInfo?.enable_virtual_keyboard && (isNumericKeyboardOpen = true)"
+                              class="flex-1 h-20 px-5 bg-zinc-800 border border-white/10 rounded-xl text-white font-bold text-2xl placeholder-zinc-500 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30 transition" />
+                           <button
+                              v-if="props.companyInfo?.enable_virtual_keyboard"
+                              @click="isNumericKeyboardOpen = true"
+                              class="h-20 px-5 bg-amber-500/20 border border-amber-500/30 rounded-xl text-amber-400 hover:bg-amber-500/30 transition flex items-center justify-center">
+                              <i class="ri-calculator-line text-3xl"></i>
+                           </button>
+                        </div>
                         <!-- Quick Amount Buttons -->
                         <div class="grid grid-cols-4 gap-3">
                            <button v-for="amount in [500, 1000, 2000, 5000]" :key="amount"
-                              @click="selectedTable.cash = amount"
+                              @click="selectedTable.cash = amount; cashAmountDisplay = amount.toFixed(2)"
                               class="py-4 px-1 rounded-xl bg-amber-500/15 ring-1 ring-amber-500/30 text-amber-400 font-bold text-2xl hover:bg-amber-500/25 active:scale-95 transition">
                               {{ amount }}
                            </button>
@@ -760,6 +783,11 @@
          :menuType="selectedMenuType" @selected-products="handleSelectedProducts" />
       <ColorUpdateModel :customer="customer" v-model:open="isEditModalOpen" @update:customer="handleCustomerUpdate"
          @search="searchCustomer" />
+      <!-- Numeric Keyboard Modal -->
+      <NumericKeyboard
+         v-model:open="isNumericKeyboardOpen"
+         :value="selectedTable?.cash || 0"
+         @confirm="handleKeyboardConfirm" />
       <!-- Product Size & Quantity Selection Modal -->
       <Teleport to="body">
          <div v-if="isProductSelectionModalOpen" class="fixed inset-0 z-[1000] flex items-center justify-center p-4">
@@ -808,7 +836,12 @@
                            class="w-10 h-10 flex items-center justify-center rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 transition">
                         <i class="ri-subtract-line text-md"></i>
                         </button>
-                        <input v-model.number="quantityForModal" type="number" min="1"
+                        <input
+                           :value="quantityForModal"
+                           @input="updateQuantityForModal($event)"
+                           type="text"
+                           inputmode="numeric"
+                           autocomplete="off"
                            class="flex-1 h-10 text-center bg-zinc-800 border border-white/10 rounded-lg text-white font-bold text-md focus:border-amber-500 focus:outline-none" />
                         <button @click="quantityForModal = quantityForModal + 1"
                            class="w-10 h-10 flex items-center justify-center rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 transition">
@@ -1199,7 +1232,13 @@
                      <div>
                         <label class="block text-md font-semibold text-zinc-300 mb-2">Amount (LKR) <span
                            class="text-rose-400">*</span></label>
-                        <input v-model="newExpense.amount" type="number" placeholder="0.00" step="0.01" min="0"
+                        <input
+                           :value="newExpense.amount"
+                           @input="newExpense.amount = sanitizeAmountInput($event.target.value)"
+                           type="text"
+                           inputmode="decimal"
+                           autocomplete="off"
+                           placeholder="0.00"
                            class="w-full px-4 py-3 bg-zinc-800 border border-white/10 rounded-xl text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent transition" />
                      </div>
                      <!-- Display Info -->
@@ -1308,7 +1347,7 @@
                         </div>
                         <!-- Items list (up to 4) -->
                         <ul class="space-y-1 flex-1">
-                           <li v-for="(item, idx) in held.products.slice(0, 4)" :key="item.id"
+                           <li v-for="item in held.products.slice(0, 4)" :key="item.id"
                               class="flex items-center justify-between text-[11px]">
                               <span class="text-zinc-300 truncate pr-2">{{ item.name }}</span>
                               <span class="text-zinc-500 flex-shrink-0">× {{ item.quantity }}</span>
@@ -1411,6 +1450,7 @@
    import PosSuccessModel from "@/Components/custom/PosSuccessModel.vue";
    import AlertModel from "@/Components/custom/AlertModel.vue";
    import WaiterOrderAlert from "@/Components/custom/WaiterOrderAlert.vue";
+   import NumericKeyboard from "@/Components/custom/NumericKeyboard.vue";
 
    import { useForm, router } from "@inertiajs/vue3";
    import { ref, onMounted, computed, watch } from "vue";
@@ -1446,6 +1486,7 @@
        owners: Array,
        nextOrderId: String,
        restaurantTables: Array,
+       companyInfo: Object,
    });
 
 
@@ -1526,6 +1567,65 @@
    /* =========================
       STATE
    ========================= */
+   const sanitizeAmountInput = (value) => {
+       if (value === null || value === undefined) return "";
+
+       const raw = String(value).trim();
+       if (raw === "") return "";
+
+       const cleaned = raw.replace(/[^0-9.]/g, "");
+       if (!cleaned || cleaned === ".") return "";
+
+       const parts = cleaned.split(".");
+       if (parts.length > 2) {
+           return `${parts[0]}.${parts.slice(1).join("")}`;
+       }
+
+       const [whole, decimal = ""] = parts;
+       const normalizedWhole = whole.replace(/^0+(?=\d)/, "") || "0";
+       return decimal ? `${normalizedWhole}.${decimal}` : normalizedWhole;
+   };
+
+   const formatAmountInputValue = (value) => {
+       if (value === null || value === undefined || value === "") return "";
+
+       const parsed = Number(value);
+       if (!Number.isFinite(parsed) || parsed <= 0) return "";
+
+       return parsed.toFixed(2);
+   };
+
+   const sanitizeIntegerInput = (value) => {
+       if (value === null || value === undefined) return "";
+
+       const raw = String(value).trim();
+       if (raw === "") return "";
+
+       const cleaned = raw.replace(/\D/g, "");
+       return cleaned === "" ? "" : cleaned;
+   };
+
+   // ===== Cash amount input (Order Summary modal) =====
+   // Kept as a separate "raw typing" ref so the field never reformats itself
+   // (e.g. forcing "1.00") while the user is still mid-keystroke. It's only
+   // ever synced to a formatted string on blur-equivalent actions: quick
+   // amount buttons, the numeric keyboard, and the numpad confirm — never on
+   // every keystroke, which was what broke typing before.
+   const cashAmountDisplay = ref("");
+
+   const updateCashAmount = (event) => {
+       if (!selectedTable.value) return;
+
+       const sanitized = sanitizeAmountInput(event?.target?.value ?? "");
+       cashAmountDisplay.value = sanitized;
+       selectedTable.value.cash = sanitized === "" ? 0 : parseFloat(sanitized);
+   };
+
+   const updateQuantityForModal = (event) => {
+       const sanitized = sanitizeIntegerInput(event?.target?.value ?? "");
+       quantityForModal.value = sanitized === "" ? 1 : Math.max(1, parseInt(sanitized, 10));
+   };
+
    const product = ref(null);
    const error = ref(null);
    const products = ref([]);
@@ -1645,6 +1745,7 @@
 
        customer.value = { name: '', contactNumber: '', email: '' };
        selectedPaymentMethod.value = 'cash';
+       cashAmountDisplay.value = "";
    };
 
    const restoreTakeawayOrder = async (heldOrder) => {
@@ -1682,6 +1783,7 @@
            ? JSON.parse(JSON.stringify(heldOrder.customer))
            : { name: '', contactNumber: '', email: '' };
        selectedPaymentMethod.value = heldOrder.paymentMethod || 'cash';
+       cashAmountDisplay.value = heldOrder.cash ? Number(heldOrder.cash).toFixed(2) : "";
 
        // Remove from held list
        heldTakeawayOrders.value = heldTakeawayOrders.value.filter(o => o.id !== heldOrder.id);
@@ -1981,12 +2083,25 @@
    // Cash numpad state
    const isCashNumpadOpen = ref(false);
    const cashNumpadInput = ref("0");
+   const isNumericKeyboardOpen = ref(false);
 
    const openCashNumpad = () => {
        if (!selectedTable.value) return;
-       const cur = Number(selectedTable.value.cash || 0);
-       cashNumpadInput.value = cur > 0 ? String(cur) : "0";
-       isCashNumpadOpen.value = true;
+       // Use keyboard if enabled, otherwise use old numpad
+       if (props.companyInfo?.enable_virtual_keyboard) {
+           isNumericKeyboardOpen.value = true;
+       } else {
+           const cur = Number(selectedTable.value.cash || 0);
+           cashNumpadInput.value = cur > 0 ? String(cur) : "0";
+           isCashNumpadOpen.value = true;
+       }
+   };
+
+   const handleKeyboardConfirm = (amount) => {
+       if (selectedTable.value) {
+           selectedTable.value.cash = amount;
+           cashAmountDisplay.value = amount ? Number(amount).toFixed(2) : "";
+       }
    };
 
    const numpadPress = (key) => {
@@ -2019,7 +2134,10 @@
 
    const confirmCashNumpad = () => {
        const val = parseFloat(cashNumpadInput.value);
-       if (selectedTable.value) selectedTable.value.cash = isNaN(val) ? 0 : val;
+       if (selectedTable.value) {
+           selectedTable.value.cash = isNaN(val) ? 0 : val;
+           cashAmountDisplay.value = isNaN(val) ? "" : val.toFixed(2);
+       }
        isCashNumpadOpen.value = false;
    };
 
@@ -2074,6 +2192,8 @@
    const tables = ref(savedTables);
    // Always land back on the Takeaway (walk-in) cart after a page refresh
    const selectedTable = ref(_defaultTable);
+   // Seed the cash display from whatever was restored from localStorage
+   cashAmountDisplay.value = selectedTable.value?.cash ? Number(selectedTable.value.cash).toFixed(2) : "";
 
    /* ========= Derived lists ========= */
    // const fixedTables = computed(() =>
@@ -2083,6 +2203,19 @@
        tables.value.filter(t => t.id !== "default")
    );
 
+   /* Keep the cash display in sync whenever a different table is selected
+      (switching tables, restoring/holding an order, or opening the
+      confirm-order modal for the first time on a given cart). */
+   watch(selectedTable, (val) => {
+       cashAmountDisplay.value = val?.cash ? Number(val.cash).toFixed(2) : "";
+   });
+
+   watch(() => isConfirmOrderModalOpen.value, (open) => {
+       if (open) {
+           const c = selectedTable.value?.cash;
+           cashAmountDisplay.value = c ? Number(c).toFixed(2) : "";
+       }
+   });
 
    onMounted(async () => {
        await checkOpenCashDrawer();
@@ -2376,6 +2509,7 @@
            cash.value = 0;
            selectedPaymentMethod.value = "cash";
            employee_id.value = "";
+           cashAmountDisplay.value = "";
 
            localStorage.setItem("tables", JSON.stringify(tables.value));
            localStorage.setItem("selectedTable", JSON.stringify(selectedTable.value));

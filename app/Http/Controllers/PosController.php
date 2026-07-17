@@ -5,6 +5,7 @@ use App\Models\Owner;
 use App\Models\OwnerItem;
 use App\Models\Category;
 use App\Models\Color;
+use App\Models\CompanyInfo;
 use App\Models\Coupon;
 use App\Models\Customer;
 use App\Models\Product;
@@ -87,6 +88,8 @@ class PosController extends Controller
 
         $restaurantTables = DB::table('restaurant_tables')->orderBy('number', 'asc')->get();
 
+        $companyInfo = CompanyInfo::first();
+
         return Inertia::render('Pos/Index', [
             'product'           => null,
             'error'             => null,
@@ -101,6 +104,7 @@ class PosController extends Controller
             'delivery'          => $delivery,
             'nextOrderId'       => $nextOrderId,
             'restaurantTables'  => $restaurantTables,
+            'companyInfo'       => $companyInfo,
         ]);
     }
 

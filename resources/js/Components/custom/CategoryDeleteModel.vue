@@ -11,7 +11,7 @@
         leave-from="opacity-100"
         leave-to="opacity-0"
       >
-        <div class="fixed inset-0 transition-opacity bg-opacity-75" />
+        <div class="fixed inset-0 bg-black bg-opacity-75 transition-opacity" />
       </TransitionChild>
 
       <!-- Modal Content -->
@@ -37,6 +37,7 @@
             <!-- Modal Buttons -->
             <div class="mt-6 space-x-4">
               <button
+                type="button"
                 class="px-6 py-2 text-[15px] text-gray-700 bg-gray-300 rounded hover:bg-gray-400"
                 @click="() => emit('update:open', false)"
               >

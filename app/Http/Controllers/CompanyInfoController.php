@@ -80,6 +80,7 @@ class CompanyInfoController extends Controller
             'phone'   => 'nullable|string|max:15',
             'email'   => 'nullable|email|max:255',
             'website' => 'nullable|string|max:255',
+            'enable_virtual_keyboard' => 'nullable|boolean',
         ];
         if ($request->hasFile('logo')) {
             $rules['logo'] = 'image|mimes:jpg,jpeg,png,webp,gif|max:2048';
