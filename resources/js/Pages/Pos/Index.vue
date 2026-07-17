@@ -610,6 +610,12 @@
                         </p>
                      </div>
 
+                     <!-- Bank Charge Display (Card Payment Only) -->
+                     <div v-if="selectedPaymentMethod === 'card' && Number(selectedTable.bank_service_charge) > 0" class="flex items-center justify-between pb-4 border-b border-white/10">
+                        <p class="text-xl text-zinc-400">Bank Charge ({{ selectedTable.bank_service_charge }}%)</p>
+                        <p class="text-xl font-semibold text-blue-400">+{{ (calcBankChargeForSummary()).toFixed(2) }} LKR</p>
+                     </div>
+
                      <!-- Total Amount -->
                      <div class="flex items-center justify-between pt-4 border-t border-white/10">
                         <p class="text-2xl font-bold text-white">Total Amount</p>
@@ -658,15 +664,10 @@
                      <!-- Cash Amount Input -->
                      <div v-if="selectedPaymentMethod === 'cash'" class="space-y-3">
                         <p class="text-xl text-zinc-500">Enter Amount</p>
-                        <button @click="openCashNumpad"
-                           class="w-full h-20 px-5 flex items-center justify-between gap-2 bg-zinc-800 border border-white/10 rounded-xl hover:border-amber-500 transition">
-                           <span
-                              :class="selectedTable.cash && Number(selectedTable.cash) > 0 ? 'text-white font-bold text-2xl' : 'text-zinc-500 text-xl'">
-                              {{ selectedTable.cash && Number(selectedTable.cash) > 0 ?
-                              Number(selectedTable.cash).toFixed(2) : 'Enter Amount' }}
-                           </span>
-                           <i class="ri-calculator-line text-zinc-400 text-3xl"></i>
-                        </button>
+                        <input v-model="selectedTable.cash" type="number" inputmode="decimal" placeholder="0.00" min="0" step="0.01" autofocus
+                           class="w-full h-20 px-5 flex items-center justify-center gap-2 bg-zinc-800 border border-white/10 rounded-xl hover:border-amber-500 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30 transition text-white font-bold text-2xl placeholder-zinc-500"
+                           @input="handleCashInput"
+                           @keydown="handleCashKeydown" />
                         <!-- Quick Amount Buttons -->
                         <div class="grid grid-cols-4 gap-3">
                            <button v-for="amount in [500, 1000, 2000, 5000]" :key="amount"
@@ -2023,6 +2024,30 @@
        isCashNumpadOpen.value = false;
    };
 
+   const handleCashInput = (event) => {
+       let value = event.target.value;
+       if (!value || value === "") {
+           selectedTable.value.cash = "";
+           return;
+       }
+       const parsed = parseFloat(value);
+       if (!isNaN(parsed) && parsed >= 0) {
+           selectedTable.value.cash = parsed;
+       } else {
+           event.target.value = selectedTable.value.cash || "";
+       }
+   };
+
+   const handleCashKeydown = (event) => {
+       const input = event.target;
+       if (event.key === "Backspace" || event.key === "Delete" || event.key === "ArrowLeft" || event.key === "ArrowRight" || event.key === "Tab" || event.key === "Enter" || event.ctrlKey) {
+           return;
+       }
+       if (!/^[0-9.]$/.test(event.key)) {
+           event.preventDefault();
+       }
+   };
+
    /* ========= Tables persistence ========= */
    const _rawSaved = JSON.parse(localStorage.getItem("tables"));
    const _defaultSaved = _rawSaved?.find(t => t.id === 'default');
@@ -2625,6 +2650,25 @@
 
        return (preBankTotal + bankServiceChargeAmount).toFixed(2);
    });
+   const calcBankChargeForSummary = () => {
+       const subtotalValue = parseFloat(subtotal.value) || 0;
+       const discountValue = parseFloat(totalDiscount.value) || 0;
+       const customValue = parseFloat(customDiscCalculated.value) || 0;
+
+       let deliveryChargeValue = 0;
+       if (selectedTable.value.order_type === "pickup") deliveryChargeValue = parseFloat(selectedTable.value.delivery_charge) || 0;
+
+       const serviceChargeRate = parseFloat(selectedTable.value.service_charge) || 0;
+       const serviceChargeValue = (subtotalValue * serviceChargeRate) / 100;
+
+       const shoppingBagChargeValue = selectedTable.value.shopping_bag_charge_enabled ? 10.00 : 0;
+
+       const preBankTotal = subtotalValue - discountValue - customValue + deliveryChargeValue + serviceChargeValue + shoppingBagChargeValue;
+
+       const bankServiceChargeRate = parseFloat(selectedTable.value.bank_service_charge) || 0;
+       return (preBankTotal * bankServiceChargeRate) / 100;
+   };
+
    const balance = computed(() => {
        if (!selectedTable.value) return 0;
        if (selectedTable.value.cash == null || selectedTable.value.cash === 0) return 0;
