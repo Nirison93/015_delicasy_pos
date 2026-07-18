@@ -667,7 +667,8 @@
                         <input v-model="selectedTable.cash" type="number" inputmode="decimal" placeholder="0.00" min="0" step="0.01" autofocus
                            class="w-full h-20 px-5 flex items-center justify-center gap-2 bg-zinc-800 border border-white/10 rounded-xl hover:border-amber-500 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30 transition text-white font-bold text-2xl placeholder-zinc-500"
                            @input="handleCashInput"
-                           @keydown="handleCashKeydown" />
+                           @keydown="handleCashKeydown"
+                           @focus="handleCashFocus" />
                         <!-- Cash Validation Message -->
                         <div v-if="selectedTable.cash && Number(selectedTable.cash) > 0 && balance < 0" class="flex items-center gap-2 px-4 py-2 bg-red-500/15 border border-red-500/40 rounded-lg">
                            <i class="ri-alert-line text-red-400 text-lg"></i>
@@ -2049,13 +2050,16 @@
    };
 
    const handleCashKeydown = (event) => {
-       const input = event.target;
        if (event.key === "Backspace" || event.key === "Delete" || event.key === "ArrowLeft" || event.key === "ArrowRight" || event.key === "Tab" || event.key === "Enter" || event.ctrlKey) {
            return;
        }
        if (!/^[0-9.]$/.test(event.key)) {
            event.preventDefault();
        }
+   };
+
+   const handleCashFocus = (event) => {
+       event.target.select();
    };
 
    /* ========= Tables persistence ========= */
