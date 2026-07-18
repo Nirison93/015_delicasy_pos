@@ -3,7 +3,7 @@
       <Banner />
       <div class="pos-page h-screen flex flex-col overflow-hidden bg-zinc-950">
       <!-- Header hidden on POS page -->
-      <div class="flex-1 flex flex-col overflow-hidden  w-full mx-auto px-1">
+      <div class="flex-1 flex flex-col overflow-hidden  w-full mx-auto p-[1%]">
          <div class="flex items-center justify-between mb-4 flex-shrink-0">
             <div class="flex items-center gap-3">
                <Link href="/"
@@ -430,29 +430,29 @@
       <Teleport to="body">
          <div v-if="isOpeningBalanceModalOpen" class="fixed inset-0 z-[1001] flex items-center justify-center">
             <div class="absolute inset-0 bg-black/80 backdrop-blur-sm"></div>
-            <div class="relative bg-zinc-900 rounded-2xl border border-white/10 shadow-2xl w-[420px] max-w-[90vw]">
-               <div class="px-5 py-4 border-b border-white/10 bg-gradient-to-r from-zinc-900 via-zinc-800 to-zinc-900">
-                  <div class="flex items-center gap-3">
+            <div class="relative bg-zinc-900 rounded-2xl border border-white/10 shadow-2xl w-[720px] max-w-[94vw]">
+               <div class="px-8 py-6 border-b border-white/10 bg-gradient-to-r from-zinc-900 via-zinc-800 to-zinc-900">
+                  <div class="flex items-center gap-4">
                      <div
-                        class="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-500/20 ring-1 ring-amber-500/40">
-                        <i class="ri-safe-line text-amber-400"></i>
+                        class="flex h-14 w-14 items-center justify-center rounded-xl bg-amber-500/20 ring-1 ring-amber-500/40">
+                        <i class="ri-safe-line text-amber-400 text-2xl"></i>
                      </div>
-                     <h3 class="text-md font-bold text-white">Open Cash Drawer</h3>
+                     <h3 class="text-2xl font-bold text-white">Open Cash Drawer</h3>
                   </div>
                </div>
-               <div class="p-5 space-y-4">
-                  <p class="text-xl text-zinc-400">
+               <div class="p-8 space-y-6">
+                  <p class="text-2xl text-zinc-400">
                      Enter the opening balance to start using the POS.
                   </p>
                   <div>
-                     <label class="block text-md font-semibold text-zinc-300 mb-2">Opening Balance</label>
+                     <label class="block text-2xl font-semibold text-zinc-300 mb-3">Opening Balance</label>
                      <input v-model="openingBalanceInput" type="number" min="0" step="0.01" inputmode="decimal"
                         placeholder="0.00"
-                        class="w-full h-11 px-4 bg-zinc-800 border border-white/10 rounded-xl text-[12px] text-white placeholder-zinc-500 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30 transition" />
-                     <p v-if="openingBalanceError" class="mt-2 text-md text-red-400">{{ openingBalanceError }}</p>
+                        class="w-full h-16 px-5 text-2xl bg-zinc-800 border border-white/10 rounded-xl text-white placeholder-zinc-500 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30 transition" />
+                     <p v-if="openingBalanceError" class="mt-2 text-xl text-red-400">{{ openingBalanceError }}</p>
                   </div>
                   <button @click="submitOpeningBalance" :disabled="isOpeningBalanceSaving"
-                     class="w-full h-11 rounded-xl font-bold text-zinc-900 bg-amber-500 hover:bg-amber-400 transition disabled:opacity-60 disabled:cursor-not-allowed">
+                     class="w-full h-16 text-2xl rounded-xl font-bold text-zinc-900 bg-amber-500 hover:bg-amber-400 transition disabled:opacity-60 disabled:cursor-not-allowed">
                   {{ isOpeningBalanceSaving ? "Opening..." : "Open Drawer" }}
                   </button>
                </div>
@@ -463,54 +463,54 @@
       <Teleport to="body">
          <div v-if="isCashDrawerModalOpen" class="fixed inset-0 z-[1000] flex items-center justify-center">
             <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" @click="isCashDrawerModalOpen = false"></div>
-            <div class="relative bg-zinc-900 rounded-2xl border border-white/10 shadow-2xl w-[460px] max-w-[92vw]">
+            <div class="relative bg-zinc-900 rounded-2xl border border-white/10 shadow-2xl w-[760px] max-w-[94vw]">
                <div
-                  class="flex items-center justify-between px-5 py-4 border-b border-white/10 bg-gradient-to-r from-zinc-900 via-zinc-800 to-zinc-900">
-                  <div class="flex items-center gap-3">
+                  class="flex items-center justify-between px-8 py-6 border-b border-white/10 bg-gradient-to-r from-zinc-900 via-zinc-800 to-zinc-900">
+                  <div class="flex items-center gap-4">
                      <div
-                        class="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-500/20 ring-1 ring-amber-500/40">
-                        <i class="ri-safe-line text-amber-400"></i>
+                        class="flex h-14 w-14 items-center justify-center rounded-xl bg-amber-500/20 ring-1 ring-amber-500/40">
+                        <i class="ri-safe-line text-amber-400 text-2xl"></i>
                      </div>
-                     <h3 class="text-md font-bold text-white">Cash Drawer</h3>
+                     <h3 class="text-2xl font-bold text-white">Cash Drawer</h3>
                   </div>
                   <button @click="isCashDrawerModalOpen = false"
-                     class="w-9 h-9 flex items-center justify-center rounded-xl bg-white/10 text-zinc-400 hover:bg-white/20 hover:text-white transition">
-                  <i class="ri-close-line text-xl"></i>
+                     class="w-12 h-12 flex items-center justify-center rounded-xl bg-white/10 text-zinc-400 hover:bg-white/20 hover:text-white transition">
+                  <i class="ri-close-line text-2xl"></i>
                   </button>
                </div>
-               <div class="p-5 space-y-6">
-                  <div v-if="openCashDrawer" class="space-y-3">
-                     <div class="flex items-center justify-between text-md text-zinc-400">
+               <div class="p-8 space-y-8">
+                  <div v-if="openCashDrawer" class="space-y-5">
+                     <div class="flex items-center justify-between text-xl text-zinc-400">
                         <span class="text-amber-300 font-semibold">Opening: {{
                         Number(openCashDrawer?.opening_balance || 0).toFixed(2) }} LKR</span>
                         <span class="text-xl">Opened Time : {{ new Date(openCashDrawer.opened_at).toLocaleString()
                         }}</span>
                      </div>
                      <div>
-                        <label class="block text-xl font-semibold text-zinc-300 mb-2">Closing Balance</label>
+                        <label class="block text-2xl font-semibold text-zinc-300 mb-3">Closing Balance</label>
                         <input v-model="closingBalanceInput" type="number" min="0" step="0.01" inputmode="decimal"
                            placeholder="0.00"
-                           class="w-full h-11 px-4 bg-zinc-800 border border-white/10 rounded-xl text-[12px] text-white placeholder-zinc-500 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30 transition" />
-                        <p v-if="closingBalanceError" class="mt-2 text-md text-red-400">{{ closingBalanceError }}
+                           class="w-full h-16 px-5 text-2xl bg-zinc-800 border border-white/10 rounded-xl text-white placeholder-zinc-500 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30 transition" />
+                        <p v-if="closingBalanceError" class="mt-2 text-xl text-red-400">{{ closingBalanceError }}
                         </p>
                      </div>
                      <button @click="submitClosingBalance" :disabled="isClosingBalanceSaving"
-                        class="w-full h-11 rounded-xl font-bold text-white bg-rose-500 hover:bg-rose-400 transition disabled:opacity-60 disabled:cursor-not-allowed">
+                        class="w-full h-16 text-2xl rounded-xl font-bold text-white bg-rose-500 hover:bg-rose-400 transition disabled:opacity-60 disabled:cursor-not-allowed">
                      {{ isClosingBalanceSaving ? "Closing..." : "Close Drawer" }}
                      </button>
                   </div>
-                  <div v-else class="space-y-3">
-                     <p class="text-md text-zinc-400">No cash drawer is open. Enter the opening balance to start.</p>
+                  <div v-else class="space-y-5">
+                     <p class="text-xl text-zinc-400">No cash drawer is open. Enter the opening balance to start.</p>
                      <div>
-                        <label class="block text-md font-semibold text-zinc-300 mb-2">Opening Balance</label>
+                        <label class="block text-2xl font-semibold text-zinc-300 mb-3">Opening Balance</label>
                         <input v-model="openingBalanceInput" type="number" min="0" step="0.01" inputmode="decimal"
                            placeholder="0.00"
-                           class="w-full h-11 px-4 bg-zinc-800 border border-white/10 rounded-xl text-[12px] text-white placeholder-zinc-500 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30 transition" />
-                        <p v-if="openingBalanceError" class="mt-2 text-md text-red-400">{{ openingBalanceError }}
+                           class="w-full h-16 px-5 text-2xl bg-zinc-800 border border-white/10 rounded-xl text-white placeholder-zinc-500 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30 transition" />
+                        <p v-if="openingBalanceError" class="mt-2 text-xl text-red-400">{{ openingBalanceError }}
                         </p>
                      </div>
                      <button @click="submitOpeningBalance" :disabled="isOpeningBalanceSaving"
-                        class="w-full h-11 rounded-xl font-bold text-zinc-900 bg-amber-500 hover:bg-amber-400 transition disabled:opacity-60 disabled:cursor-not-allowed">
+                        class="w-full h-16 text-2xl rounded-xl font-bold text-zinc-900 bg-amber-500 hover:bg-amber-400 transition disabled:opacity-60 disabled:cursor-not-allowed">
                      {{ isOpeningBalanceSaving ? "Opening..." : "Open Drawer" }}
                      </button>
                   </div>
@@ -668,6 +668,11 @@
                            class="w-full h-20 px-5 flex items-center justify-center gap-2 bg-zinc-800 border border-white/10 rounded-xl hover:border-amber-500 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30 transition text-white font-bold text-2xl placeholder-zinc-500"
                            @input="handleCashInput"
                            @keydown="handleCashKeydown" />
+                        <!-- Cash Validation Message -->
+                        <div v-if="selectedTable.cash && Number(selectedTable.cash) > 0 && balance < 0" class="flex items-center gap-2 px-4 py-2 bg-red-500/15 border border-red-500/40 rounded-lg">
+                           <i class="ri-alert-line text-red-400 text-lg"></i>
+                           <p class="text-sm font-semibold text-red-400">Cash is not enough (Short: {{ Math.abs(balance).toFixed(2) }} LKR)</p>
+                        </div>
                         <!-- Quick Amount Buttons -->
                         <div class="grid grid-cols-4 gap-3">
                            <button v-for="amount in [500, 1000, 2000, 5000]" :key="amount"
@@ -745,12 +750,17 @@
                </div>
                <!-- Footer -->
                <div class="flex gap-4 p-6 border-t border-white/10 flex-shrink-0">
-                  <button @click="isConfirmOrderModalOpen = false"
-                     class="flex-1 py-5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-bold text-2xl transition">
+                  <button @click.stop="isConfirmOrderModalOpen = false"
+                     class="flex-1 py-5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-bold text-2xl transition active:scale-95">
                   Cancel
                   </button>
-                  <button @click="submitOrder(); isConfirmOrderModalOpen = false"
-                     class="flex-1 py-5 rounded-xl bg-green-500 hover:bg-green-600 text-white font-bold text-2xl transition">
+                  <button @click="submitOrder()" :disabled="balance < 0"
+                     :class="[
+                        'flex-1 py-5 rounded-xl font-bold text-2xl transition active:scale-95',
+                        balance < 0
+                        ? 'bg-zinc-700 text-zinc-500 cursor-not-allowed opacity-60'
+                        : 'bg-green-500 hover:bg-green-600 text-white'
+                     ]">
                   Confirm & Submit
                   </button>
                </div>
@@ -767,65 +777,65 @@
             <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" @click="isProductSelectionModalOpen = false">
             </div>
             <div
-               class="relative bg-zinc-900 rounded-3xl border border-white/10 shadow-2xl w-full max-w-[420px] overflow-hidden flex flex-col">
+               class="relative bg-zinc-900 rounded-3xl border border-white/10 shadow-2xl w-full max-w-[720px] overflow-hidden flex flex-col">
                <!-- Header -->
-               <div class="flex items-center justify-between px-5 py-4 border-b border-white/10">
+               <div class="flex items-center justify-between px-8 py-6 border-b border-white/10">
                   <div>
-                     <h3 class="text-md font-bold text-white">{{ selectedProductForModal?.name }}</h3>
-                     <p v-if="selectedProductForModal?.sizes" class="text-[12px] text-amber-400 font-semibold mt-1">
+                     <h3 class="text-2xl font-bold text-white">{{ selectedProductForModal?.name }}</h3>
+                     <p v-if="selectedProductForModal?.sizes" class="text-xl text-amber-400 font-semibold mt-1.5">
                         {{Math.min(...selectedProductForModal.sizes.map(s => parseFloat(s.price || 0))).toFixed(0)
                         }} - {{Math.max(...selectedProductForModal.sizes.map(s => parseFloat(s.price ||
                         0))).toFixed(0) }} LKR
                      </p>
                   </div>
                   <button @click="isProductSelectionModalOpen = false"
-                     class="w-9 h-9 flex items-center justify-center rounded-xl bg-white/10 text-zinc-400 hover:bg-white/20 hover:text-white transition">
-                  <i class="ri-close-line text-xl"></i>
+                     class="w-12 h-12 flex items-center justify-center rounded-xl bg-white/10 text-zinc-400 hover:bg-white/20 hover:text-white transition">
+                  <i class="ri-close-line text-2xl"></i>
                   </button>
                </div>
-               <div class="p-5 space-y-4 flex-1 overflow-y-auto">
+               <div class="p-8 space-y-6 flex-1 overflow-y-auto">
                   <!-- Size Selection -->
                   <div>
-                     <label class="block text-md font-semibold text-zinc-300 mb-3">Select Size</label>
-                     <div class="grid grid-cols-2 gap-2">
+                     <label class="block text-xl font-semibold text-zinc-300 mb-3">Select Size</label>
+                     <div class="grid grid-cols-2 gap-3">
                         <button v-for="size in selectedProductForModal?.sizes" :key="size.id"
                            @click="selectedSizeForModal = size" :class="[
-                           'py-3 px-4 rounded-xl font-semibold text-md transition border ring-1 flex flex-col items-center gap-1',
+                           'py-5 px-5 rounded-xl font-semibold text-xl transition border ring-1 flex flex-col items-center gap-1.5',
                            selectedSizeForModal?.id === size.id
                            ? 'bg-amber-500/20 border-amber-500/50 ring-amber-500/30 text-amber-400'
                            : 'bg-zinc-800 border-white/10 ring-white/5 text-zinc-300 hover:border-amber-500/40'
                            ]">
                         <span>{{ size.name }}</span>
-                        <span class="text-[11px] opacity-75">{{ parseFloat(size.price || 0).toFixed(2) }}
+                        <span class="text-md opacity-75">{{ parseFloat(size.price || 0).toFixed(2) }}
                         LKR</span>
                         </button>
                      </div>
                   </div>
                   <!-- Quantity Selection -->
                   <div>
-                     <label class="block text-md font-semibold text-zinc-300 mb-3">Quantity</label>
-                     <div class="flex items-center gap-2">
+                     <label class="block text-xl font-semibold text-zinc-300 mb-3">Quantity</label>
+                     <div class="flex items-center gap-3">
                         <button @click="quantityForModal = Math.max(1, quantityForModal - 1)"
-                           class="w-10 h-10 flex items-center justify-center rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 transition">
-                        <i class="ri-subtract-line text-md"></i>
+                           class="w-14 h-14 flex items-center justify-center rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 transition">
+                        <i class="ri-subtract-line text-xl"></i>
                         </button>
                         <input v-model.number="quantityForModal" type="number" min="1"
-                           class="flex-1 h-10 text-center bg-zinc-800 border border-white/10 rounded-lg text-white font-bold text-md focus:border-amber-500 focus:outline-none" />
+                           class="flex-1 h-14 text-center bg-zinc-800 border border-white/10 rounded-lg text-white font-bold text-2xl focus:border-amber-500 focus:outline-none" />
                         <button @click="quantityForModal = quantityForModal + 1"
-                           class="w-10 h-10 flex items-center justify-center rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 transition">
-                        <i class="ri-add-line text-md"></i>
+                           class="w-14 h-14 flex items-center justify-center rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 transition">
+                        <i class="ri-add-line text-xl"></i>
                         </button>
                      </div>
                   </div>
                </div>
                <!-- Actions -->
-               <div class="flex gap-3 p-5 border-t border-white/10">
+               <div class="flex gap-4 p-8 border-t border-white/10">
                   <button @click="isProductSelectionModalOpen = false"
-                     class="flex-1 py-3 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-semibold transition">
+                     class="flex-1 py-4 text-xl rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-semibold transition">
                   Cancel
                   </button>
                   <button @click="confirmProductSelection"
-                     class="flex-1 py-3 rounded-lg bg-amber-500 hover:bg-amber-600 text-zinc-900 font-bold transition">
+                     class="flex-1 py-4 text-xl rounded-lg bg-amber-500 hover:bg-amber-600 text-zinc-900 font-bold transition">
                   Add to Cart
                   </button>
                </div>
@@ -1167,44 +1177,44 @@
                <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="isExpensesModalOpen = false"></div>
                <!-- Panel -->
                <div
-                  class="relative bg-zinc-900 rounded-3xl border border-white/10 shadow-2xl w-full max-w-[500px] overflow-hidden">
+                  class="relative bg-zinc-900 rounded-3xl border border-white/10 shadow-2xl w-full max-w-[820px] overflow-hidden">
                   <!-- Header -->
                   <div
-                     class="flex items-center justify-between px-6 py-5 bg-gradient-to-r from-zinc-900 via-zinc-800 to-zinc-900 border-b border-white/10 rounded-t-3xl">
-                     <div class="flex items-center gap-3">
+                     class="flex items-center justify-between px-8 py-7 bg-gradient-to-r from-zinc-900 via-zinc-800 to-zinc-900 border-b border-white/10 rounded-t-3xl">
+                     <div class="flex items-center gap-4">
                         <div
-                           class="w-10 h-10 flex items-center justify-center rounded-xl bg-rose-500/20 ring-1 ring-rose-500/40">
-                           <i class="ri-money-dollar-circle-line text-rose-400 text-xl"></i>
+                           class="w-16 h-16 flex items-center justify-center rounded-2xl bg-rose-500/20 ring-1 ring-rose-500/40">
+                           <i class="ri-money-dollar-circle-line text-rose-400 text-3xl"></i>
                         </div>
                         <div>
-                           <h3 class="text-md font-bold text-white leading-none">Record Expense</h3>
-                           <p class="text-[12px] text-zinc-400 mt-0.5">From cash drawer</p>
+                           <h3 class="text-2xl font-bold text-white leading-none">Record Expense</h3>
+                           <p class="text-md text-zinc-400 mt-1.5">From cash drawer</p>
                         </div>
                      </div>
                      <button @click="isExpensesModalOpen = false"
-                        class="w-9 h-9 flex items-center justify-center rounded-xl bg-white/10 text-zinc-400 hover:bg-white/20 hover:text-white transition">
-                     <i class="ri-close-line text-xl"></i>
+                        class="w-12 h-12 flex items-center justify-center rounded-xl bg-white/10 text-zinc-400 hover:bg-white/20 hover:text-white transition">
+                     <i class="ri-close-line text-2xl"></i>
                      </button>
                   </div>
                   <!-- Form -->
-                  <div class="px-6 py-6 space-y-5">
+                  <div class="px-8 py-8 space-y-6">
                      <!-- Expense Reason -->
                      <div>
-                        <label class="block text-md font-semibold text-zinc-300 mb-2">Expense Reason <span
+                        <label class="block text-xl font-semibold text-zinc-300 mb-2">Expense Reason <span
                            class="text-rose-400">*</span></label>
                         <input v-model="newExpense.reason" type="text"
                            placeholder="e.g., Cleaning supplies, Miscellaneous, etc."
-                           class="w-full px-4 py-3 bg-zinc-800 border border-white/10 rounded-xl text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent transition" />
+                           class="w-full px-5 py-4 text-xl bg-zinc-800 border border-white/10 rounded-xl text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent transition" />
                      </div>
                      <!-- Amount -->
                      <div>
-                        <label class="block text-md font-semibold text-zinc-300 mb-2">Amount (LKR) <span
+                        <label class="block text-xl font-semibold text-zinc-300 mb-2">Amount (LKR) <span
                            class="text-rose-400">*</span></label>
                         <input v-model="newExpense.amount" type="number" placeholder="0.00" step="0.01" min="0"
-                           class="w-full px-4 py-3 bg-zinc-800 border border-white/10 rounded-xl text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent transition" />
+                           class="w-full px-5 py-4 text-xl bg-zinc-800 border border-white/10 rounded-xl text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent transition" />
                      </div>
                      <!-- Display Info -->
-                     <div class="bg-zinc-800/50 rounded-xl p-4 border border-white/5 space-y-2 text-[11px]">
+                     <div class="bg-zinc-800/50 rounded-xl p-5 border border-white/5 space-y-3 text-md">
                         <div class="flex justify-between text-zinc-400">
                            <span>Date:</span>
                            <span class="text-white font-medium">{{ new Date().toLocaleDateString() }}</span>
@@ -1220,14 +1230,14 @@
                      </div>
                   </div>
                   <!-- Actions -->
-                  <div class="px-6 py-5 bg-zinc-800/30 border-t border-white/10 flex gap-3 rounded-b-3xl">
+                  <div class="px-8 py-6 bg-zinc-800/30 border-t border-white/10 flex gap-4 rounded-b-3xl">
                      <button @click="isExpensesModalOpen = false"
-                        class="flex-1 px-4 py-3 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-semibold transition">
+                        class="flex-1 px-4 py-4 text-xl rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-semibold transition">
                      Cancel
                      </button>
                      <button @click="submitExpense"
                         :disabled="!newExpense.reason || !newExpense.amount || isExpenseSubmitting"
-                        class="flex-1 px-4 py-3 rounded-xl bg-rose-600 hover:bg-rose-500 disabled:bg-zinc-700 disabled:text-zinc-500 disabled:cursor-not-allowed text-white font-semibold transition flex items-center justify-center gap-2">
+                        class="flex-1 px-4 py-4 text-xl rounded-xl bg-rose-600 hover:bg-rose-500 disabled:bg-zinc-700 disabled:text-zinc-500 disabled:cursor-not-allowed text-white font-semibold transition flex items-center justify-center gap-2">
                      <i v-if="isExpenseSubmitting" class="ri-loader-4-line animate-spin"></i>
                      <span>{{ isExpenseSubmitting ? 'Saving...' : 'Save Expense' }}</span>
                      </button>
@@ -1246,158 +1256,158 @@
                <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" @click="isOngoingTakeawayOpen = false"></div>
                <!-- Panel -->
                <div
-                  class="relative bg-zinc-900 rounded-3xl border border-white/10 shadow-2xl w-full max-w-[860px] max-h-[88vh] flex flex-col overflow-hidden">
+                  class="relative bg-zinc-900 rounded-3xl border border-white/10 shadow-2xl w-full max-w-[1280px] max-h-[92vh] flex flex-col overflow-hidden">
                   <!-- Header -->
                   <div
-                     class="flex items-center justify-between px-6 py-5 bg-gradient-to-r from-zinc-900 via-zinc-800 to-zinc-900 border-b border-white/10 rounded-t-3xl flex-shrink-0">
-                     <div class="flex items-center gap-3">
+                     class="flex items-center justify-between px-8 py-7 bg-gradient-to-r from-zinc-900 via-zinc-800 to-zinc-900 border-b border-white/10 rounded-t-3xl flex-shrink-0">
+                     <div class="flex items-center gap-4">
                         <div
-                           class="w-10 h-10 flex items-center justify-center rounded-xl bg-amber-500/20 ring-1 ring-amber-500/40">
-                           <i class="ri-alarm-warning-line text-amber-400 text-xl ongoing-ring-icon"></i>
+                           class="w-14 h-14 flex items-center justify-center rounded-2xl bg-amber-500/20 ring-1 ring-amber-500/40">
+                           <i class="ri-alarm-warning-line text-amber-400 text-3xl ongoing-ring-icon"></i>
                         </div>
                         <div>
-                           <h3 class="text-md font-bold text-white leading-none">Ongoing Takeaway Orders</h3>
-                           <p class="text-[12px] text-zinc-400 mt-0.5">{{ heldTakeawayOrders.length }} order{{
+                           <h3 class="text-2xl font-bold text-white leading-none">Ongoing Takeaway Orders</h3>
+                           <p class="text-xl text-zinc-400 mt-1.5">{{ heldTakeawayOrders.length }} order{{
                               heldTakeawayOrders.length !== 1 ? 's' : '' }} on hold — click to restore
                            </p>
                         </div>
                      </div>
                      <!-- View toggle + close -->
-                     <div class="flex items-center gap-2">
+                     <div class="flex items-center gap-3">
                         <button @click="ongoingViewMode = 'box'"
-                           :class="['w-9 h-9 flex items-center justify-center rounded-xl ring-1 transition', ongoingViewMode === 'box' ? 'bg-amber-500/20 ring-amber-500/50 text-amber-400' : 'bg-zinc-800 ring-white/10 text-zinc-400 hover:text-white']"
+                           :class="['w-12 h-12 flex items-center justify-center rounded-xl ring-1 transition', ongoingViewMode === 'box' ? 'bg-amber-500/20 ring-amber-500/50 text-amber-400' : 'bg-zinc-800 ring-white/10 text-zinc-400 hover:text-white']"
                            title="Box view">
-                        <i class="ri-layout-grid-line text-md"></i>
+                        <i class="ri-layout-grid-line text-xl"></i>
                         </button>
                         <button @click="ongoingViewMode = 'list'"
-                           :class="['w-9 h-9 flex items-center justify-center rounded-xl ring-1 transition', ongoingViewMode === 'list' ? 'bg-amber-500/20 ring-amber-500/50 text-amber-400' : 'bg-zinc-800 ring-white/10 text-zinc-400 hover:text-white']"
+                           :class="['w-12 h-12 flex items-center justify-center rounded-xl ring-1 transition', ongoingViewMode === 'list' ? 'bg-amber-500/20 ring-amber-500/50 text-amber-400' : 'bg-zinc-800 ring-white/10 text-zinc-400 hover:text-white']"
                            title="List view">
-                        <i class="ri-list-unordered text-md"></i>
+                        <i class="ri-list-unordered text-xl"></i>
                         </button>
                         <button @click="isOngoingTakeawayOpen = false"
-                           class="ml-1 w-9 h-9 flex items-center justify-center rounded-xl bg-white/10 text-zinc-400 hover:bg-white/20 hover:text-white transition">
-                        <i class="ri-close-line text-xl"></i>
+                           class="ml-1 w-12 h-12 flex items-center justify-center rounded-xl bg-white/10 text-zinc-400 hover:bg-white/20 hover:text-white transition">
+                        <i class="ri-close-line text-2xl"></i>
                         </button>
                      </div>
                   </div>
                   <!-- Empty state -->
                   <div v-if="heldTakeawayOrders.length === 0" class="flex-1 flex items-center justify-center py-20">
                      <div class="flex flex-col items-center gap-3">
-                        <i class="ri-shopping-bag-3-line text-xl text-zinc-700"></i>
-                        <p class="text-zinc-500 text-[12px] font-medium">No held takeaway orders</p>
+                        <i class="ri-shopping-bag-3-line text-3xl text-zinc-700"></i>
+                        <p class="text-zinc-500 text-xl font-medium">No held takeaway orders</p>
                      </div>
                   </div>
                   <!-- BOX VIEW -->
                   <div v-else-if="ongoingViewMode === 'box'"
-                     class="overflow-y-auto flex-1 p-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 bg-zinc-950/40">
+                     class="overflow-y-auto flex-1 p-7 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 bg-zinc-950/40">
                      <div v-for="held in heldTakeawayOrders" :key="held.id"
-                        class="group relative flex flex-col gap-3 p-4 rounded-2xl bg-zinc-800 border border-white/10 hover:border-amber-500/50 hover:bg-amber-500/5 transition-all duration-200 cursor-pointer"
+                        class="group relative flex flex-col gap-4 p-6 rounded-2xl bg-zinc-800 border border-white/10 hover:border-amber-500/50 hover:bg-amber-500/5 transition-all duration-200 cursor-pointer"
                         @click="restoreTakeawayOrder(held)">
                         <!-- Trash button -->
                         <button @click.stop="removeHeldTakeawayOrder(held.id)"
-                           class="absolute top-3 right-3 w-7 h-7 flex items-center justify-center rounded-lg text-zinc-600 hover:bg-red-500/15 hover:text-red-400 transition"
+                           class="absolute top-4 right-4 w-9 h-9 flex items-center justify-center rounded-lg text-zinc-600 hover:bg-red-500/15 hover:text-red-400 transition"
                            title="Remove held order">
-                        <i class="ri-delete-bin-6-line text-md"></i>
+                        <i class="ri-delete-bin-6-line text-xl"></i>
                         </button>
                         <!-- Order badge + order id -->
-                        <div class="flex items-center gap-2">
+                        <div class="flex items-center gap-3">
                            <span
-                              class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-bold ring-1 bg-amber-500/15 ring-amber-500/40 text-amber-400">
+                              class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-md font-bold ring-1 bg-amber-500/15 ring-amber-500/40 text-amber-400">
                            <i class="ri-shopping-bag-3-line"></i> Takeaway
                            </span>
-                           <span class="text-[12px] font-bold text-zinc-400">#{{ held.orderId }}</span>
+                           <span class="text-xl font-bold text-zinc-400">#{{ held.orderId }}</span>
                         </div>
                         <!-- Items list (up to 4) -->
-                        <ul class="space-y-1 flex-1">
+                        <ul class="space-y-1.5 flex-1">
                            <li v-for="(item, idx) in held.products.slice(0, 4)" :key="item.id"
-                              class="flex items-center justify-between text-[11px]">
+                              class="flex items-center justify-between text-lg">
                               <span class="text-zinc-300 truncate pr-2">{{ item.name }}</span>
                               <span class="text-zinc-500 flex-shrink-0">× {{ item.quantity }}</span>
                            </li>
-                           <li v-if="held.products.length > 4" class="text-[12px] text-zinc-600 font-medium">
+                           <li v-if="held.products.length > 4" class="text-md text-zinc-600 font-medium">
                               +{{ held.products.length - 4 }} more items
                            </li>
                         </ul>
                         <!-- Footer: total + held time + customer -->
-                        <div class="pt-2 border-t border-white/10 flex items-end justify-between gap-2">
+                        <div class="pt-3 border-t border-white/10 flex items-end justify-between gap-2">
                            <div>
-                              <p class="text-[11px] text-zinc-500">
+                              <p class="text-lg text-zinc-500">
                                  {{ held.customer?.name ? held.customer.name : 'Walk-in' }}
                               </p>
-                              <p class="text-[11px] text-zinc-600 mt-0.5">
+                              <p class="text-md text-zinc-600 mt-0.5">
                                  {{ new Date(held.heldAt).toLocaleTimeString([], {
                                  hour: '2-digit',
                                  minute:'2-digit' }) }}
                               </p>
                            </div>
                            <div class="text-right">
-                              <p class="text-[18px] font-extrabold text-amber-400 leading-none">{{
+                              <p class="text-2xl font-extrabold text-amber-400 leading-none">{{
                                  calcHeldOrderTotal(held) }}
                               </p>
-                              <p class="text-[11px] text-zinc-500">LKR</p>
+                              <p class="text-md text-zinc-500">LKR</p>
                            </div>
                         </div>
                         <!-- Restore label on hover -->
                         <div
                            class="absolute inset-0 flex items-center justify-center rounded-2xl bg-amber-500/0 group-hover:bg-amber-500/8 transition pointer-events-none">
                            <span
-                              class="opacity-0 group-hover:opacity-100 transition text-[11px] font-bold text-amber-400 bg-zinc-900/90 px-3 py-1 rounded-lg ring-1 ring-amber-500/40">
+                              class="opacity-0 group-hover:opacity-100 transition text-lg font-bold text-amber-400 bg-zinc-900/90 px-4 py-1.5 rounded-lg ring-1 ring-amber-500/40">
                            <i class="ri-arrow-go-back-line mr-1"></i>Restore Order
                            </span>
                         </div>
                      </div>
                   </div>
                   <!-- LIST VIEW -->
-                  <div v-else class="overflow-y-auto flex-1 px-4 py-4 space-y-2 bg-zinc-950/40">
+                  <div v-else class="overflow-y-auto flex-1 px-6 py-6 space-y-3 bg-zinc-950/40">
                      <div v-for="held in heldTakeawayOrders" :key="held.id"
-                        class="group flex items-center gap-4 px-4 py-3 rounded-2xl bg-zinc-800 border border-white/10 hover:border-amber-500/50 hover:bg-amber-500/5 transition cursor-pointer"
+                        class="group flex items-center gap-5 px-6 py-4 rounded-2xl bg-zinc-800 border border-white/10 hover:border-amber-500/50 hover:bg-amber-500/5 transition cursor-pointer"
                         @click="restoreTakeawayOrder(held)">
                         <!-- Icon -->
                         <div
-                           class="w-10 h-10 flex-shrink-0 flex items-center justify-center rounded-xl bg-amber-500/15 ring-1 ring-amber-500/30">
-                           <i class="ri-shopping-bag-3-line text-amber-400"></i>
+                           class="w-14 h-14 flex-shrink-0 flex items-center justify-center rounded-xl bg-amber-500/15 ring-1 ring-amber-500/30">
+                           <i class="ri-shopping-bag-3-line text-amber-400 text-xl"></i>
                         </div>
                         <!-- Order info -->
                         <div class="flex-1 min-w-0">
                            <div class="flex items-center gap-2 flex-wrap">
-                              <span class="text-[11px] font-extrabold text-white">#{{ held.orderId }}</span>
-                              <span class="text-[11px] text-zinc-500">{{ held.products.length }} item{{
+                              <span class="text-lg font-extrabold text-white">#{{ held.orderId }}</span>
+                              <span class="text-lg text-zinc-500">{{ held.products.length }} item{{
                               held.products.length !== 1 ? 's' : '' }}</span>
-                              <span v-if="held.customer?.name" class="text-[11px] text-zinc-400 font-medium">· {{
+                              <span v-if="held.customer?.name" class="text-lg text-zinc-400 font-medium">· {{
                               held.customer.name }}</span>
                            </div>
-                           <p class="text-[12px] text-zinc-500 mt-0.5 truncate">
+                           <p class="text-md text-zinc-500 mt-1 truncate">
                               {{held.products.map(p => p.name).join(', ')}}
                            </p>
                         </div>
                         <!-- Held time -->
                         <div class="flex-shrink-0 text-right">
-                           <p class="text-[12px] text-zinc-400 font-semibold">
+                           <p class="text-md text-zinc-400 font-semibold">
                               {{ new Date(held.heldAt).toLocaleTimeString([], {
                               hour: '2-digit', minute: '2-digit'
                               }) }}
                            </p>
-                           <p class="text-[11px] text-zinc-600">{{ new Date(held.heldAt).toLocaleDateString() }}
+                           <p class="text-md text-zinc-600">{{ new Date(held.heldAt).toLocaleDateString() }}
                            </p>
                         </div>
                         <!-- Total -->
-                        <div class="flex-shrink-0 text-right w-[80px]">
-                           <p class="text-[16px] font-extrabold text-amber-400 leading-none">{{
+                        <div class="flex-shrink-0 text-right w-[110px]">
+                           <p class="text-xl font-extrabold text-amber-400 leading-none">{{
                               calcHeldOrderTotal(held) }}
                            </p>
-                           <p class="text-[11px] text-zinc-500">LKR</p>
+                           <p class="text-md text-zinc-500">LKR</p>
                         </div>
                         <!-- Restore hint -->
                         <div class="flex-shrink-0 opacity-0 group-hover:opacity-100 transition">
-                           <span class="text-[12px] font-bold text-amber-400 flex items-center gap-1">
+                           <span class="text-md font-bold text-amber-400 flex items-center gap-1">
                            <i class="ri-arrow-go-back-line"></i> Restore
                            </span>
                         </div>
                         <!-- Delete -->
                         <button @click.stop="removeHeldTakeawayOrder(held.id)"
-                           class="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg text-zinc-600 hover:bg-red-500/15 hover:text-red-400 transition"
+                           class="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-lg text-zinc-600 hover:bg-red-500/15 hover:text-red-400 transition"
                            title="Remove">
-                        <i class="ri-delete-bin-6-line text-md"></i>
+                        <i class="ri-delete-bin-6-line text-xl"></i>
                         </button>
                      </div>
                   </div>
@@ -2590,6 +2600,7 @@
            });
            // Use the backend-confirmed order ID on the receipt
            selectedTable.value.orderId = response.data.orderId || selectedTable.value.orderId;
+           isConfirmOrderModalOpen.value = false;
            isSuccessModalOpen.value = true;
            customer.value = { name: "", contactNumber: "", email: "" };
        } catch (error) {
@@ -2752,12 +2763,14 @@
 
        // For products without size variants, use the original product data
        const productToAdd = product.originalProduct || product;
-       const existing = selectedTable.value.products.find((i) => i.id === productToAdd.id);
+       const cartKey = `${productToAdd.id}_no-size`;
+       const existing = selectedTable.value.products.find((i) => i.cart_key === cartKey || (i.id === productToAdd.id && !i.cart_key));
        if (existing) {
            existing.quantity += 1;
        } else {
            selectedTable.value.products.push({
                ...productToAdd,
+               cart_key: cartKey,
                quantity: 1,
                apply_discount: false,
                size: productToAdd.size || null,
@@ -2807,9 +2820,18 @@
    const handleSelectedProducts = (selectedProducts) => {
        if (!selectedTable.value) return;
        selectedProducts.forEach((fetchedProduct) => {
-           const existing = selectedTable.value.products.find((i) => i.id === fetchedProduct.id);
-           if (existing) existing.quantity += 1;
-           else selectedTable.value.products.push({ ...fetchedProduct, quantity: 1, apply_discount: false });
+           const cartKey = fetchedProduct.cart_key || `${fetchedProduct.id}_no-size`;
+           const existing = selectedTable.value.products.find((i) => i.cart_key === cartKey || (i.id === fetchedProduct.id && !i.cart_key && !fetchedProduct.cart_key));
+           if (existing) {
+               existing.quantity += 1;
+           } else {
+               selectedTable.value.products.push({
+                   ...fetchedProduct,
+                   cart_key: cartKey,
+                   quantity: 1,
+                   apply_discount: false
+               });
+           }
        });
    };
 
