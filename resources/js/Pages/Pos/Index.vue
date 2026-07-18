@@ -2600,6 +2600,7 @@
            });
            // Use the backend-confirmed order ID on the receipt
            selectedTable.value.orderId = response.data.orderId || selectedTable.value.orderId;
+           isConfirmOrderModalOpen.value = false;
            isSuccessModalOpen.value = true;
            customer.value = { name: "", contactNumber: "", email: "" };
        } catch (error) {
