@@ -664,7 +664,7 @@
                      <!-- Cash Amount Input -->
                      <div v-if="selectedPaymentMethod === 'cash'" class="space-y-3">
                         <p class="text-xl text-zinc-500">Enter Amount</p>
-                        <input v-model="selectedTable.cash" type="number" inputmode="decimal" placeholder="0.00" min="0" step="0.01" autofocus
+                        <input ref="cashAmountInput" v-model="selectedTable.cash" type="number" inputmode="decimal" placeholder="0.00" min="0" step="0.01"
                            class="w-full h-20 px-5 flex items-center justify-center gap-2 bg-zinc-800 border border-white/10 rounded-xl hover:border-amber-500 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30 transition text-white font-bold text-2xl placeholder-zinc-500"
                            @input="handleCashInput"
                            @keydown="handleCashKeydown"
@@ -1425,7 +1425,7 @@
    import WaiterOrderAlert from "@/Components/custom/WaiterOrderAlert.vue";
 
    import { useForm, router } from "@inertiajs/vue3";
-   import { ref, onMounted, computed, watch } from "vue";
+   import { ref, onMounted, computed, watch, nextTick } from "vue";
    import { Head, Link } from "@inertiajs/vue3";
    import axios from "axios";
    import CurrencyInput from "@/Components/custom/CurrencyInput.vue";
@@ -2285,6 +2285,25 @@
    const selectedPaymentMethod = ref("cash");
    const selectedCategory = ref(null);
    const productSearch = ref("");
+   const cashAmountInput = ref(null);
+
+   // Watch payment method to focus cash input when switching to cash
+   watch(() => selectedPaymentMethod.value, (newMethod) => {
+       if (newMethod === "cash") {
+           nextTick(() => {
+               cashAmountInput.value?.focus();
+           });
+       }
+   });
+
+   // Watch confirm modal to focus cash input when it opens
+   watch(() => isConfirmOrderModalOpen.value, (isOpen) => {
+       if (isOpen && selectedPaymentMethod.value === "cash") {
+           nextTick(() => {
+               cashAmountInput.value?.focus();
+           });
+       }
+   });
 
    // Watch selectedMenuType to reset category and search when menu type changes
    watch(() => selectedMenuType.value, () => {
