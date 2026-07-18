@@ -668,6 +668,11 @@
                            class="w-full h-20 px-5 flex items-center justify-center gap-2 bg-zinc-800 border border-white/10 rounded-xl hover:border-amber-500 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30 transition text-white font-bold text-2xl placeholder-zinc-500"
                            @input="handleCashInput"
                            @keydown="handleCashKeydown" />
+                        <!-- Cash Validation Message -->
+                        <div v-if="selectedTable.cash && Number(selectedTable.cash) > 0 && balance < 0" class="flex items-center gap-2 px-4 py-2 bg-red-500/15 border border-red-500/40 rounded-lg">
+                           <i class="ri-alert-line text-red-400 text-lg"></i>
+                           <p class="text-sm font-semibold text-red-400">Cash is not enough (Short: {{ Math.abs(balance).toFixed(2) }} LKR)</p>
+                        </div>
                         <!-- Quick Amount Buttons -->
                         <div class="grid grid-cols-4 gap-3">
                            <button v-for="amount in [500, 1000, 2000, 5000]" :key="amount"
@@ -745,12 +750,17 @@
                </div>
                <!-- Footer -->
                <div class="flex gap-4 p-6 border-t border-white/10 flex-shrink-0">
-                  <button @click="isConfirmOrderModalOpen = false"
-                     class="flex-1 py-5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-bold text-2xl transition">
+                  <button @click.stop="isConfirmOrderModalOpen = false"
+                     class="flex-1 py-5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-bold text-2xl transition active:scale-95">
                   Cancel
                   </button>
-                  <button @click="submitOrder(); isConfirmOrderModalOpen = false"
-                     class="flex-1 py-5 rounded-xl bg-green-500 hover:bg-green-600 text-white font-bold text-2xl transition">
+                  <button @click="submitOrder()" :disabled="balance < 0"
+                     :class="[
+                        'flex-1 py-5 rounded-xl font-bold text-2xl transition active:scale-95',
+                        balance < 0
+                        ? 'bg-zinc-700 text-zinc-500 cursor-not-allowed opacity-60'
+                        : 'bg-green-500 hover:bg-green-600 text-white'
+                     ]">
                   Confirm & Submit
                   </button>
                </div>
@@ -2752,12 +2762,14 @@
 
        // For products without size variants, use the original product data
        const productToAdd = product.originalProduct || product;
-       const existing = selectedTable.value.products.find((i) => i.id === productToAdd.id);
+       const cartKey = `${productToAdd.id}_no-size`;
+       const existing = selectedTable.value.products.find((i) => i.cart_key === cartKey || (i.id === productToAdd.id && !i.cart_key));
        if (existing) {
            existing.quantity += 1;
        } else {
            selectedTable.value.products.push({
                ...productToAdd,
+               cart_key: cartKey,
                quantity: 1,
                apply_discount: false,
                size: productToAdd.size || null,
@@ -2807,9 +2819,18 @@
    const handleSelectedProducts = (selectedProducts) => {
        if (!selectedTable.value) return;
        selectedProducts.forEach((fetchedProduct) => {
-           const existing = selectedTable.value.products.find((i) => i.id === fetchedProduct.id);
-           if (existing) existing.quantity += 1;
-           else selectedTable.value.products.push({ ...fetchedProduct, quantity: 1, apply_discount: false });
+           const cartKey = fetchedProduct.cart_key || `${fetchedProduct.id}_no-size`;
+           const existing = selectedTable.value.products.find((i) => i.cart_key === cartKey || (i.id === fetchedProduct.id && !i.cart_key && !fetchedProduct.cart_key));
+           if (existing) {
+               existing.quantity += 1;
+           } else {
+               selectedTable.value.products.push({
+                   ...fetchedProduct,
+                   cart_key: cartKey,
+                   quantity: 1,
+                   apply_discount: false
+               });
+           }
        });
    };
 
