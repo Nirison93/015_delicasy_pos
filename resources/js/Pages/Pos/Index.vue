@@ -664,10 +664,11 @@
                      <!-- Cash Amount Input -->
                      <div v-if="selectedPaymentMethod === 'cash'" class="space-y-3">
                         <p class="text-xl text-zinc-500">Enter Amount</p>
-                        <input v-model="selectedTable.cash" type="number" inputmode="decimal" placeholder="0.00" min="0" step="0.01" autofocus
+                        <input ref="cashAmountInput" v-model="selectedTable.cash" type="number" inputmode="decimal" placeholder="0.00" min="0" step="0.01"
                            class="w-full h-20 px-5 flex items-center justify-center gap-2 bg-zinc-800 border border-white/10 rounded-xl hover:border-amber-500 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30 transition text-white font-bold text-2xl placeholder-zinc-500"
                            @input="handleCashInput"
-                           @keydown="handleCashKeydown" />
+                           @keydown="handleCashKeydown"
+                           @focus="handleCashFocus" />
                         <!-- Cash Validation Message -->
                         <div v-if="selectedTable.cash && Number(selectedTable.cash) > 0 && balance < 0" class="flex items-center gap-2 px-4 py-2 bg-red-500/15 border border-red-500/40 rounded-lg">
                            <i class="ri-alert-line text-red-400 text-lg"></i>
@@ -1424,7 +1425,7 @@
    import WaiterOrderAlert from "@/Components/custom/WaiterOrderAlert.vue";
 
    import { useForm, router } from "@inertiajs/vue3";
-   import { ref, onMounted, computed, watch } from "vue";
+   import { ref, onMounted, computed, watch, nextTick } from "vue";
    import { Head, Link } from "@inertiajs/vue3";
    import axios from "axios";
    import CurrencyInput from "@/Components/custom/CurrencyInput.vue";
@@ -2049,13 +2050,16 @@
    };
 
    const handleCashKeydown = (event) => {
-       const input = event.target;
        if (event.key === "Backspace" || event.key === "Delete" || event.key === "ArrowLeft" || event.key === "ArrowRight" || event.key === "Tab" || event.key === "Enter" || event.ctrlKey) {
            return;
        }
        if (!/^[0-9.]$/.test(event.key)) {
            event.preventDefault();
        }
+   };
+
+   const handleCashFocus = (event) => {
+       event.target.select();
    };
 
    /* ========= Tables persistence ========= */
@@ -2281,6 +2285,25 @@
    const selectedPaymentMethod = ref("cash");
    const selectedCategory = ref(null);
    const productSearch = ref("");
+   const cashAmountInput = ref(null);
+
+   // Watch payment method to focus cash input when switching to cash
+   watch(() => selectedPaymentMethod.value, (newMethod) => {
+       if (newMethod === "cash") {
+           nextTick(() => {
+               cashAmountInput.value?.focus();
+           });
+       }
+   });
+
+   // Watch confirm modal to focus cash input when it opens
+   watch(() => isConfirmOrderModalOpen.value, (isOpen) => {
+       if (isOpen && selectedPaymentMethod.value === "cash") {
+           nextTick(() => {
+               cashAmountInput.value?.focus();
+           });
+       }
+   });
 
    // Watch selectedMenuType to reset category and search when menu type changes
    watch(() => selectedMenuType.value, () => {
@@ -2889,41 +2912,56 @@
            const noteBlock = table.kitchen_note ? `<div class="note"><b>Kitchen Note:</b> ${table.kitchen_note}</div>` : "";
 
            const receiptHTML = `
-         <!doctype html>
+         <!DOCTYPE html>
          <html>
            <head>
              <meta charset="utf-8" />
+             <meta name="viewport" content="width=device-width, initial-scale=1.0" />
              <title>KOT</title>
              <style>
-               @media print { body { margin:0; padding:0; -webkit-print-color-adjust: exact; print-color-adjust: exact; } @page { size: 80mm auto; margin:0; } }
-               body { background:#fff; font-size:13px; font-weight:bold; font-family:Arial,sans-serif; margin:0; padding:10px; color:#000; }
-               h1 { text-align:center; margin:0 0 10px 0; font-size:18px; font-weight:bold; }
-               .kot-head { display:flex; justify-content:space-between; gap:8px; flex-wrap:wrap; margin-bottom:10px; font-size:12px; font-weight:bold; }
-               .kot-head .cell { padding:4px 6px; }
-               .note { border:1px dashed #000; padding:8px; margin:10px 0; font-weight:bold; font-size:12px; }
-               table { width:100%; border-collapse:collapse; margin-top:8px; font-size:13px; font-weight:bold; }
-               thead th { text-align:left; padding:6px 8px; font-size:12px; border-bottom:2px solid #000; font-weight:bold; }
-               thead th:last-child { text-align:center; width:70px; }
-               tbody tr { border-bottom:1px dashed #000; }
-               tbody td { padding:6px 8px; font-size:13px; vertical-align:top; font-weight:bold; }
-               tbody td:first-child { text-align:left; }
-               tbody td:last-child { text-align:center; }
+               * { margin: 0; padding: 0; box-sizing: border-box; }
+
+               @page { size: 80mm auto; margin: 0; padding: 0; orphans: 1; widows: 1; }
+
+               @media print {
+                 html, body { margin: 0 !important; padding: 0 !important; width: 80mm !important; height: auto !important; background: white !important; overflow: visible !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
+                 * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; page-break-inside: avoid !important; break-inside: avoid !important; }
+                 body { padding: 10px !important; }
+               }
+
+               body { background: white; font-size: 13px; font-weight: bold; font-family: Arial, sans-serif; margin: 0; padding: 10px; color: #000; width: 80mm; line-height: 1.2; }
+               h1 { text-align: center; margin: 0 0 10px 0; font-size: 18px; font-weight: bold; page-break-inside: avoid; break-inside: avoid; }
+               .kot-head { display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; font-size: 12px; font-weight: bold; page-break-inside: avoid; break-inside: avoid; }
+               .kot-head .cell { padding: 4px 6px; }
+               .note { border: 1px dashed #000; padding: 8px; margin: 10px 0; font-weight: bold; font-size: 12px; page-break-inside: avoid; break-inside: avoid; }
+               table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 13px; font-weight: bold; page-break-inside: avoid; break-inside: avoid; }
+               thead { page-break-inside: avoid; break-inside: avoid; }
+               thead th { text-align: left; padding: 6px 8px; font-size: 12px; border-bottom: 2px solid #000; font-weight: bold; page-break-inside: avoid; break-inside: avoid; }
+               thead th:last-child { text-align: center; width: 70px; }
+               tbody { page-break-inside: avoid; break-inside: avoid; }
+               tbody tr { border-bottom: 1px dashed #000; page-break-inside: avoid; break-inside: avoid; }
+               tbody td { padding: 6px 8px; font-size: 13px; vertical-align: top; font-weight: bold; page-break-inside: avoid; break-inside: avoid; }
+               tbody td:first-child { text-align: left; }
+               tbody td:last-child { text-align: center; }
+               .receipt-container { page-break-inside: avoid; break-inside: avoid; width: 80mm; }
              </style>
            </head>
            <body>
-             <h1>KOT Note - (${String(kotNo).padStart(3, '0')})</h1>
-             <div class="kot-head">
-               <div class="cell"><b>Date:</b> ${dateStr}</div>
-               <div class="cell"><b>Time:</b> ${timeStr}</div>
-               <div class="cell"><b>Order:</b> ${table.orderId}</div>
-               <div class="cell"><b>Table:</b> ${table.number}</div>
-               <div class="cell"><b>Type:</b> ${orderType}</div>
+             <div class="receipt-container">
+               <h1>KOT Note - (${String(kotNo).padStart(3, '0')})</h1>
+               <div class="kot-head">
+                 <div class="cell"><b>Date:</b> ${dateStr}</div>
+                 <div class="cell"><b>Time:</b> ${timeStr}</div>
+                 <div class="cell"><b>Order:</b> ${table.orderId}</div>
+                 <div class="cell"><b>Table:</b> ${table.number}</div>
+                 <div class="cell"><b>Type:</b> ${orderType}</div>
+               </div>
+               ${noteBlock}
+               <table>
+                 <thead><tr><th>Product</th><th style="text-align:center;">Qty</th><th style="text-align:center;">Size</th></tr></thead>
+                 <tbody>${productRows}</tbody>
+               </table>
              </div>
-             ${noteBlock}
-             <table>
-               <thead><tr><th>Product</th><th style="text-align:center;">Qty</th><th style="text-align:center;">Size</th></tr></thead>
-               <tbody>${productRows}</tbody>
-             </table>
            </body>
          </html>
        `;
@@ -2988,40 +3026,55 @@
                : "";
 
            const receiptHTML = `
-         <!doctype html>
+         <!DOCTYPE html>
          <html>
            <head>
              <meta charset="utf-8" />
+             <meta name="viewport" content="width=device-width, initial-scale=1.0" />
              <title>KOT</title>
              <style>
-               @media print { body { margin:0; padding:0; -webkit-print-color-adjust: exact; print-color-adjust: exact; } @page { size: 80mm auto; margin:0; } }
-               body { background:#fff; font-size:13px; font-weight:bold; font-family:Arial,sans-serif; margin:0; padding:10px; color:#000; }
-               h1 { text-align:center; margin:0 0 10px 0; font-size:18px; font-weight:bold; }
-               .kot-head { display:flex; justify-content:space-between; gap:8px; flex-wrap:wrap; margin-bottom:10px; font-size:12px; font-weight:bold; }
-               .kot-head .cell { padding:4px 6px; }
-               .note { border:1px dashed #000; padding:8px; margin:10px 0; font-weight:bold; font-size:12px; }
-               table { width:100%; border-collapse:collapse; margin-top:8px; font-size:13px; font-weight:bold; }
-               thead th { text-align:left; padding:6px 8px; font-size:12px; border-bottom:2px solid #000; font-weight:bold; }
-               thead th:last-child { text-align:center; width:70px; }
-               tbody tr { border-bottom:1px dashed #000; }
-               tbody td { padding:6px 8px; font-size:13px; vertical-align:top; font-weight:bold; }
-               tbody td:first-child { text-align:left; }
-               tbody td:last-child { text-align:center; }
+               * { margin: 0; padding: 0; box-sizing: border-box; }
+
+               @page { size: 80mm auto; margin: 0; padding: 0; orphans: 1; widows: 1; }
+
+               @media print {
+                 html, body { margin: 0 !important; padding: 0 !important; width: 80mm !important; height: auto !important; background: white !important; overflow: visible !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
+                 * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; page-break-inside: avoid !important; break-inside: avoid !important; }
+                 body { padding: 10px !important; }
+               }
+
+               body { background: white; font-size: 13px; font-weight: bold; font-family: Arial, sans-serif; margin: 0; padding: 10px; color: #000; width: 80mm; line-height: 1.2; }
+               h1 { text-align: center; margin: 0 0 10px 0; font-size: 18px; font-weight: bold; page-break-inside: avoid; break-inside: avoid; }
+               .kot-head { display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; font-size: 12px; font-weight: bold; page-break-inside: avoid; break-inside: avoid; }
+               .kot-head .cell { padding: 4px 6px; }
+               .note { border: 1px dashed #000; padding: 8px; margin: 10px 0; font-weight: bold; font-size: 12px; page-break-inside: avoid; break-inside: avoid; }
+               table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 13px; font-weight: bold; page-break-inside: avoid; break-inside: avoid; }
+               thead { page-break-inside: avoid; break-inside: avoid; }
+               thead th { text-align: left; padding: 6px 8px; font-size: 12px; border-bottom: 2px solid #000; font-weight: bold; page-break-inside: avoid; break-inside: avoid; }
+               thead th:last-child { text-align: center; width: 70px; }
+               tbody { page-break-inside: avoid; break-inside: avoid; }
+               tbody tr { border-bottom: 1px dashed #000; page-break-inside: avoid; break-inside: avoid; }
+               tbody td { padding: 6px 8px; font-size: 13px; vertical-align: top; font-weight: bold; page-break-inside: avoid; break-inside: avoid; }
+               tbody td:first-child { text-align: left; }
+               tbody td:last-child { text-align: center; }
+               .receipt-container { page-break-inside: avoid; break-inside: avoid; width: 80mm; }
              </style>
            </head>
            <body>
-             <h1>KOT Note - (${String(kotNo).padStart(3, "0")})</h1>
-             <div class="kot-head">
-               <div class="cell"><b>Date:</b> ${dateStr}</div>
-               <div class="cell"><b>Time:</b> ${timeStr}</div>
-               <div class="cell"><b>Order:</b> ${table.orderId}</div>
-               <div class="cell"><b>Type:</b> ${orderType}</div>
+             <div class="receipt-container">
+               <h1>KOT Note - (${String(kotNo).padStart(3, "0")})</h1>
+               <div class="kot-head">
+                 <div class="cell"><b>Date:</b> ${dateStr}</div>
+                 <div class="cell"><b>Time:</b> ${timeStr}</div>
+                 <div class="cell"><b>Order:</b> ${table.orderId}</div>
+                 <div class="cell"><b>Type:</b> ${orderType}</div>
+               </div>
+               ${noteBlock}
+               <table>
+                 <thead><tr><th>Product</th><th style="text-align:center;">Qty</th><th style="text-align:center;">Size</th></tr></thead>
+                 <tbody>${productRows}</tbody>
+               </table>
              </div>
-             ${noteBlock}
-             <table>
-               <thead><tr><th>Product</th><th style="text-align:center;">Qty</th><th style="text-align:center;">Size</th></tr></thead>
-               <tbody>${productRows}</tbody>
-             </table>
            </body>
          </html>
        `;
@@ -3109,55 +3162,95 @@
            const bankSvcLine = bankRate > 0 ? `<div class="row"><div>Bank Fee (${fmt(bankRate)}%)</div><div>+${fmt(bankAmt)}</div></div>` : "";
 
            const receiptHTML = `
-         <!doctype html>
+         <!DOCTYPE html>
          <html>
            <head>
              <meta charset="utf-8" />
+             <meta name="viewport" content="width=device-width, initial-scale=1.0" />
              <title>Bill</title>
              <style>
+               * {
+                 margin: 0;
+                 padding: 0;
+                 box-sizing: border-box;
+               }
+
                @page {
                  size: 80mm auto;
                  margin: 0;
+                 padding: 0;
+                 orphans: 1;
+                 widows: 1;
                }
+
                @media print {
-                 body {
-                   margin: 0;
-                   padding: 0;
+                 html, body {
+                   margin: 0 !important;
+                   padding: 0 !important;
+                   width: 80mm !important;
+                   height: auto !important;
+                   background: white !important;
+                   overflow: visible !important;
                    -webkit-print-color-adjust: exact !important;
-                   width: 80mm;
-                 }
-                 * {
-                   -webkit-print-color-adjust: exact !important;
+                   print-color-adjust: exact !important;
                    color-adjust: exact !important;
                  }
+
+                 * {
+                   -webkit-print-color-adjust: exact !important;
+                   print-color-adjust: exact !important;
+                   color-adjust: exact !important;
+                   margin: 0 !important;
+                   padding: inherit;
+                   page-break-inside: avoid !important;
+                   break-inside: avoid !important;
+                 }
+
+                 body {
+                   padding: 8px 6px !important;
+                 }
                }
+
+               html {
+                 margin: 0;
+                 padding: 0;
+               }
+
                body {
-                 background: #fff;
+                 background: white;
                  font-size: 16px;
                  font-family: 'Courier New', monospace;
                  margin: 0;
                  padding: 8px 6px;
-                 color: #000 !important;
+                 color: #000;
                  width: 80mm;
                  box-sizing: border-box;
                  font-weight: 900;
+                 line-height: 1.2;
                }
+
                h1 {
                  text-align: center;
                  margin: 0 0 12px 0;
                  font-size: 19px;
                  font-weight: 900;
-                 color: #000 !important;
+                 color: #000;
+                 page-break-inside: avoid;
+                 break-inside: avoid;
                }
+
                .row {
                  display: flex;
                  justify-content: space-between;
                  margin: 7px 0;
                  word-break: break-word;
-                 color: #000 !important;
+                 color: #000;
                  font-weight: 900;
                  font-size: 15px;
+                 page-break-inside: avoid;
+                 break-inside: avoid;
                }
+
                .badge {
                  border: 2px solid #000;
                  padding: 6px 8px;
@@ -3165,20 +3258,39 @@
                  margin: 10px 0;
                  font-weight: 900;
                  font-size: 14px;
-                 color: #000 !important;
+                 color: #000;
+                 page-break-inside: avoid;
+                 break-inside: avoid;
                }
+
                table {
                  width: 100%;
                  border-collapse: collapse;
                  margin: 10px 0;
                  font-size: 14px;
                  font-weight: 900;
+                 page-break-inside: avoid;
+                 break-inside: avoid;
                }
+
+               thead {
+                 page-break-inside: avoid;
+                 break-inside: avoid;
+               }
+
+               tbody {
+                 page-break-inside: avoid;
+                 break-inside: avoid;
+               }
+
                th, td {
                  padding: 6px 3px;
-                 color: #000 !important;
+                 color: #000;
                  font-weight: 900;
+                 page-break-inside: avoid;
+                 break-inside: avoid;
                }
+
                th {
                  text-align: left;
                  font-weight: 900;
@@ -3186,101 +3298,129 @@
                  padding-bottom: 8px;
                  font-size: 14px;
                }
+
                tbody tr {
                  border-bottom: 1px solid #ddd;
+                 page-break-inside: avoid;
+                 break-inside: avoid;
                }
+
                tbody tr:last-child {
                  border-bottom: none;
                }
+
                td {
                  text-align: right;
-                 color: #000 !important;
+                 color: #000;
                }
+
                td:first-child {
                  text-align: left;
                  max-width: 35mm;
                  word-wrap: break-word;
                  font-weight: 700;
                }
+
                .totals {
                  margin-top: 10px;
                  border-top: 1px solid #999;
                  padding-top: 10px;
                  font-size: 15px;
                  font-weight: 900;
+                 page-break-inside: avoid;
+                 break-inside: avoid;
                }
+
                .grand {
                  font-weight: 900;
                  font-size: 16px;
                  border-top: 2px solid #000;
                  padding-top: 10px;
                  margin-top: 8px;
-                 color: #000 !important;
+                 color: #000;
+                 page-break-inside: avoid;
+                 break-inside: avoid;
                }
+
                .note {
                  border-top: 1px solid #000;
                  padding-top: 10px;
                  margin-top: 12px;
                  font-weight: 900;
                  font-size: 14px;
-                 color: #000 !important;
+                 color: #000;
+                 page-break-inside: avoid;
+                 break-inside: avoid;
                }
+
                .divider {
                  border-top: 2px solid #000;
                  margin: 10px 0;
+                 page-break-inside: avoid;
+                 break-inside: avoid;
                }
+
                b {
                  font-weight: 900;
-                 color: #000 !important;
+                 color: #000;
                }
+
                span {
-                 color: #000 !important;
+                 color: #000;
                  font-weight: 900;
+               }
+
+               .receipt-container {
+                 page-break-inside: avoid;
+                 break-inside: avoid;
+                 width: 80mm;
                }
              </style>
            </head>
            <body>
-             <h1>Customer Bill</h1>
-             <div class="badge">
-               ${t.id === 'default' ? 'Temporary Bill' : `Table: ${t.number}`} | ${orderType}
-             </div>
-             <div class="row">
-               <span><b>Date:</b> ${new Date().toLocaleDateString()}</span>
-             </div>
-             <div class="row">
-               <span><b>Time:</b> ${new Date().toLocaleTimeString()}</span>
-             </div>
-             <div class="row">
-               <span><b>Order #:</b> ${t.orderId}</span>
-             </div>
-             <div class="row">
-               <span><b>Cashier:</b> ${props.loggedInUser?.name ?? "-"}</span>
-             </div>
-             ${customer.value?.name ? `<div class="row"><span><b>Customer:</b> ${customer.value.name}</span></div>` : ""}
-             ${bankLine}
-             <div class="divider"></div>
-             <table>
-               <thead>
-                 <tr>
-                   <th style="width: 40%; text-align: left;">Item</th>
-                   <th style="width: 12%; text-align: center;">Qty</th>
-                   <th style="width: 18%; text-align: right;">Price</th>
-                   <th style="width: 15%; text-align: right;">Total</th>
-                 </tr>
-               </thead>
-               <tbody>${itemRows}</tbody>
-             </table>
-             <div class="divider"></div>
-             <div class="totals">
-               <div class="row"><div>Subtotal</div><div>${fmt(sub)}</div></div>
-               ${discTotal > 0 ? `<div class="row"><div>Discount</div><div>-${fmt(discTotal)}</div></div>` : ""}
-               ${couponLine}${ownerLine}${customLine}${delivLine}${svcLine}${bankSvcLine}
-               <div class="grand row"><div>TOTAL</div><div>${fmt(grandTotal)}</div></div>
-             </div>
-             ${cashLine}
-             ${t.kitchen_note ? `<div class="note">Note: ${t.kitchen_note}</div>` : ""}
-             <div style="text-align: center; margin-top: 8px; font-size: 9px;">
-               Thank you!
+             <div class="receipt-container">
+               <h1>Customer Bill</h1>
+               <div class="badge">
+                 ${t.id === 'default' ? 'Temporary Bill' : `Table: ${t.number}`} | ${orderType}
+               </div>
+               <div class="row">
+                 <span><b>Date:</b> ${new Date().toLocaleDateString()}</span>
+               </div>
+               <div class="row">
+                 <span><b>Time:</b> ${new Date().toLocaleTimeString()}</span>
+               </div>
+               <div class="row">
+                 <span><b>Order #:</b> ${t.orderId}</span>
+               </div>
+               <div class="row">
+                 <span><b>Cashier:</b> ${props.loggedInUser?.name ?? "-"}</span>
+               </div>
+               ${customer.value?.name ? `<div class="row"><span><b>Customer:</b> ${customer.value.name}</span></div>` : ""}
+               ${bankLine}
+               <div class="divider"></div>
+               <table>
+                 <thead>
+                   <tr>
+                     <th style="width: 40%; text-align: left;">Item</th>
+                     <th style="width: 12%; text-align: center;">Qty</th>
+                     <th style="width: 18%; text-align: right;">Price</th>
+                     <th style="width: 15%; text-align: right;">Total</th>
+                   </tr>
+                 </thead>
+                 <tbody>${itemRows}</tbody>
+               </table>
+               <div class="divider"></div>
+               <div class="totals">
+                 <div class="row"><div>Subtotal</div><div>${fmt(sub)}</div></div>
+                 ${discTotal > 0 ? `<div class="row"><div>Discount</div><div>-${fmt(discTotal)}</div></div>` : ""}
+                 ${couponLine}${ownerLine}${customLine}${delivLine}${svcLine}${bankSvcLine}
+                 <div class="grand row"><div>TOTAL</div><div>${fmt(grandTotal)}</div></div>
+               </div>
+               ${cashLine}
+               ${t.kitchen_note ? `<div class="note">Note: ${t.kitchen_note}</div>` : ""}
+               <div style="text-align: center; margin-top: 8px; font-size: 9px; page-break-inside: avoid; break-inside: avoid;">
+                 Thank you!
+               </div>
              </div>
            </body>
          </html>
