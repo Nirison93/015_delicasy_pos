@@ -445,162 +445,169 @@ onMounted(() => {
   })
 })
 
-// Printing (unchanged logic except some formatting kept consistent)
+// Printing - Thermal Receipt Format
 const printReceipt = (history) => {
   const companyData = props.companyInfo1[0] || {}
   const getSafeValue = (obj, path) => path.split('.').reduce((acc, part) => (acc && acc[part] ? acc[part] : ''), obj)
   const saleItems = history.sale_items || []
-  const productRows = saleItems.map(item => `
-    <tr>
-      <td>${getSafeValue(item, 'product.name') || 'N/A'}
-        <span style="font-size: 8px;font-weight: bold; font-style: italic;"> (${formatLKR(item.unit_price)})</span>
-      </td>
-      <td class="text-right">${asNumber(item.quantity)}</td>
-      <td class="text-right">${formatLKR(lineTotal(item))}</td>
-    </tr>
-  `).join('')
 
-  const totalDisplay = formatLKR(rowNetTotal(history))
-  const discountDisplay = formatLKR(asNumber(history.discount))
-  const customDiscountDisplay = formatLKR(asNumber(history.custom_discount))
-  const deliveryDisplay = formatLKR(asNumber(history.delivery_charge))
+  const itemRows = saleItems.map(item => {
+    const itemName = getSafeValue(item, 'product.name') || 'N/A'
+    const price = asNumber(item.unit_price)
+    const qty = asNumber(item.quantity)
+    const itemTotal = price * qty
+    return `
+      <tr style="border-bottom: 1px solid #ddd;">
+        <td style="padding: 6px 4px; text-align: left; font-size: 12px;">${itemName}</td>
+        <td style="padding: 6px 4px; text-align: center; font-size: 12px;">${price.toFixed(2)} × ${qty}</td>
+        <td style="padding: 6px 4px; text-align: right; font-size: 12px; font-weight: bold;">${itemTotal.toFixed(2)}</td>
+      </tr>
+    `
+  }).join('')
+
+  const cash = asNumber(history.cash)
+  const total = rowNetTotal(history)
+  const balance = cash - total
+
+  const dateTime = new Date(history.created_at)
+  const dateStr = dateTime.toLocaleDateString('en-US', { year: '2-digit', month: '2-digit', day: '2-digit' })
+  const timeStr = dateTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })
 
   const receiptContent = `
   <!DOCTYPE html>
   <html lang="en">
   <head>
-    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Receipt</title>
     <style>
-      @media print { body { margin:0; padding:0; -webkit-print-color-adjust: exact; } }
-      body { background:#fff; font-size:12px; font-family:Arial, sans-serif; margin:0; padding:10px; color:#000; }
-      .header { text-align:center; margin-bottom:16px; }
-      .header h1 { font-size:20px; font-weight:bold; margin:0; }
-      .header p { font-size:10px; margin:4px 0; }
-      .section { margin-bottom:16px; padding-top:8px; border-top:1px solid #000; }
-      .info-row { display:flex; justify-content:space-between; font-size:12px; margin-top:8px; }
-      .info-row p { margin:0; font-weight:bold; } .info-row small { font-weight:normal; }
-      table { width:100%; font-size:12px; border-collapse:collapse; margin-top:8px; }
-      table th, table td { padding:6px 8px; border-bottom:1px solid #ddd; }
-      table th { text-align:left; } table td { text-align:right; } table td:first-child { text-align:left; }
-      .totals { border-top:1px solid #000; padding-top:8px; font-size:12px; }
-      .totals div { display:flex; justify-content:space-between; margin-bottom:8px; }
-      .footer { text-align:center; font-size:10px; margin-top:16px; }
-      .footer p { margin:6px 0; } .footer .italic { font-style:italic; }
-      .text-right { text-align:right; }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      @page { size: 80mm auto; margin: 0; padding: 0; }
+      @media print {
+        html, body { margin: 0 !important; padding: 0 !important; background: white !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+        body { padding: 0 !important; }
+      }
+      body {
+        background: white;
+        font-family: Arial, sans-serif;
+        font-size: 12px;
+        margin: 0;
+        padding: 10px;
+        color: #000;
+        width: 80mm;
+        line-height: 1.4;
+      }
+      .receipt { width: 100%; }
+      .header { text-align: center; margin-bottom: 10px; border-bottom: 2px solid #000; padding-bottom: 8px; }
+      .header h1 { font-size: 16px; font-weight: bold; margin: 0 0 3px 0; letter-spacing: 1px; }
+      .header p { font-size: 9px; margin: 2px 0; line-height: 1.2; }
+      .order-type-box { text-align: center; font-weight: bold; margin: 8px 0; padding: 6px; border: 2px solid #000; font-size: 13px; }
+      .info-section { margin: 8px 0; font-size: 11px; }
+      .info-row { display: flex; justify-content: space-between; margin: 3px 0; }
+      .info-label { font-weight: bold; }
+      .info-value { text-align: right; }
+      table { width: 100%; border-collapse: collapse; margin: 8px 0; }
+      .table-header { background-color: #f5f5f5; }
+      .table-header th { padding: 6px 4px; text-align: left; font-weight: bold; font-size: 11px; border-bottom: 2px solid #000; }
+      .table-header th:nth-child(2) { text-align: center; }
+      .table-header th:nth-child(3) { text-align: right; }
+      tbody tr { border-bottom: 1px solid #e0e0e0; }
+      tbody tr:hover { background-color: #fafafa; }
+      .totals-section { border-top: 2px solid #000; padding-top: 8px; margin-top: 8px; }
+      .total-row { display: flex; justify-content: space-between; margin: 5px 0; font-size: 12px; }
+      .total-row.final { font-weight: bold; font-size: 13px; border-top: 1px solid #000; padding-top: 5px; }
+      .footer { text-align: center; font-size: 10px; margin-top: 10px; border-top: 2px solid #000; padding-top: 8px; }
+      .footer p { margin: 3px 0; }
     </style>
   </head>
   <body>
-    <div class="receipt-container">
+    <div class="receipt">
+      <!-- Header -->
       <div class="header">
-        <h1>${companyData.name || ''}</h1>
+        <h1>${companyData.name || 'DELICASY'}</h1>
         <p>${companyData.address || ''}</p>
-        <p>${companyData.phone || ''} ${companyData.phone2 ? ' | ' + companyData.phone2 : ''} ${companyData.email ? ' | ' + companyData.email : ''}</p>
+        <p>${companyData.phone || ''}</p>
       </div>
 
-      <div style="font-weight:bold; border:1px solid black; text-align:center; padding:5px; margin:8px 0;">
-        <small style="display:block;">
-          Order Type: ${
-            history.order_type === 'takeaway' ? 'Takeaway' :
-            history.order_type === 'pickup' ? 'Delivery' : 'Dine In'
-          }
-        </small>
-      </div>
+      <!-- Order Type -->
+      <div class="order-type-box">${
+        history.order_type === 'takeaway' ? 'TAKEAWAY' :
+        history.order_type === 'pickup' ? 'DELIVERY' : 'DINE IN'
+      }</div>
 
-      <div class="section">
+      <!-- Order Info -->
+      <div class="info-section">
         <div class="info-row">
-          <div>
-            <p>Date:</p>
-            <small>${new Date(history.created_at).toLocaleDateString('en-US', { dateStyle: 'medium' })}</small>
-          </div>
-          <div>
-            <p>Order No:</p>
-            <small>${history.order_id}</small>
-          </div>
+          <span class="info-label">Date & Time :</span>
+          <span class="info-value">${dateStr} ${timeStr}</span>
         </div>
         <div class="info-row">
-          <div>
-            <p>Customer:</p>
-            <small>${history.customer?.name || ''}</small>
-          </div>
-          <div>
-            <p>Cashier:</p>
-            <small>${history.user?.name || ''}</small>
-          </div>
+          <span class="info-label">Order No</span>
+          <span class="info-value">${history.order_id}</span>
         </div>
         <div class="info-row">
-          <div>
-            <p>Payment Type:</p>
-            <small>${history.payment_method || ''}</small>
-          </div>
+          <span class="info-label">Customer</span>
+          <span class="info-value">${history.customer?.name || 'Walking Customer'}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Cashier</span>
+          <span class="info-value">${history.user?.name || 'N/A'}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Payment</span>
+          <span class="info-value">${history.payment_method === 'card' ? 'Card' : 'Cash'}</span>
         </div>
       </div>
 
-      <div class="section">
-        <table>
-          <thead>
-            <tr>
-              <th>Description</th>
-              <th class="text-right">Qty</th>
-              <th class="text-right">Price</th>
-            </tr>
-          </thead>
-          <tbody>${productRows}</tbody>
-        </table>
+      <!-- Items Table -->
+      <table>
+        <thead class="table-header">
+          <tr>
+            <th>ITEM</th>
+            <th>PRICE × QTY</th>
+            <th>TOTAL</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${itemRows}
+        </tbody>
+      </table>
+
+      <!-- Totals -->
+      <div class="totals-section">
+        <div class="total-row final">
+          <span>TOTAL</span>
+          <span>${total.toFixed(2)} LKR</span>
+        </div>
+        ${cash > 0 ? `<div class="total-row">
+          <span>Cash Paid</span>
+          <span>${cash.toFixed(2)} LKR</span>
+        </div>` : ''}
+        ${balance > 0 ? `<div class="total-row">
+          <span>Balance</span>
+          <span>${balance.toFixed(2)} LKR</span>
+        </div>` : ''}
       </div>
 
-      <div class="totals">
-        <div><span>Sub Total</span><span>${formatLKR(asNumber(history.total_amount) || itemsSubtotal(history))}</span></div>
-
-        ${asNumber(history.discount) ? `<div><span>Discount</span><span>- ${discountDisplay}</span></div>` : ''}
-        ${asNumber(history.custom_discount) ? `<div><span>Customer Discount</span><span>- ${customDiscountDisplay}</span></div>` : ''}
-        ${asNumber(history.delivery_charge) ? `<div><span>Delivery Charge</span><span>+ ${deliveryDisplay}</span></div>` : ''}
-
-        ${asNumber(history.bank_service_charge)
-          ? `<div><span>Bank Service Charge</span><span>+ ${formatLKR(itemsSubtotal(history) * asNumber(history.bank_service_charge)/100)}</span></div>`
-          : ''
-        }
-        ${asNumber(history.service_charge)
-          ? `<div><span>Service Charge</span><span>+ ${formatLKR(itemsSubtotal(history) * asNumber(history.service_charge)/100)}</span></div>`
-          : ''
-        }
-
-        <div style="font-weight:bold;"><span>Total</span><span>${totalDisplay}</span></div>
-
-        ${asNumber(history.cash)
-          ? `<div><span>Cash</span><span>${formatLKR(history.cash)}</span></div>`
-          : ''
-        }
-
-        ${ (asNumber(history.cash) - rowNetTotal(history)) > 0
-          ? `<div><span>Balance</span><span>${formatLKR(asNumber(history.cash) - rowNetTotal(history))}</span></div>`
-          : ''
-        }
-
-        ${history.kitchen_note
-          ? `<div style="font-weight:bold; text-align:left; border-top:1px solid black; border-bottom:1px solid black; padding:10px 0;">
-               <small style="display:block; text-align:left;">Note: ${history.kitchen_note}</small>
-             </div>`
-          : ''
-        }
-      </div>
-
+      <!-- Footer -->
       <div class="footer">
-        <p>THANK YOU COME AGAIN</p>
-        <p class="italic">Let the quality define its own standards</p>
-        <p style="font-weight:bold;">Powered by ඔන්ලයින් මුදලාලී.</p>
-        <p>${new Date(history.created_at).toLocaleTimeString('en-US', { timeStyle: 'long', hourCycle: 'h23' })}</p>
+        <p>-- No Exchange or Refunds --</p>
+        <p style="font-weight: bold; font-size: 12px; margin-top: 5px;">THANK YOU, COME AGAIN!</p>
+        <p style="margin-top: 5px;">Powered by Delicasy POS</p>
       </div>
     </div>
   </body>
   </html>`
 
   const printWindow = window.open('', '_blank')
+  if (!printWindow) { alert('Please allow popups to print receipts'); return; }
   printWindow.document.write(receiptContent)
   printWindow.document.close()
   printWindow.focus()
-  printWindow.print()
-  printWindow.close()
+  printWindow.onload = () => {
+    printWindow.print()
+    printWindow.close()
+  }
 }
 
 const printKOTReceipt = (history) => {
@@ -621,17 +628,33 @@ const printKOTReceipt = (history) => {
     <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KOT</title>
     <style>
-      @media print { body { margin:0; padding:0; -webkit-print-color-adjust: exact; } @page { size: 80mm auto; margin: 0; } }
-      body { background:#fff; font-size:13px; font-weight:bold; font-family:Arial, sans-serif; margin:0; padding:10px; color:#000; }
-      h1 { font-weight:bold; font-size:16px; margin:8px 0; }
-      .section { margin-bottom:16px; padding-top:8px; border-top:1px solid #000; }
-      .info-row { display:flex; justify-content:space-between; font-size:13px; font-weight:bold; margin-top:8px; }
-      table { width:100%; font-size:13px; font-weight:bold; border-collapse:collapse; margin-top:8px; }
-      table th, table td { padding:8px 8px; border-bottom:1px solid #000; font-weight:bold; }
-      table th { text-align:left; font-weight:bold; } table td { text-align:right; font-weight:bold; } table td:first-child { text-align:left; font-weight:bold; }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+
+      @page { size: 80mm auto; margin: 0; padding: 0; orphans: 1; widows: 1; }
+
+      @media print {
+        html, body { margin: 0 !important; padding: 0 !important; width: 80mm !important; height: auto !important; background: white !important; overflow: visible !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
+        * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; page-break-inside: avoid !important; break-inside: avoid !important; }
+        body { padding: 10px !important; }
+      }
+
+      body { background: white; font-size: 13px; font-weight: bold; font-family: Arial, sans-serif; margin: 0; padding: 10px; color: #000; width: 80mm; line-height: 1.2; }
+      h1 { font-weight: bold; font-size: 16px; margin: 8px 0; page-break-inside: avoid; break-inside: avoid; }
+      .section { margin-bottom: 16px; padding-top: 8px; border-top: 1px solid #000; page-break-inside: avoid; break-inside: avoid; }
+      .info-row { display: flex; justify-content: space-between; font-size: 13px; font-weight: bold; margin-top: 8px; page-break-inside: avoid; break-inside: avoid; }
+      table { width: 100%; font-size: 13px; font-weight: bold; border-collapse: collapse; margin-top: 8px; page-break-inside: avoid; break-inside: avoid; }
+      thead { page-break-inside: avoid; break-inside: avoid; }
+      tbody { page-break-inside: avoid; break-inside: avoid; }
+      tbody tr { page-break-inside: avoid; break-inside: avoid; }
+      table th, table td { padding: 8px 8px; border-bottom: 1px solid #000; font-weight: bold; page-break-inside: avoid; break-inside: avoid; }
+      table th { text-align: left; font-weight: bold; }
+      table td { text-align: right; font-weight: bold; }
+      table td:first-child { text-align: left; font-weight: bold; }
+      .kot-container { page-break-inside: avoid; break-inside: avoid; width: 80mm; }
     </style>
   </head>
   <body>
+    <div class="kot-container">
     <h1 style="text-align:center">KOT Note</h1>
 
     <div style="font-weight:bold; border:1px solid black; text-align:center; padding:5px; margin:8px 0;">
@@ -662,20 +685,24 @@ const printKOTReceipt = (history) => {
     </div>
 
     ${history.kitchen_note
-      ? `<div style="font-weight:bold; text-align:left; border-top:1px solid black; border-bottom:1px solid black; padding:10px 0;">
+      ? `<div style="font-weight:bold; text-align:left; border-top:1px solid black; border-bottom:1px solid black; padding:10px 0; page-break-inside: avoid; break-inside: avoid;">
            <small style="display:block; text-align:left;">Note: ${history.kitchen_note}</small>
          </div>`
       : ''
     }
+    </div>
   </body>
   </html>`
 
   const printWindow = window.open('', '_blank')
+  if (!printWindow) { alert('Please allow popups to print KOT'); return; }
   printWindow.document.write(receiptContent)
   printWindow.document.close()
   printWindow.focus()
-  printWindow.print()
-  printWindow.close()
+  printWindow.onload = () => {
+    printWindow.print()
+    printWindow.close()
+  }
 }
 
 // Delete single
