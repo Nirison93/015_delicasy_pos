@@ -146,7 +146,7 @@
                     <label class="block text-base font-semibold text-zinc-300 mb-3">Product Image</label>
                     <div v-if="form.image" class="mb-3">
                       <p class="text-sm text-zinc-500 mb-2">Current image</p>
-                      <img :src="form.image.replace('/storage/storage/', '/storage/')"
+                      <img :src="form.image"
                         alt="Product Image"
                         class="w-20 h-20 object-cover rounded-xl ring-1 ring-white/10" />
                     </div>
