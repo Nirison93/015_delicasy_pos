@@ -290,8 +290,12 @@ public function fetchParentCategories(Request $request)
             if ($request->hasFile('image')) {
                 $fileExtension = $request->file('image')->getClientOriginalExtension();
                 $fileName = 'product_' . date("YmdHis") . '.' . $fileExtension;
-                $path = $request->file('image')->storeAs('products', $fileName, 'public');
-                $validated['image'] = '' . $path;
+                $directory = public_path('storage/products');
+                if (!is_dir($directory)) {
+                    mkdir($directory, 0755, true);
+                }
+                $request->file('image')->move($directory, $fileName);
+                $validated['image'] = 'storage/products/' . $fileName;
             }
 
             if (empty($validated['barcode'])) {
@@ -359,8 +363,12 @@ public function fetchParentCategories(Request $request)
             if ($request->hasFile('image')) {
                 $fileExtension = $request->file('image')->getClientOriginalExtension();
                 $fileName = 'product_' . date("YmdHis") . '.' . $fileExtension;
-                $path = $request->file('image')->storeAs('products', $fileName, 'public');
-                $validated['image'] = 'storage/' . $path;
+                $directory = public_path('storage/products');
+                if (!is_dir($directory)) {
+                    mkdir($directory, 0755, true);
+                }
+                $request->file('image')->move($directory, $fileName);
+                $validated['image'] = 'storage/products/' . $fileName;
             }
 
             // Product::create($validated);
@@ -472,15 +480,22 @@ public function fetchParentCategories(Request $request)
         // Handle image update
         if ($request->hasFile('image')) {
             // Delete the old image if it exists
-            if ($product->image && Storage::disk('public')->exists(str_replace('storage/', '', $product->image))) {
-                Storage::disk('public')->delete(str_replace('storage/', '', $product->image));
+            if ($product->image) {
+                $oldImagePath = public_path($product->image);
+                if (file_exists($oldImagePath)) {
+                    unlink($oldImagePath);
+                }
             }
 
             // Save the new image
             $fileExtension = $request->file('image')->getClientOriginalExtension();
             $fileName = 'product_' . date("YmdHis") . '.' . $fileExtension;
-            $path = $request->file('image')->storeAs('products', $fileName, 'public');
-            $validated['image'] = 'storage/' . $path;
+            $directory = public_path('storage/products');
+            if (!is_dir($directory)) {
+                mkdir($directory, 0755, true);
+            }
+            $request->file('image')->move($directory, $fileName);
+            $validated['image'] = 'storage/products/' . $fileName;
         } else {
             $validated['image'] = $product->image;
         }
@@ -520,13 +535,15 @@ public function fetchParentCategories(Request $request)
         }
 
         // Prepare to delete the image
-        $imagePath = str_replace('storage/', '', $product->image);
         $imageUsageCount = Product::where('image', $product->image)
             ->where('id', '!=', $product->id)
             ->count();
 
-        if ($imageUsageCount === 0 && Storage::disk('public')->exists($imagePath)) {
-            Storage::disk('public')->delete($imagePath);
+        if ($imageUsageCount === 0 && $product->image) {
+            $imagePath = public_path($product->image);
+            if (file_exists($imagePath)) {
+                unlink($imagePath);
+            }
         }
 
         try {
@@ -598,8 +615,12 @@ public function fetchParentCategories(Request $request)
             if ($request->hasFile('image')) {
                 $fileExtension = $request->file('image')->getClientOriginalExtension();
                 $fileName = 'product_' . date("YmdHis") . '.' . $fileExtension;
-                $path = $request->file('image')->storeAs('products', $fileName, 'public');
-                $validated['image'] = 'storage/' . $path;
+                $directory = public_path('storage/products');
+                if (!is_dir($directory)) {
+                    mkdir($directory, 0755, true);
+                }
+                $request->file('image')->move($directory, $fileName);
+                $validated['image'] = 'storage/products/' . $fileName;
             }
 
             if (empty($validated['barcode'])) {

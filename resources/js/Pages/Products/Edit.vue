@@ -205,13 +205,12 @@
                 >Current Image</label
               >
               <div class="mt-2">
-                <img
-                  v-if="product.image"
-                  :src="`/${product.image}`"
-                  alt="Product Image"
-                  class="rounded-lg h-50 w-50"
-                />
-
+              <img
+  v-if="product.image"
+  :src="`/storage/${product.image}`"
+  alt="Product Image"
+  class="rounded-lg h-50 w-50"
+/>
                 <p v-else class="text-sm text-gray-500">No image available</p>
               </div>
             </div>
@@ -282,7 +281,10 @@ const handleImageUpload = (event) => {
 };
 
 const submit = () => {
-  form.post(`/products/${props.product.id}`, {
+  form.transform((data) => ({
+    ...data,
+    _method: "put",
+  })).post(`/products/${props.product.id}`, {
     preserveScroll: true,
     onSuccess: () => {
       console.log("Product updated successfully!");
