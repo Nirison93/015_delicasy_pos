@@ -166,7 +166,7 @@
                            <!-- Product Image (Small) -->
                            <div class="w-full h-40 rounded-md overflow-hidden bg-zinc-700 flex-shrink-0">
                               <img v-if="product.image"
-                                 :src="product.image.replace('/storage/storage/', '/storage/')"
+                                 :src="product.image"
                                  :alt="product.name" class="w-full h-full object-cover" />
                               <div v-else
                                  class="w-full h-full flex items-center justify-center text-zinc-600 text-md">
@@ -301,9 +301,7 @@
                            <!-- Product Image -->
                            <div
                               class="w-[60px] h-[60px] flex-shrink-0 rounded-xl overflow-hidden ring-1 ring-white/10">
-                              <img :src="item.image
-                                 ? item.image.replace('/storage/storage/', '/storage/')
-                                 : '/images/placeholder.jpg'" alt="Product Image" class="object-cover w-full h-full" />
+                              <img :src="item.image || '/images/placeholder.jpg'" alt="Product Image" class="object-cover w-full h-full" />
                            </div>
                            <!-- Product Details -->
                            <div class="flex-1 min-w-0 flex flex-col justify-between py-0.5">
@@ -353,8 +351,8 @@
                                           class="text-[9px] font-semibold text-zinc-500 ml-0.5">LKR</span>
                                     </p>
                                     <div class="flex items-center gap-1">
-                                       <span class="text-[10px] text-zinc-500">{{ item.selling_price }} ×
-                                       {{ item.quantity }}</span>
+                                       <span class="text-[14px] text-yellow-500">{{ item.selling_price }} ×
+                                       <b>{{ item.quantity }}</b></span>
                                        <button
                                           v-if="item.discount && item.discount > 0 && item.apply_discount == false && !appliedCoupon"
                                           @click="applyDiscount(item.id)"
@@ -417,6 +415,11 @@
                               ]">
                            Pay Now
                            </button>
+                           <!-- Total Amount Display -->
+                           <div v-if="selectedTable && selectedTable.products.length > 0" class="flex items-center justify-between px-4 py-3 bg-zinc-800/60 border border-white/10 rounded-xl">
+                              <p class="text-md font-semibold text-zinc-400">Total Amount</p>
+                              <p class="text-2xl font-bold text-amber-400">Rs {{ total }}</p>
+                           </div>
                         </div>
                      </div>
                      <!-- end scrollable body -->

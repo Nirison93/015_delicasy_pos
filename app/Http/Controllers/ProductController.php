@@ -295,7 +295,7 @@ public function fetchParentCategories(Request $request)
                     mkdir($directory, 0755, true);
                 }
                 $request->file('image')->move($directory, $fileName);
-                $validated['image'] = 'storage/products/' . $fileName;
+                $validated['image'] = 'products/' . $fileName;
             }
 
             if (empty($validated['barcode'])) {
@@ -368,7 +368,7 @@ public function fetchParentCategories(Request $request)
                     mkdir($directory, 0755, true);
                 }
                 $request->file('image')->move($directory, $fileName);
-                $validated['image'] = 'storage/products/' . $fileName;
+                $validated['image'] = 'products/' . $fileName;
             }
 
             // Product::create($validated);
@@ -495,7 +495,7 @@ public function fetchParentCategories(Request $request)
                 mkdir($directory, 0755, true);
             }
             $request->file('image')->move($directory, $fileName);
-            $validated['image'] = 'storage/products/' . $fileName;
+            $validated['image'] = 'products/' . $fileName;
         } else {
             $validated['image'] = $product->image;
         }
@@ -620,7 +620,7 @@ public function fetchParentCategories(Request $request)
                     mkdir($directory, 0755, true);
                 }
                 $request->file('image')->move($directory, $fileName);
-                $validated['image'] = 'storage/products/' . $fileName;
+                $validated['image'] = 'products/' . $fileName;
             }
 
             if (empty($validated['barcode'])) {
