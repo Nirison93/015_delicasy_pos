@@ -36,13 +36,25 @@ class PosController extends Controller
             abort(403, 'Unauthorized');
         }
 
-        // Your existing data…
-        $allcategories = Category::with(['parent', 'products.size', 'products.category'])->get()->map(function ($category) {
-            $category->hierarchy_string = $category->hierarchy_string;
-            // Filter products: only show products from this category (by category_id match)
-            $category->products = $category->products->where('category_id', $category->id)->values();
-            return $category;
-        });
+        $allcategories = Category::with([
+        'parent',
+        'products' => function ($query) {
+            $query->orderBy('name', 'asc');
+        },
+        'products.size',
+        'products.category'
+    ])
+    ->orderBy('name', 'asc')
+    ->get()
+    ->map(function ($category) {
+        $category->hierarchy_string = $category->hierarchy_string;
+
+        $category->products = $category->products
+            ->where('category_id', $category->id)
+            ->values();
+
+        return $category;
+    });
         $colors = Color::orderBy('created_at', 'desc')->get();
         $sizes = Size::orderBy('created_at', 'desc')->get();
         $serviceCharge = ServiceCharge::orderBy('created_at', 'desc')->get();
