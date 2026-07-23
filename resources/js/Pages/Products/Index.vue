@@ -254,7 +254,7 @@
               class="cursor-pointer relative overflow-hidden bg-gradient-to-br from-slate-100 to-slate-200 flex-shrink-0"
             >
               <img
-                v-if="product.image" :src="getImageSrc(product.image)" :alt="product.name || 'Product Image'"
+                v-if="product.image" :src="product.image" :alt="product.name || 'Product Image'"
                 class="h-52 w-full object-cover transition-transform duration-500 group-hover:scale-125"
                 loading="lazy"
               />
@@ -592,12 +592,6 @@ const navigateTo = (url) => {
   );
 };
 
-const getImageSrc = (src) => {
-  if (!src) return "";
-  const normalized = src.replace(/\\/g, "/");
-  const doubleStorage = normalized.replace(/^(?:\/)?storage\/(?:storage\/)+/i, "storage/");
-  return doubleStorage.replace(/^\/\//, "/");
-};
 </script>
 
 

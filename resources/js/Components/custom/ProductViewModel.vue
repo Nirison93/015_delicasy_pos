@@ -45,9 +45,7 @@
                 <div class="lg:w-2/5 flex-shrink-0">
                   <div class="relative rounded-2xl overflow-hidden bg-zinc-800 ring-1 ring-white/10">
                     <img
-  :src="selectedProduct.image
-    ? selectedProduct.image.replace('/storage/storage/', '/storage/')
-    : '/images/placeholder.jpg'"
+  :src="selectedProduct.image || '/images/placeholder.jpg'"
   alt="Product Image"
   class="w-full h-72 lg:h-full object-cover"
 />

@@ -11,6 +11,7 @@ use App\Models\PromotionItem;
 use App\Models\Supplier;
 use App\Models\StockTransaction;
 use App\Traits\GeneratesUniqueCode;
+use App\Helpers\ImagePathHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
@@ -295,7 +296,7 @@ public function fetchParentCategories(Request $request)
                     mkdir($directory, 0755, true);
                 }
                 $request->file('image')->move($directory, $fileName);
-                $validated['image'] = 'storage/products/' . $fileName;
+                $validated['image'] = ImagePathHelper::standardize('/storage/products/' . $fileName);
             }
 
             if (empty($validated['barcode'])) {
@@ -368,7 +369,7 @@ public function fetchParentCategories(Request $request)
                     mkdir($directory, 0755, true);
                 }
                 $request->file('image')->move($directory, $fileName);
-                $validated['image'] = 'storage/products/' . $fileName;
+                $validated['image'] = ImagePathHelper::standardize('/storage/products/' . $fileName);
             }
 
             // Product::create($validated);
@@ -495,7 +496,7 @@ public function fetchParentCategories(Request $request)
                 mkdir($directory, 0755, true);
             }
             $request->file('image')->move($directory, $fileName);
-            $validated['image'] = 'storage/products/' . $fileName;
+            $validated['image'] = ImagePathHelper::standardize('/storage/products/' . $fileName);
         } else {
             $validated['image'] = $product->image;
         }
@@ -620,7 +621,7 @@ public function fetchParentCategories(Request $request)
                     mkdir($directory, 0755, true);
                 }
                 $request->file('image')->move($directory, $fileName);
-                $validated['image'] = 'storage/products/' . $fileName;
+                $validated['image'] = ImagePathHelper::standardize('/storage/products/' . $fileName);
             }
 
             if (empty($validated['barcode'])) {

@@ -151,7 +151,7 @@
                       <p class="text-sm text-zinc-500 mb-2">Current image</p>
                       <img
   v-if="selectedProduct.image"
-  :src="selectedProduct.image.replace('/storage/storage/', '/storage/')"
+  :src="selectedProduct.image"
   alt="Product Image"
   class="w-20 h-20 object-cover rounded-xl ring-1 ring-white/10"
 />

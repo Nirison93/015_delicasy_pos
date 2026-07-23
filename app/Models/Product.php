@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Traits\GeneratesUniqueCode;
+use App\Helpers\ImagePathHelper;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
@@ -50,14 +51,14 @@ class Product extends Model
 
     /**
      * Get the image URL attribute
+     * Always returns standardized /storage/products/filename format
      */
     protected function getImageAttribute($value)
     {
         if (!$value) {
             return null;
         }
-        // Convert relative path to full URL
-        return Storage::url($value);
+        return ImagePathHelper::standardize($value);
     }
 
     public function promotionItems()
