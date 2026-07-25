@@ -673,14 +673,14 @@
                            @keydown="handleCashKeydown"
                            @focus="handleCashFocus" />
                         <!-- Cash Validation Message -->
-                        <div v-if="selectedTable.cash && Number(selectedTable.cash) > 0 && balance < 0" class="flex items-center gap-2 px-4 py-2 bg-red-500/15 border border-red-500/40 rounded-lg">
+                        <div v-if="paymentValidation.message" class="flex items-center gap-2 px-4 py-2 bg-red-500/15 border border-red-500/40 rounded-lg">
                            <i class="ri-alert-line text-red-400 text-lg"></i>
-                           <p class="text-sm font-semibold text-red-400">Cash is not enough (Short: {{ Math.abs(balance).toFixed(2) }} LKR)</p>
+                           <p class="text-sm font-semibold text-red-400">{{ paymentValidation.message }}</p>
                         </div>
                         <!-- Quick Amount Buttons -->
                         <div class="grid grid-cols-4 gap-3">
                            <button v-for="amount in [500, 1000, 2000, 5000]" :key="amount"
-                              @click="selectedTable.cash = amount"
+                              @click="() => { selectedTable.cash = amount; }"
                               class="py-4 px-1 rounded-xl bg-amber-500/15 ring-1 ring-amber-500/30 text-amber-400 font-bold text-2xl hover:bg-amber-500/25 active:scale-95 transition">
                               {{ amount }}
                            </button>
@@ -689,6 +689,11 @@
 
                      <!-- Card Selection -->
                      <div v-if="selectedPaymentMethod === 'card'" class="space-y-4">
+                        <!-- Card Validation Message -->
+                        <div v-if="paymentValidation.message" class="flex items-center gap-2 px-4 py-2 bg-red-500/15 border border-red-500/40 rounded-lg">
+                           <i class="ri-alert-line text-red-400 text-lg"></i>
+                           <p class="text-sm font-semibold text-red-400">{{ paymentValidation.message }}</p>
+                        </div>
                         <!-- Bank Charge + Card Last 4 Row (2 columns) -->
                         <div class="grid grid-cols-2 gap-3">
                            <!-- Bank Charge Selection -->
@@ -758,10 +763,10 @@
                      class="flex-1 py-5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-bold text-2xl transition active:scale-95">
                   Cancel
                   </button>
-                  <button @click="submitOrder()" :disabled="balance < 0"
+                  <button @click="submitOrder()" :disabled="isConfirmButtonDisabled"
                      :class="[
                         'flex-1 py-5 rounded-xl font-bold text-2xl transition active:scale-95',
-                        balance < 0
+                        isConfirmButtonDisabled
                         ? 'bg-zinc-700 text-zinc-500 cursor-not-allowed opacity-60'
                         : 'bg-green-500 hover:bg-green-600 text-white'
                      ]">
@@ -2599,8 +2604,8 @@
        if (!total.value || parseFloat(total.value) <= 0) {
            isAlertModalOpen.value = true; message.value = "Total amount cannot be zero or less. Please check the bill."; return;
        }
-       if (balance.value < 0) {
-           isAlertModalOpen.value = true; message.value = "Cash is not enough"; return;
+       if (!paymentValidation.value.isValid) {
+           isAlertModalOpen.value = true; message.value = paymentValidation.value.message; return;
        }
        try {
            const response = await axios.post("/pos/submit", {
@@ -2710,6 +2715,34 @@
        if (!selectedTable.value) return 0;
        if (selectedTable.value.cash == null || selectedTable.value.cash === 0) return 0;
        return (parseFloat(selectedTable.value.cash) - parseFloat(total.value)).toFixed(2);
+   });
+
+   const paymentValidation = computed(() => {
+       const totalAmount = parseFloat(total.value) || 0;
+
+       if (selectedPaymentMethod.value === 'card') {
+           if (!selectedTable.value?.bank_name || selectedTable.value.bank_name === '') {
+               return { isValid: false, message: 'Please select a bank.' };
+           }
+           return { isValid: true, message: '' };
+       }
+
+       const enteredAmount = parseFloat(selectedTable.value?.cash) || 0;
+
+       if (enteredAmount === 0 || !selectedTable.value?.cash || selectedTable.value.cash === '') {
+           return { isValid: false, message: 'Please enter a valid payment amount.' };
+       }
+       if (isNaN(enteredAmount) || enteredAmount < 0) {
+           return { isValid: false, message: 'Please enter a valid payment amount.' };
+       }
+       if (enteredAmount < totalAmount) {
+           return { isValid: false, message: 'Entered amount cannot be less than the total amount.' };
+       }
+       return { isValid: true, message: '' };
+   });
+
+   const isConfirmButtonDisabled = computed(() => {
+       return !paymentValidation.value.isValid;
    });
 
    /* =========================
