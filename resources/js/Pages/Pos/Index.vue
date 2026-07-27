@@ -2592,56 +2592,68 @@
        }
    };
 
-   const submitOrder = async () => {
-       // Drawer status is already tracked reactively (kept in sync on mount and whenever
-       // it's opened/closed) — checking it here avoids an extra network round-trip before
-       // submitting. The backend still re-validates and returns a 423 if it's actually closed.
-       if (!openCashDrawer.value) {
-           isAlertModalOpen.value = true;
-           message.value = "Opening balance required. Please open the cash drawer to continue.";
-           return;
-       }
-       if (!total.value || parseFloat(total.value) <= 0) {
-           isAlertModalOpen.value = true; message.value = "Total amount cannot be zero or less. Please check the bill."; return;
-       }
-       if (!paymentValidation.value.isValid) {
-           isAlertModalOpen.value = true; message.value = paymentValidation.value.message; return;
-       }
-       try {
-           const response = await axios.post("/pos/submit", {
-               customer: customer.value,
-               products: selectedTable.value.products,
-               employee_id: employee_id.value,
-               paymentMethod: selectedPaymentMethod.value,
-               userId: props.loggedInUser.id,
-               custom_discount: customDiscCalculated.value,
-               cash: selectedTable.value.cash,
-               bank_name: selectedTable.value.bank_name,
-               card_last4: selectedTable.value.card_last4,
-               kitchen_note: selectedTable.value.kitchen_note,
-               delivery_charge: selectedTable.value.delivery_charge,
-               service_charge: selectedTable.value.service_charge,
-               bank_service_charge: selectedTable.value.bank_service_charge,
-               shopping_bag_charge: selectedTable.value.shopping_bag_charge_enabled ? 10.00 : 0,
-               order_type: selectedTable.value.order_type,
-               total: total.value,
-               owner_id: ownerForm.owner_id || null,
-               owner_discount_value: ownerDiscountValue.value,
-               owner_override_amount: ownerFetch.value.override_amount || 0,
-           });
-           // Use the backend-confirmed order ID on the receipt
-           selectedTable.value.orderId = response.data.orderId || selectedTable.value.orderId;
-           isConfirmOrderModalOpen.value = false;
-           isSuccessModalOpen.value = true;
-           customer.value = { name: "", contactNumber: "", email: "" };
-       } catch (error) {
-           if (error.response?.status === 423) {
-               isAlertModalOpen.value = true; message.value = error.response.data.message;
-           }
-           console.error("Error submitting:", error.response?.data || error.message);
-       }
-   };
+  const submitOrder = async () => {
+    // Drawer status is already tracked reactively (kept in sync on mount and whenever
+    // it's opened/closed) — checking it here avoids an extra network round-trip before
+    // submitting. The backend still re-validates and returns a 423 if it's actually closed.
+    if (!openCashDrawer.value) {
+        isAlertModalOpen.value = true;
+        message.value = "Opening balance required. Please open the cash drawer to continue.";
+        return;
+    }
+    if (!total.value || parseFloat(total.value) <= 0) {
+        isAlertModalOpen.value = true; message.value = "Total amount cannot be zero or less. Please check the bill."; return;
+    }
+    if (!paymentValidation.value.isValid) {
+        isAlertModalOpen.value = true; message.value = paymentValidation.value.message; return;
+    }
 
+    // Snapshot everything we need BEFORE clearing/mutating anything,
+    // so the background request still has correct data even after the
+    // success modal takes over the UI.
+    const payload = {
+        customer: { ...customer.value },
+        products: JSON.parse(JSON.stringify(selectedTable.value.products)),
+        employee_id: employee_id.value,
+        paymentMethod: selectedPaymentMethod.value,
+        userId: props.loggedInUser.id,
+        custom_discount: customDiscCalculated.value,
+        cash: selectedTable.value.cash,
+        bank_name: selectedTable.value.bank_name,
+        card_last4: selectedTable.value.card_last4,
+        kitchen_note: selectedTable.value.kitchen_note,
+        delivery_charge: selectedTable.value.delivery_charge,
+        service_charge: selectedTable.value.service_charge,
+        bank_service_charge: selectedTable.value.bank_service_charge,
+        shopping_bag_charge: selectedTable.value.shopping_bag_charge_enabled ? 10.00 : 0,
+        order_type: selectedTable.value.order_type,
+        total: total.value,
+        owner_id: ownerForm.owner_id || null,
+        owner_discount_value: ownerDiscountValue.value,
+        owner_override_amount: ownerFetch.value.override_amount || 0,
+    };
+
+    // 1) Show success instantly — don't wait for the network round trip.
+    isConfirmOrderModalOpen.value = false;
+    isSuccessModalOpen.value = true;
+    customer.value = { name: "", contactNumber: "", email: "" };
+
+    // 2) Fire the real request in the background.
+    try {
+        const response = await axios.post("/pos/submit", payload);
+        // Use the backend-confirmed order ID on the receipt once it arrives.
+        selectedTable.value.orderId = response.data.orderId || selectedTable.value.orderId;
+    } catch (error) {
+        // Roll back the optimistic success UI if the order actually failed.
+        isSuccessModalOpen.value = false;
+        isConfirmOrderModalOpen.value = true;
+        isAlertModalOpen.value = true;
+        message.value = error.response?.status === 423
+            ? error.response.data.message
+            : (error.response?.data?.message || "Failed to submit order. Please try again.");
+        console.error("Error submitting:", error.response?.data || error.message);
+    }
+};
    /* =========================
       Totals
    ========================= */
