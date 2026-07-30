@@ -83,8 +83,8 @@
 
       <!-- Cash Drawer Table -->
       <div class="bg-white rounded-2xl ring-1 ring-slate-200 shadow-sm overflow-hidden">
-        <div class="px-5 py-4 border-b border-slate-200">
-          <h2 class="text-xl font-bold text-slate-800">Cash Drawer History</h2>
+        <div class="px-5 py-4 border-b border-slate-200 flex items-center justify-between">
+          <h2 class="text-xl font-bold text-slate-800">Cash Drawer History <span class="text-sm font-normal text-slate-500">({{ drawerPaginationInfo }})</span></h2>
         </div>
         <div class="overflow-x-auto">
           <table class="w-full text-lg">
@@ -102,8 +102,8 @@
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-100">
-              <tr v-for="(row, idx) in cashDrawers" :key="row.id" class="hover:bg-slate-50">
-                <td class="px-4 py-3 text-slate-600 font-semibold">{{ idx + 1 }}</td>
+              <tr v-for="(row, idx) in cashDrawers.data ?? cashDrawers" :key="row.id" class="hover:bg-slate-50">
+                <td class="px-4 py-3 text-slate-600 font-semibold">{{ (cashDrawers.current_page ? cashDrawers.current_page - 1 : 0) * 25 + idx + 1 }}</td>
                 <td class="px-4 py-3 text-slate-700">{{ row.openedByUser?.name || row.opened_by || "-" }}</td>
                 <td class="px-4 py-3 text-slate-500">{{ fmtDate(row.opened_at) }}</td>
                 <td class="px-4 py-3 text-right font-semibold text-emerald-600">{{ fmt(row.opening_balance) }}</td>
@@ -124,6 +124,35 @@
               </tr>
             </tbody>
           </table>
+        </div>
+
+        <!-- Cash Drawer Pagination -->
+        <div class="px-5 py-4 border-t border-slate-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div class="flex items-center gap-2">
+            <label class="text-sm font-semibold text-slate-600">Rows per page:</label>
+            <select v-model.number="drawerPerPage" @change="changeDrawersPerPage"
+              class="h-9 px-3 text-sm font-medium text-slate-700 bg-white ring-1 ring-slate-200 border-0 rounded-lg focus:ring-2 focus:ring-blue-400 transition">
+              <option :value="10">10</option>
+              <option :value="25">25</option>
+              <option :value="50">50</option>
+              <option :value="100">100</option>
+            </select>
+          </div>
+          <div class="flex items-center gap-2 flex-wrap justify-center sm:justify-end">
+            <button @click="prevDrawersPage" :disabled="!cashDrawers.prev_page_url"
+              class="h-9 px-3 inline-flex items-center gap-1 text-sm font-semibold text-white bg-slate-700 rounded-lg hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed transition">
+              <i class="ri-arrow-left-s-line"></i> Previous
+            </button>
+            <div class="flex items-center gap-1">
+              <span v-if="cashDrawers.current_page" class="text-sm font-semibold text-slate-600">
+                Page {{ cashDrawers.current_page }} of {{ cashDrawers.last_page }}
+              </span>
+            </div>
+            <button @click="nextDrawersPage" :disabled="!cashDrawers.next_page_url"
+              class="h-9 px-3 inline-flex items-center gap-1 text-sm font-semibold text-white bg-slate-700 rounded-lg hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed transition">
+              Next <i class="ri-arrow-right-s-line"></i>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -183,6 +212,7 @@ const props = defineProps({
 const startDate = ref(props.startDate || "");
 const endDate = ref(props.endDate || "");
 const showQuickFilter = ref(false);
+const drawerPerPage = ref(25);
 
 const quickFilters = [
   { key: "today", label: "Today" },
@@ -222,7 +252,57 @@ const applyQuick = (period) => {
 };
 
 const filterData = () => {
-  router.get(route("reports.cashDrawer"), { start_date: startDate.value, end_date: endDate.value }, { preserveScroll: true });
+  router.get(route("reports.cashDrawer"), { start_date: startDate.value, end_date: endDate.value, page: 1 }, { preserveScroll: true });
+};
+
+const drawerPaginationInfo = computed(() => {
+  if (!props.cashDrawers || !props.cashDrawers.current_page) return "";
+  const from = (props.cashDrawers.current_page - 1) * 25 + 1;
+  const to = Math.min(props.cashDrawers.current_page * 25, props.cashDrawers.total);
+  return `${from}-${to} of ${props.cashDrawers.total}`;
+});
+
+const nextDrawersPage = () => {
+  if (props.cashDrawers && props.cashDrawers.next_page_url) {
+    router.get(
+      route("reports.cashDrawer"),
+      {
+        start_date: startDate.value,
+        end_date: endDate.value,
+        page: props.cashDrawers.current_page + 1,
+        per_page: drawerPerPage.value,
+      },
+      { preserveScroll: true }
+    );
+  }
+};
+
+const prevDrawersPage = () => {
+  if (props.cashDrawers && props.cashDrawers.prev_page_url) {
+    router.get(
+      route("reports.cashDrawer"),
+      {
+        start_date: startDate.value,
+        end_date: endDate.value,
+        page: props.cashDrawers.current_page - 1,
+        per_page: drawerPerPage.value,
+      },
+      { preserveScroll: true }
+    );
+  }
+};
+
+const changeDrawersPerPage = () => {
+  router.get(
+    route("reports.cashDrawer"),
+    {
+      start_date: startDate.value,
+      end_date: endDate.value,
+      page: 1,
+      per_page: drawerPerPage.value,
+    },
+    { preserveScroll: true }
+  );
 };
 
 const dateRangeLabel = computed(() => {

@@ -50,7 +50,7 @@
       <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <div class="rounded-2xl bg-gradient-to-br from-purple-500 to-violet-700 p-4 flex flex-col gap-1 shadow-md">
           <p class="text-base font-semibold text-white/70 uppercase tracking-wider">Categories</p>
-          <p class="text-3xl font-bold text-white">{{ rows.length }}</p>
+          <p class="text-3xl font-bold text-white">{{ rows.total ?? rows.length }}</p>
         </div>
         <div class="rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 p-4 flex flex-col gap-1 shadow-md">
           <p class="text-base font-semibold text-white/70 uppercase tracking-wider">Total Revenue (LKR)</p>
@@ -84,6 +84,7 @@
           <div class="flex items-center justify-between mb-4">
             <h2 class="text-2xl font-bold text-slate-800 flex items-center gap-2">
               <i class="ri-table-2 text-purple-500"></i> Category Breakdown
+              <span class="text-sm font-normal text-slate-500">({{ paginationInfo }})</span>
             </h2>
             <div class="flex items-center gap-2">
               <button @click="downloadPDF" class="h-9 px-3 inline-flex items-center gap-1.5 text-base font-semibold text-white bg-rose-600 rounded-xl hover:bg-rose-700 active:scale-95 transition">
@@ -108,8 +109,8 @@
                 </tr>
               </thead>
               <tbody class="divide-y divide-slate-100">
-                <tr v-for="(r, i) in rows" :key="i" class="hover:bg-slate-50 transition">
-                  <td class="p-3 text-slate-400 text-center">{{ i + 1 }}</td>
+                <tr v-for="(r, i) in (rows.data ?? rows)" :key="i" class="hover:bg-slate-50 transition">
+                  <td class="p-3 text-slate-400 text-center">{{ (rows.current_page ? rows.current_page - 1 : 0) * 25 + i + 1 }}</td>
                   <td class="p-3 font-semibold">{{ r.category }}</td>
                   <td class="p-3 text-right">{{ r.qty.toLocaleString() }}</td>
                   <td class="p-3 text-right font-semibold">{{ fmt(r.total) }}</td>
@@ -135,6 +136,35 @@
               </tfoot>
             </table>
           </div>
+
+          <!-- Pagination -->
+          <div class="mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div class="flex items-center gap-2">
+              <label class="text-sm font-semibold text-slate-600">Rows per page:</label>
+              <select v-model.number="perPage" @change="changePerPage"
+                class="h-9 px-3 text-sm font-medium text-slate-700 bg-white ring-1 ring-slate-200 border-0 rounded-lg focus:ring-2 focus:ring-blue-400 transition">
+                <option :value="10">10</option>
+                <option :value="25">25</option>
+                <option :value="50">50</option>
+                <option :value="100">100</option>
+              </select>
+            </div>
+            <div class="flex items-center gap-2 flex-wrap justify-center sm:justify-end">
+              <button @click="prevPage" :disabled="!rows.prev_page_url"
+                class="h-9 px-3 inline-flex items-center gap-1 text-sm font-semibold text-white bg-slate-700 rounded-lg hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed transition">
+                <i class="ri-arrow-left-s-line"></i> Previous
+              </button>
+              <div class="flex items-center gap-1">
+                <span v-if="rows.current_page" class="text-sm font-semibold text-slate-600">
+                  Page {{ rows.current_page }} of {{ rows.last_page }}
+                </span>
+              </div>
+              <button @click="nextPage" :disabled="!rows.next_page_url"
+                class="h-9 px-3 inline-flex items-center gap-1 text-sm font-semibold text-white bg-slate-700 rounded-lg hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed transition">
+                Next <i class="ri-arrow-right-s-line"></i>
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -158,7 +188,7 @@ import * as XLSX from "xlsx";
 ChartJS.register(Title, Tooltip, Legend, ArcElement);
 
 const props = defineProps({
-  rows:        { type: Array,  default: () => [] },
+  rows:        { type: [Array, Object],  default: () => [] },
   startDate:   { type: String, default: "" },
   endDate:     { type: String, default: "" },
   companyInfo: { type: Object, default: () => ({}) },
@@ -167,14 +197,23 @@ const props = defineProps({
 const startDate = ref(props.startDate);
 const endDate   = ref(props.endDate);
 const showQuickFilter = ref(false);
+const perPage = ref(25);
 
 const fmt = (n) => Number(n || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const safe = (s) => String(s || "all").replace(/[^\dA-Za-z-]/g, "_");
 
-const grandTotal        = computed(() => props.rows.reduce((s, r) => s + r.total, 0));
-const grandQty          = computed(() => props.rows.reduce((s, r) => s + r.qty, 0));
-const grandTransactions = computed(() => props.rows.reduce((s, r) => s + r.transactions, 0));
+const rowsData = computed(() => (props.rows && props.rows.data) ? props.rows.data : (Array.isArray(props.rows) ? props.rows : []));
+const grandTotal        = computed(() => rowsData.value.reduce((s, r) => s + r.total, 0));
+const grandQty          = computed(() => rowsData.value.reduce((s, r) => s + r.qty, 0));
+const grandTransactions = computed(() => rowsData.value.reduce((s, r) => s + r.transactions, 0));
 const share = (total)   => grandTotal.value ? (total / grandTotal.value) * 100 : 0;
+
+const paginationInfo = computed(() => {
+  if (!props.rows || !props.rows.current_page) return "";
+  const from = (props.rows.current_page - 1) * 25 + 1;
+  const to = Math.min(props.rows.current_page * 25, props.rows.total);
+  return `${from}-${to} of ${props.rows.total}`;
+});
 
 const dateRangeLabel = computed(() => {
   if (props.startDate && props.endDate) return `${props.startDate}  →  ${props.endDate}`;
@@ -213,14 +252,57 @@ const applyQuick = (period) => {
 };
 
 const filterData = () => {
-  router.get(route("reports.categoryWiseSales"), { start_date: startDate.value, end_date: endDate.value }, { preserveScroll: true });
+  router.get(route("reports.categoryWiseSales"), { start_date: startDate.value, end_date: endDate.value, page: 1 }, { preserveScroll: true });
+};
+
+const nextPage = () => {
+  if (props.rows && props.rows.next_page_url) {
+    router.get(
+      route("reports.categoryWiseSales"),
+      {
+        start_date: startDate.value,
+        end_date: endDate.value,
+        page: props.rows.current_page + 1,
+        per_page: perPage.value,
+      },
+      { preserveScroll: true }
+    );
+  }
+};
+
+const prevPage = () => {
+  if (props.rows && props.rows.prev_page_url) {
+    router.get(
+      route("reports.categoryWiseSales"),
+      {
+        start_date: startDate.value,
+        end_date: endDate.value,
+        page: props.rows.current_page - 1,
+        per_page: perPage.value,
+      },
+      { preserveScroll: true }
+    );
+  }
+};
+
+const changePerPage = () => {
+  router.get(
+    route("reports.categoryWiseSales"),
+    {
+      start_date: startDate.value,
+      end_date: endDate.value,
+      page: 1,
+      per_page: perPage.value,
+    },
+    { preserveScroll: true }
+  );
 };
 
 // ── Chart ──────────────────────────────────────────────────────
 const COLORS = ["#8b5cf6","#06b6d4","#10b981","#f59e0b","#ef4444","#3b82f6","#ec4899","#14b8a6","#f97316","#6366f1"];
 const chartData = computed(() => ({
-  labels: props.rows.map(r => r.category),
-  datasets: [{ data: props.rows.map(r => r.total), backgroundColor: props.rows.map((_, i) => COLORS[i % COLORS.length]), borderWidth: 2, borderColor: "#fff" }],
+  labels: rowsData.value.map(r => r.category),
+  datasets: [{ data: rowsData.value.map(r => r.total), backgroundColor: rowsData.value.map((_, i) => COLORS[i % COLORS.length]), borderWidth: 2, borderColor: "#fff" }],
 }));
 const chartOptions = { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: "bottom", labels: { boxWidth: 12, padding: 16 } }, tooltip: { callbacks: { label: (c) => ` LKR ${Number(c.raw).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}` } } } };
 
@@ -248,7 +330,7 @@ const downloadPDF = () => {
     startY: 46,
     margin: { left: 14, right: 14 },
     head: [["#","Category","Qty","Revenue (LKR)","Transactions","Share %"]],
-    body: props.rows.map((r, i) => [i+1, r.category, r.qty.toLocaleString(), fmt(r.total), r.transactions.toLocaleString(), share(r.total).toFixed(1)+"%"]),
+    body: rowsData.value.map((r, i) => [i+1, r.category, r.qty.toLocaleString(), fmt(r.total), r.transactions.toLocaleString(), share(r.total).toFixed(1)+"%"]),
     foot: [["","Totals", grandQty.value.toLocaleString(), fmt(grandTotal.value), grandTransactions.value.toLocaleString(), "100%"]],
     theme: "grid",
     headStyles: { fillColor: [88,28,135], textColor: 255, fontStyle: "bold", fontSize: 8 },
@@ -269,7 +351,7 @@ const downloadPDF = () => {
 // ── Excel ──────────────────────────────────────────────────────
 const downloadExcel = () => {
   const header = ["#","Category","Qty","Revenue (LKR)","Transactions","Share %"];
-  const data = props.rows.map((r, i) => [i+1, r.category, r.qty, r.total, r.transactions, share(r.total).toFixed(1)+"%"]);
+  const data = rowsData.value.map((r, i) => [i+1, r.category, r.qty, r.total, r.transactions, share(r.total).toFixed(1)+"%"]);
   data.push(["","Totals", grandQty.value, grandTotal.value, grandTransactions.value, "100%"]);
   const ws = XLSX.utils.aoa_to_sheet([header, ...data]);
   const wb = XLSX.utils.book_new();

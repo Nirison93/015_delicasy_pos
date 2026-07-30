@@ -63,7 +63,7 @@
       <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
         <div class="rounded-2xl bg-gradient-to-br from-rose-500 to-red-700 p-4 flex flex-col gap-1 shadow-md">
           <p class="text-xs font-semibold text-white/70 uppercase tracking-wider">Products Sold</p>
-          <p class="text-2xl font-bold text-white">{{ rows.length }}</p>
+          <p class="text-2xl font-bold text-white">{{ rows.total ?? rows.length }}</p>
         </div>
         <div class="rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 p-4 flex flex-col gap-1 shadow-md">
           <p class="text-xs font-semibold text-white/70 uppercase tracking-wider">Total Revenue (LKR)</p>
@@ -93,6 +93,7 @@
           <div class="flex items-center justify-between mb-4">
             <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
               <i class="ri-table-2 text-rose-500"></i> Bar Product Breakdown
+              <span class="text-xs font-normal text-slate-500">({{ paginationInfo }})</span>
             </h2>
             <div class="flex items-center gap-2">
               <button @click="downloadPDF" class="h-9 px-3 inline-flex items-center gap-1.5 text-sm font-semibold text-white bg-rose-600 rounded-xl hover:bg-rose-700 active:scale-95 transition">
@@ -117,8 +118,8 @@
                 </tr>
               </thead>
               <tbody class="divide-y divide-slate-100">
-                <tr v-for="(r, i) in rows" :key="i" class="hover:bg-slate-50 transition">
-                  <td class="p-3 text-slate-400 text-center">{{ i + 1 }}</td>
+                <tr v-for="(r, i) in (rows.data ?? rows)" :key="i" class="hover:bg-slate-50 transition">
+                  <td class="p-3 text-slate-400 text-center">{{ (rows.current_page ? rows.current_page - 1 : 0) * 25 + i + 1 }}</td>
                   <td class="p-3 font-semibold">{{ r.product }}</td>
                   <td class="p-3">
                     <span class="px-2 py-0.5 rounded-full text-xs font-semibold bg-rose-50 text-rose-600 ring-1 ring-rose-200">{{ r.category }}</span>
@@ -134,7 +135,7 @@
                     </span>
                   </td>
                 </tr>
-                <tr v-if="!rows.length">
+                <tr v-if="!rowsData.length">
                   <td colspan="6" class="p-8 text-center text-slate-400 font-medium">No bar sales data for the selected period.</td>
                 </tr>
               </tbody>
@@ -147,6 +148,35 @@
                 </tr>
               </tfoot>
             </table>
+          </div>
+
+          <!-- Pagination -->
+          <div class="mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div class="flex items-center gap-2">
+              <label class="text-xs font-semibold text-slate-600">Rows per page:</label>
+              <select v-model.number="perPage" @change="changePerPage"
+                class="h-9 px-3 text-xs font-medium text-slate-700 bg-white ring-1 ring-slate-200 border-0 rounded-lg focus:ring-2 focus:ring-blue-400 transition">
+                <option :value="10">10</option>
+                <option :value="25">25</option>
+                <option :value="50">50</option>
+                <option :value="100">100</option>
+              </select>
+            </div>
+            <div class="flex items-center gap-2 flex-wrap justify-center sm:justify-end">
+              <button @click="prevPage" :disabled="!rows.prev_page_url"
+                class="h-9 px-3 inline-flex items-center gap-1 text-xs font-semibold text-white bg-slate-700 rounded-lg hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed transition">
+                <i class="ri-arrow-left-s-line"></i> Previous
+              </button>
+              <div class="flex items-center gap-1">
+                <span v-if="rows.current_page" class="text-xs font-semibold text-slate-600">
+                  Page {{ rows.current_page }} of {{ rows.last_page }}
+                </span>
+              </div>
+              <button @click="nextPage" :disabled="!rows.next_page_url"
+                class="h-9 px-3 inline-flex items-center gap-1 text-xs font-semibold text-white bg-slate-700 rounded-lg hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed transition">
+                Next <i class="ri-arrow-right-s-line"></i>
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -171,7 +201,7 @@ import * as XLSX from "xlsx";
 ChartJS.register(Title, Tooltip, Legend, ArcElement);
 
 const props = defineProps({
-  rows:          { type: Array,  default: () => [] },
+  rows:          { type: [Array, Object],  default: () => [] },
   barCategories: { type: Array,  default: () => [] },
   startDate:     { type: String, default: "" },
   endDate:       { type: String, default: "" },
@@ -181,13 +211,22 @@ const props = defineProps({
 const startDate = ref(props.startDate);
 const endDate   = ref(props.endDate);
 const showQuickFilter = ref(false);
+const perPage = ref(25);
 
 const fmt  = (n) => Number(n || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const safe = (s) => String(s || "all").replace(/[^\dA-Za-z-]/g, "_");
 
-const grandTotal = computed(() => props.rows.reduce((s, r) => s + r.total, 0));
-const grandQty   = computed(() => props.rows.reduce((s, r) => s + r.qty, 0));
+const rowsData = computed(() => (props.rows && props.rows.data) ? props.rows.data : (Array.isArray(props.rows) ? props.rows : []));
+const grandTotal = computed(() => rowsData.value.reduce((s, r) => s + r.total, 0));
+const grandQty   = computed(() => rowsData.value.reduce((s, r) => s + r.qty, 0));
 const share = (total) => grandTotal.value ? (total / grandTotal.value) * 100 : 0;
+
+const paginationInfo = computed(() => {
+  if (!props.rows || !props.rows.current_page) return "";
+  const from = (props.rows.current_page - 1) * 25 + 1;
+  const to = Math.min(props.rows.current_page * 25, props.rows.total);
+  return `${from}-${to} of ${props.rows.total}`;
+});
 
 const dateRangeLabel = computed(() => {
   if (props.startDate && props.endDate) return `${props.startDate}  →  ${props.endDate}`;
@@ -221,13 +260,56 @@ const applyQuick = (period) => {
 };
 
 const filterData = () => {
-  router.get(route("reports.barSalesReport"), { start_date: startDate.value, end_date: endDate.value }, { preserveScroll: true });
+  router.get(route("reports.barSalesReport"), { start_date: startDate.value, end_date: endDate.value, page: 1 }, { preserveScroll: true });
+};
+
+const nextPage = () => {
+  if (props.rows && props.rows.next_page_url) {
+    router.get(
+      route("reports.barSalesReport"),
+      {
+        start_date: startDate.value,
+        end_date: endDate.value,
+        page: props.rows.current_page + 1,
+        per_page: perPage.value,
+      },
+      { preserveScroll: true }
+    );
+  }
+};
+
+const prevPage = () => {
+  if (props.rows && props.rows.prev_page_url) {
+    router.get(
+      route("reports.barSalesReport"),
+      {
+        start_date: startDate.value,
+        end_date: endDate.value,
+        page: props.rows.current_page - 1,
+        per_page: perPage.value,
+      },
+      { preserveScroll: true }
+    );
+  }
+};
+
+const changePerPage = () => {
+  router.get(
+    route("reports.barSalesReport"),
+    {
+      start_date: startDate.value,
+      end_date: endDate.value,
+      page: 1,
+      per_page: perPage.value,
+    },
+    { preserveScroll: true }
+  );
 };
 
 const COLORS = ["#ef4444","#f97316","#f59e0b","#10b981","#3b82f6","#8b5cf6","#ec4899","#14b8a6","#6366f1","#0ea5e9"];
 const chartData = computed(() => ({
-  labels: props.rows.slice(0, 10).map(r => r.product),
-  datasets: [{ data: props.rows.slice(0, 10).map(r => r.total), backgroundColor: props.rows.slice(0, 10).map((_, i) => COLORS[i % COLORS.length]), borderWidth: 2, borderColor: "#fff" }],
+  labels: rowsData.value.slice(0, 10).map(r => r.product),
+  datasets: [{ data: rowsData.value.slice(0, 10).map(r => r.total), backgroundColor: rowsData.value.slice(0, 10).map((_, i) => COLORS[i % COLORS.length]), borderWidth: 2, borderColor: "#fff" }],
 }));
 const chartOptions = { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: "bottom", labels: { boxWidth: 12, padding: 14 } }, tooltip: { callbacks: { label: (c) => ` LKR ${Number(c.raw).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}` } } } };
 
@@ -255,7 +337,7 @@ const downloadPDF = () => {
     startY: 51,
     margin: { left: 14, right: 14 },
     head: [["#","Product","Category","Qty","Revenue (LKR)","Share %"]],
-    body: props.rows.map((r, i) => [i+1, r.product, r.category, r.qty.toLocaleString(), fmt(r.total), share(r.total).toFixed(1)+"%"]),
+    body: rowsData.value.map((r, i) => [i+1, r.product, r.category, r.qty.toLocaleString(), fmt(r.total), share(r.total).toFixed(1)+"%"]),
     foot: [["","Totals","", grandQty.value.toLocaleString(), fmt(grandTotal.value), "100%"]],
     theme: "grid",
     headStyles: { fillColor: [190,18,60], textColor: 255, fontStyle: "bold", fontSize: 8 },
@@ -275,7 +357,7 @@ const downloadPDF = () => {
 
 const downloadExcel = () => {
   const header = ["#","Product","Category","Qty","Revenue (LKR)","Share %"];
-  const data = props.rows.map((r, i) => [i+1, r.product, r.category, r.qty, r.total, share(r.total).toFixed(1)+"%"]);
+  const data = rowsData.value.map((r, i) => [i+1, r.product, r.category, r.qty, r.total, share(r.total).toFixed(1)+"%"]);
   data.push(["","Totals","", grandQty.value, grandTotal.value, "100%"]);
   const ws = XLSX.utils.aoa_to_sheet([header, ...data]);
   const wb = XLSX.utils.book_new();

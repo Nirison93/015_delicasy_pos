@@ -42,6 +42,7 @@ class SubReportController extends Controller
     {
         if (!Gate::allows('hasRole', ['Admin'])) abort(403);
 
+        $perPage = $request->input('per_page', 25);
         [$from, $to, $startRaw, $endRaw] = $this->dateRange($request);
 
         $itemQuery = SaleItem::with(['product.category', 'sale'])
@@ -79,12 +80,22 @@ class SubReportController extends Controller
         }
         unset($row);
 
-        $rows = array_values(
-            collect($categories)->sortByDesc('total')->toArray()
+        $rows = collect($categories)->sortByDesc('total')->values()->toArray();
+
+        // Paginate the aggregated results
+        $paginated = array_slice($rows, ($request->input('page', 1) - 1) * $perPage, $perPage);
+
+        // Create pagination object
+        $items = new \Illuminate\Pagination\Paginator(
+            $paginated,
+            $perPage,
+            $request->input('page', 1),
+            ['path' => $request->url(), 'query' => $request->query()]
         );
+        $items->total = count($rows);
 
         return Inertia::render('Reports/CategoryWiseSales', [
-            'rows'        => $rows,
+            'rows'        => $items,
             'startDate'   => $startRaw,
             'endDate'     => $endRaw,
             'companyInfo' => CompanyInfo::first(),
@@ -98,6 +109,7 @@ class SubReportController extends Controller
     {
         if (!Gate::allows('hasRole', ['Admin'])) abort(403);
 
+        $perPage = $request->input('per_page', 25);
         [$from, $to, $startRaw, $endRaw] = $this->dateRange($request);
 
         $salesQuery = Sale::query();
@@ -122,12 +134,22 @@ class SubReportController extends Controller
             $types[$type]['profit']   += (float) ($sale->total_amount ?? 0) - (float) ($sale->total_cost ?? 0);
         }
 
-        $rows = array_values(
-            collect($types)->sortByDesc('total')->toArray()
+        $rows = collect($types)->sortByDesc('total')->values()->toArray();
+
+        // Paginate the aggregated results
+        $paginated = array_slice($rows, ($request->input('page', 1) - 1) * $perPage, $perPage);
+
+        // Create pagination object
+        $items = new \Illuminate\Pagination\Paginator(
+            $paginated,
+            $perPage,
+            $request->input('page', 1),
+            ['path' => $request->url(), 'query' => $request->query()]
         );
+        $items->total = count($rows);
 
         return Inertia::render('Reports/OrderTypeReport', [
-            'rows'        => $rows,
+            'rows'        => $items,
             'startDate'   => $startRaw,
             'endDate'     => $endRaw,
             'companyInfo' => CompanyInfo::first(),
@@ -142,6 +164,7 @@ class SubReportController extends Controller
     {
         if (!Gate::allows('hasRole', ['Admin'])) abort(403);
 
+        $perPage = $request->input('per_page', 25);
         [$from, $to, $startRaw, $endRaw] = $this->dateRange($request);
 
         // Find bar categories (category_type = 1 means Bar throughout this system)
@@ -174,15 +197,25 @@ class SubReportController extends Controller
             $products[$prodName]['total'] += (float) ($item->total_price ?? 0);
         }
 
-        $rows = array_values(
-            collect($products)->sortByDesc('total')->toArray()
+        $rows = collect($products)->sortByDesc('total')->values()->toArray();
+
+        // Paginate the aggregated results
+        $paginated = array_slice($rows, ($request->input('page', 1) - 1) * $perPage, $perPage);
+
+        // Create pagination object
+        $items = new \Illuminate\Pagination\Paginator(
+            $paginated,
+            $perPage,
+            $request->input('page', 1),
+            ['path' => $request->url(), 'query' => $request->query()]
         );
+        $items->total = count($rows);
 
         // Also send bar category names for context
         $barCategories = Category::whereIn('id', $barCategoryIds)->pluck('name')->toArray();
 
         return Inertia::render('Reports/BarSalesReport', [
-            'rows'          => $rows,
+            'rows'          => $items,
             'barCategories' => $barCategories,
             'startDate'     => $startRaw,
             'endDate'       => $endRaw,

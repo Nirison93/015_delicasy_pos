@@ -108,6 +108,7 @@
       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
         <h2 class="text-lg font-bold text-xl text-slate-800 flex items-center gap-2">
           <i class="ri-file-list-3-line text-2xl text-slate-500"></i> Sales Table
+          <span class="text-sm font-normal text-slate-500">({{ salesPaginationInfo }})</span>
         </h2>
         <div class="flex items-center gap-2">
           <button @click="downloadSalesTablePDF"
@@ -172,8 +173,8 @@
           </thead>
 
           <tbody class="text-sm font-medium divide-y divide-slate-100">
-            <tr v-for="(s, i) in sales" :key="s.id ?? i" class="transition hover:bg-slate-50">
-              <td class="p-3 text-center text-slate-400">{{ i + 1 }}</td>
+            <tr v-for="(s, i) in sales.data ?? sales" :key="s.id ?? i" class="transition hover:bg-slate-50">
+              <td class="p-3 text-center text-slate-400">{{ (sales.current_page - 1) * 25 + i + 1 }}</td>
               <td class="p-3 whitespace-nowrap text-center">{{ formatDate(s.sale_date) }}</td>
               <td class="p-3 text-center">{{ s.order_id ? s.order_id : 'Service -' }} {{ s.service_name }}</td>
               <td class="p-3">{{ s.customer?.name ?? 'N/A' }}</td>
@@ -204,6 +205,35 @@
             </tr>
           </tfoot>
         </table>
+      </div>
+
+      <!-- Sales Table Pagination -->
+      <div class="mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div class="flex items-center gap-2">
+          <label class="text-sm font-semibold text-slate-600">Rows per page:</label>
+          <select v-model.number="salesPerPage" @change="changeSalesPerPage"
+            class="h-9 px-3 text-sm font-medium text-slate-700 bg-white ring-1 ring-slate-200 border-0 rounded-lg focus:ring-2 focus:ring-blue-400 transition">
+            <option :value="10">10</option>
+            <option :value="25">25</option>
+            <option :value="50">50</option>
+            <option :value="100">100</option>
+          </select>
+        </div>
+        <div class="flex items-center gap-2 flex-wrap justify-center sm:justify-end">
+          <button @click="prevSalesPage" :disabled="!sales.prev_page_url"
+            class="h-9 px-3 inline-flex items-center gap-1 text-sm font-semibold text-white bg-slate-700 rounded-lg hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed transition">
+            <i class="ri-arrow-left-s-line"></i> Previous
+          </button>
+          <div class="flex items-center gap-1">
+            <span class="text-sm font-semibold text-slate-600">
+              Page {{ sales.current_page }} of {{ sales.last_page }}
+            </span>
+          </div>
+          <button @click="nextSalesPage" :disabled="!sales.next_page_url"
+            class="h-9 px-3 inline-flex items-center gap-1 text-sm font-semibold text-white bg-slate-700 rounded-lg hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed transition">
+            Next <i class="ri-arrow-right-s-line"></i>
+          </button>
+        </div>
       </div>
     </div>
 
@@ -263,6 +293,7 @@
       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
         <h2 class="text-xl font-bold text-slate-800 flex items-center gap-2">
           <i class="ri-bar-chart-box-line text-xl text-slate-500"></i> Top Products Stock Table
+          <span class="text-sm font-normal text-slate-500">({{ productsPaginationInfo }})</span>
         </h2>
         <button @click="downloadStockTablePDF"
           class="h-10 px-4 inline-flex items-center gap-2 text-xl font-semibold text-white bg-emerald-600 rounded-xl hover:bg-emerald-700 active:scale-95 transition shadow-sm">
@@ -295,8 +326,8 @@
             </tr>
           </thead>
           <tbody class="text-sm font-medium divide-y divide-slate-100">
-            <tr v-for="(p, i) in products" :key="p.id ?? i" class="transition hover:bg-slate-50">
-              <td class="p-3 text-center text-slate-400">{{ i + 1 }}</td>
+            <tr v-for="(p, i) in products.data ?? products" :key="p.id ?? i" class="transition hover:bg-slate-50">
+              <td class="p-3 text-center text-slate-400">{{ (products.current_page - 1) * 25 + i + 1 }}</td>
               <td class="p-3 font-bold">{{ p.name || 'N/A' }}</td>
               <td class="p-3 text-center">{{ Number(p.sales_qty || 0) }}</td>
               <td class="p-3 text-center">{{ (Number(p.sales_qty || 0) * Number(p.selling_price || 0)).toFixed(2) }}</td>
@@ -321,6 +352,35 @@
             </tr>
           </tfoot>
         </table>
+      </div>
+
+      <!-- Products Table Pagination -->
+      <div class="mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div class="flex items-center gap-2">
+          <label class="text-sm font-semibold text-slate-600">Rows per page:</label>
+          <select v-model.number="productsPerPage" @change="changeProductsPerPage"
+            class="h-9 px-3 text-sm font-medium text-slate-700 bg-white ring-1 ring-slate-200 border-0 rounded-lg focus:ring-2 focus:ring-blue-400 transition">
+            <option :value="10">10</option>
+            <option :value="25">25</option>
+            <option :value="50">50</option>
+            <option :value="100">100</option>
+          </select>
+        </div>
+        <div class="flex items-center gap-2 flex-wrap justify-center sm:justify-end">
+          <button @click="prevProductsPage" :disabled="!products.prev_page_url"
+            class="h-9 px-3 inline-flex items-center gap-1 text-sm font-semibold text-white bg-slate-700 rounded-lg hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed transition">
+            <i class="ri-arrow-left-s-line"></i> Previous
+          </button>
+          <div class="flex items-center gap-1">
+            <span class="text-sm font-semibold text-slate-600">
+              Page {{ products.current_page }} of {{ products.last_page }}
+            </span>
+          </div>
+          <button @click="nextProductsPage" :disabled="!products.next_page_url"
+            class="h-9 px-3 inline-flex items-center gap-1 text-sm font-semibold text-white bg-slate-700 rounded-lg hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed transition">
+            Next <i class="ri-arrow-right-s-line"></i>
+          </button>
+        </div>
       </div>
     </div>
 
@@ -378,6 +438,8 @@ const startDate = ref(props.startDate);
 const endDate = ref(props.endDate);
 const products = ref(props.products);
 const sales = ref(props.sales);
+const salesPerPage = ref(10);
+const productsPerPage = ref(10);
 
 // ---------- Shared helpers ----------
 const safe = (s) => String(s).replace(/[^\dA-Za-z-]/g, "_");
@@ -411,40 +473,46 @@ const saleProfit = (s) => {
   return finalPrice - cost;
 };
 
-// Sales totals
-const salesTotalQty = computed(() => (sales.value || []).reduce((a, s) => a + saleQty(s), 0));
+// Get the actual sales data (handle both array and paginated object)
+const salesData = computed(() => (sales.value && sales.value.data) ? sales.value.data : (Array.isArray(sales.value) ? sales.value : []));
 
-const salesGrossTotal = computed(() => 
-  (sales.value || []).reduce((a, s) => a + Number(s.total_amount || 0), 0)
+// Sales totals (calculate from current page only)
+const salesTotalQty = computed(() => salesData.value.reduce((a, s) => a + saleQty(s), 0));
+
+const salesGrossTotal = computed(() =>
+  salesData.value.reduce((a, s) => a + Number(s.total_amount || 0), 0)
 );
 
-const salesWithServiceTotal = computed(() => 
-  (sales.value || []).reduce((a, s) => a + priceWithService(s), 0)
+const salesWithServiceTotal = computed(() =>
+  salesData.value.reduce((a, s) => a + priceWithService(s), 0)
 );
 
-const salesCustomerDiscountTotal = computed(() => 
-  (sales.value || []).reduce((a, s) => a + customerDiscountAmount(s), 0)
+const salesCustomerDiscountTotal = computed(() =>
+  salesData.value.reduce((a, s) => a + customerDiscountAmount(s), 0)
 );
 
-const salesOwnerDiscountTotal = computed(() => 
-  (sales.value || []).reduce((sum, s) => sum + Number(s.owner_discount_value || 0), 0)
+const salesOwnerDiscountTotal = computed(() =>
+  salesData.value.reduce((sum, s) => sum + Number(s.owner_discount_value || 0), 0)
 );
 
-const totalDiscounts = computed(() => 
+const totalDiscounts = computed(() =>
   salesCustomerDiscountTotal.value + salesOwnerDiscountTotal.value
 );
 
-const finalSalesAmount = computed(() => 
+const finalSalesAmount = computed(() =>
   Math.max(0, salesWithServiceTotal.value - salesCustomerDiscountTotal.value - salesOwnerDiscountTotal.value)
 );
 
 // Note: This mirrors the table's Profit column: (total_amount - total_cost)
 const salesProfitTotal = computed(() =>
-  (sales.value || []).reduce(
+  salesData.value.reduce(
     (sum, s) => sum + (Number(s.total_amount ?? 0) - Number(s.total_cost ?? 0)),
     0
   )
 );
+
+// Get the actual products data (handle both array and paginated object)
+const productsData = computed(() => (products.value && products.value.data) ? products.value.data : (Array.isArray(products.value) ? products.value : []));
 
 // Product table calculations
 const priceAfterDiscount = (product) => {
@@ -456,8 +524,8 @@ const priceAfterDiscount = (product) => {
 const profitPerUnit = (product) => priceAfterDiscount(product) - Number(product.cost_price || 0);
 const totalProfit = (product) => profitPerUnit(product) * Number(product.sales_qty || 0);
 
-const totalSalesQty = computed(() => products.value.reduce((s, p) => s + Number(p.sales_qty || 0), 0));
-const grandTotalProfit = computed(() => products.value.reduce((s, p) => s + totalProfit(p), 0));
+const totalSalesQty = computed(() => productsData.value.reduce((s, p) => s + Number(p.sales_qty || 0), 0));
+const grandTotalProfit = computed(() => productsData.value.reduce((s, p) => s + totalProfit(p), 0));
 
 // Date filter
 const filterData = () => {
@@ -467,8 +535,110 @@ const filterData = () => {
   }
   router.get(
     route("reports.index"),
-    { start_date: startDate.value, end_date: endDate.value },
+    { start_date: startDate.value, end_date: endDate.value, sales_page: 1, products_page: 1 },
     { preserveScroll: true, preserveState: false }
+  );
+};
+
+// Pagination info
+const salesPaginationInfo = computed(() => {
+  if (!sales.value || !sales.value.current_page) return "";
+  const from = (sales.value.current_page - 1) * 25 + 1;
+  const to = Math.min(sales.value.current_page * 25, sales.value.total);
+  return `${from}-${to} of ${sales.value.total}`;
+});
+
+const productsPaginationInfo = computed(() => {
+  if (!products.value || !products.value.current_page) return "";
+  const from = (products.value.current_page - 1) * 25 + 1;
+  const to = Math.min(products.value.current_page * 25, products.value.total);
+  return `${from}-${to} of ${products.value.total}`;
+});
+
+// Pagination methods
+const nextSalesPage = () => {
+  if (sales.value && sales.value.next_page_url) {
+    router.get(
+      route("reports.index"),
+      {
+        start_date: startDate.value,
+        end_date: endDate.value,
+        sales_page: (sales.value.current_page || 1) + 1,
+        per_page: salesPerPage.value,
+      },
+      { preserveScroll: true }
+    );
+  }
+};
+
+const prevSalesPage = () => {
+  if (sales.value && sales.value.prev_page_url) {
+    router.get(
+      route("reports.index"),
+      {
+        start_date: startDate.value,
+        end_date: endDate.value,
+        sales_page: (sales.value.current_page || 1) - 1,
+        per_page: salesPerPage.value,
+      },
+      { preserveScroll: true }
+    );
+  }
+};
+
+const changeSalesPerPage = () => {
+  router.get(
+    route("reports.index"),
+    {
+      start_date: startDate.value,
+      end_date: endDate.value,
+      sales_page: 1,
+      per_page: salesPerPage.value,
+    },
+    { preserveScroll: true }
+  );
+};
+
+const nextProductsPage = () => {
+  if (products.value && products.value.next_page_url) {
+    router.get(
+      route("reports.index"),
+      {
+        start_date: startDate.value,
+        end_date: endDate.value,
+        products_page: (products.value.current_page || 1) + 1,
+        per_page: productsPerPage.value,
+      },
+      { preserveScroll: true }
+    );
+  }
+};
+
+const prevProductsPage = () => {
+  if (products.value && products.value.prev_page_url) {
+    router.get(
+      route("reports.index"),
+      {
+        start_date: startDate.value,
+        end_date: endDate.value,
+        products_page: (products.value.current_page || 1) - 1,
+        per_page: productsPerPage.value,
+      },
+      { preserveScroll: true }
+    );
+  }
+};
+
+const changeProductsPerPage = () => {
+  router.get(
+    route("reports.index"),
+    {
+      start_date: startDate.value,
+      end_date: endDate.value,
+      products_page: 1,
+      per_page: productsPerPage.value,
+    },
+    { preserveScroll: true }
   );
 };
 
@@ -553,7 +723,9 @@ const sortDescending = (data) =>
 
 const productQuantities = computed(() => {
   const quantities = {};
-  (props.sales || []).forEach((sale) => {
+  const salesData = (sales.value && sales.value.data) || props.sales || [];
+  const salesToUse = Array.isArray(salesData) ? salesData : (props.sales || []);
+  salesToUse.forEach((sale) => {
     (sale.sale_items || []).forEach((item) => {
       const name = item.product && item.product.name ? item.product.name : "N/A";
       quantities[name] = (quantities[name] || 0) + Number(item.quantity || 0);
@@ -575,17 +747,19 @@ const chartData = computed(() => ({
   }],
 }));
 
-const chartOptions = { 
-  responsive: true, 
+const chartOptions = {
+  responsive: true,
   maintainAspectRatio: false,
-  plugins: { 
-    legend: { display: true, position: "bottom" } 
-  } 
+  plugins: {
+    legend: { display: true, position: "bottom" }
+  }
 };
 
 const paymentMethodTotals = computed(() => {
   const totals = {};
-  (props.sales || []).forEach((s) => {
+  const salesData = (sales.value && sales.value.data) || props.sales || [];
+  const salesToUse = Array.isArray(salesData) ? salesData : (props.sales || []);
+  salesToUse.forEach((s) => {
     const m = s.payment_method || "N/A";
     totals[m] = (totals[m] || 0) + (parseFloat(s.total_amount) || 0);
   });
@@ -659,7 +833,9 @@ const downloadSalesTableExcel = () => {
     "Customer Discounts","Owner","Owner Discount","Profit"
   ];
 
-  const rows = (sales.value || []).map((s, i) => {
+  const salesData = (sales.value && sales.value.data) || sales.value || [];
+  const pageStart = (sales.value && sales.value.current_page) ? (sales.value.current_page - 1) * 25 : 0;
+  const rows = salesData.map((s, i) => {
     const qty = saleQty(s);
     const total = Number(s.total_amount || 0);
     const svcPct = Number(s.service_charge || 0);
@@ -671,7 +847,7 @@ const downloadSalesTableExcel = () => {
     const profit = Number(s.total_amount ?? 0) - Number(s.total_cost ?? 0);
 
     return [
-      i + 1,
+      pageStart + i + 1,
       formatDate(s.sale_date),
       s.order_id ? s.order_id : `Service - ${s.service_name || ""}`,
       s.customer?.name ?? "N/A",
@@ -887,8 +1063,10 @@ const downloadSalesTablePDF = () => {
     "Cust.Disc", "Owner", "Owner Disc", "Profit (LKR)",
   ]];
 
-  const body = (sales.value || []).map((s, i) => [
-    i + 1,
+  const salesData = (sales.value && sales.value.data) || sales.value || [];
+  const pageStart = (sales.value && sales.value.current_page) ? (sales.value.current_page - 1) * 25 : 0;
+  const body = salesData.map((s, i) => [
+    pageStart + i + 1,
     formatDate(s.sale_date),
     s.order_id ? String(s.order_id) : `Svc-${s.service_name || ""}`,
     s.customer?.name ?? "N/A",
@@ -984,8 +1162,10 @@ const downloadSalesTablePDF = () => {
 const downloadStockTablePDF = () => {
   const doc = new jsPDF("l", "mm", "a4");
 
-  const rows = products.value.map((p, i) => [
-    i + 1,
+  const productsData = (products.value && products.value.data) || products.value || [];
+  const pageStart = (products.value && products.value.current_page) ? (products.value.current_page - 1) * 25 : 0;
+  const rows = productsData.map((p, i) => [
+    pageStart + i + 1,
     p.name || "N/A",
     Number(p.sales_qty || 0).toString(),
     (Number(p.sales_qty || 0) * Number(p.selling_price || 0)).toFixed(2),
@@ -1025,7 +1205,15 @@ const downloadStockTablePDF = () => {
     margin: { top: 18, left: 8, right: 8 },
   });
 
-  
+  const totalsRow = [
+    "", "Totals:",
+    productsData.reduce((s, p) => s + Number(p.sales_qty || 0), 0),
+    "",
+    "",
+    "",
+    "",
+    productsData.reduce((s, p) => s + totalProfit(p), 0).toFixed(2),
+  ];
 
   autoTable(doc, {
     body: [totalsRow],

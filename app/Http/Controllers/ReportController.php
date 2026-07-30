@@ -23,21 +23,24 @@ class ReportController extends Controller
 
 
 
- 
+
   public function index(Request $request)
 {
     if (!Gate::allows('hasRole', ['Admin'])) {
         abort(403, 'Unauthorized');
     }
 
-    // Dates (normalize to day bounds)
+    $perPage = $request->input('per_page', 10);
+    $page = $request->input('page', 1);
+    $sortBy = $request->input('sort_by', 'created_at');
+    $sortDir = $request->input('sort_dir', 'desc');
+
     $startDateRaw = $request->input('start_date');
     $endDateRaw   = $request->input('end_date');
 
     $from = $startDateRaw ? Carbon::parse($startDateRaw)->startOfDay() : null;
     $to   = $endDateRaw   ? Carbon::parse($endDateRaw)->endOfDay()     : null;
 
-    // Reusable created_at window
     $applyCreatedWindow = function ($q) use ($from, $to) {
         if ($from && $to) {
             $q->whereBetween('created_at', [$from, $to]);
@@ -48,30 +51,16 @@ class ReportController extends Controller
         }
     };
 
-    // -------- Top Products (sold in range via Sale.created_at) --------
+    // -------- Top Products (paginated) --------
+    $productsQuery = Product::query();
     if ($from || $to) {
-        $productIds = SaleItem::whereHas('sale', function ($q) use ($applyCreatedWindow) {
-                $applyCreatedWindow($q);
-            })
-            ->pluck('product_id')
-            ->unique();
-
-        $products = Product::whereIn('id', $productIds)
-            ->orderBy('created_at', 'desc')
-            ->get();
-    } else {
-        $products = Product::orderBy('created_at', 'desc')->get();
+        $productsQuery->whereHas('saleItems.sale', function ($q) use ($applyCreatedWindow) {
+            $applyCreatedWindow($q);
+        });
     }
+    $productsPaginated = $productsQuery->orderBy('created_at', 'desc')->paginate($perPage, ['*'], 'products_page');
 
-    // -------- Sales (filter by created_at) --------
- $salesQuery = Sale::with(['saleItems.product.category', 'employee', 'customer']);
-
-
-    if ($from || $to) {
-        $applyCreatedWindow($salesQuery);
-    }
-
-    // For qty per product (respect same window through parent sale)
+    // For qty per product
     $salesQuantitiesQuery = SaleItem::query()->whereHas('sale', function ($q) use ($applyCreatedWindow, $from, $to) {
         if ($from || $to) $applyCreatedWindow($q);
     });
@@ -83,19 +72,27 @@ class ReportController extends Controller
         ->get()
         ->keyBy('product_id');
 
-    // Attach sales_qty to products
-    $products->transform(function ($product) use ($salesQuantities) {
+    $productsPaginated->transform(function ($product) use ($salesQuantities) {
         $product->sales_qty = (float) ($salesQuantities->get($product->id)->total_sales_qty ?? 0);
         return $product;
     });
 
-    $sales = $salesQuery->orderBy('created_at', 'desc')->get();
-   
+    // -------- Sales (paginated) --------
+    $salesQuery = Sale::with(['saleItems.product.category', 'employee', 'customer']);
 
-  
+    if ($from || $to) {
+        $applyCreatedWindow($salesQuery);
+    }
 
+    if (in_array($sortBy, ['total_amount', 'sale_date'])) {
+        $salesQuery->orderBy($sortBy, $sortDir);
+    } else {
+        $salesQuery->orderBy('created_at', $sortDir);
+    }
 
-    // Helpers
+    $salesPaginated = $salesQuery->paginate($perPage, ['*'], 'sales_page');
+
+    // Helper for discount calculation
     $customDiscountToLkr = function ($sale) {
         $gross = (float) ($sale->total_amount ?? 0);
         $val   = (float) ($sale->custom_discount ?? 0);
@@ -103,23 +100,30 @@ class ReportController extends Controller
         return $type === 'percent' ? ($gross * $val / 100.0) : $val;
     };
 
-    // Category totals (from filtered sales)
+    // -------- Calculate totals from ALL filtered data (not just paginated) --------
+    $allSalesQuery = Sale::with(['saleItems.product.category', 'employee', 'customer']);
+    if ($from || $to) {
+        $applyCreatedWindow($allSalesQuery);
+    }
+    $allSales = $allSalesQuery->get();
+
+    // Category totals (from all filtered sales)
     $categorySales = [];
-    foreach ($sales as $sale) {
+    foreach ($allSales as $sale) {
         foreach ($sale->saleItems as $item) {
             $categoryName = $item->product->category->name ?? 'No Category';
             $categorySales[$categoryName] = ($categorySales[$categoryName] ?? 0) + (float) $item->total_price;
         }
     }
 
-    // Payment totals (gross)
-    $paymentMethodTotals = $sales->groupBy('payment_method')->map(
+    // Payment totals
+    $paymentMethodTotals = $allSales->groupBy('payment_method')->map(
         fn($g) => (float) $g->sum('total_amount')
     )->toArray();
 
-    // Employee sales (NET)
+    // Employee sales
     $employeeSalesSummary = [];
-    foreach ($sales as $sale) {
+    foreach ($allSales as $sale) {
         if (!$sale->employee) continue;
         $name = $sale->employee->name;
         $employeeSalesSummary[$name] ??= [
@@ -132,26 +136,21 @@ class ReportController extends Controller
         $employeeSalesSummary[$name]['Total Sales Amount'] += ($gross - $prodDisc - $customDisc);
     }
 
-    // Overall stats
-    $totalSaleAmount         = (float) $sales->sum('total_amount');
-    $totalCost               = (float) $sales->sum('total_cost');
-    $totalProductDiscountLkr = (float) $sales->sum('discount');
-    $totalCustomDiscountLkr  = (float) $sales->reduce(fn($c, $s) => $c + $customDiscountToLkr($s), 0.0);
+    // Overall stats (from all filtered data)
+    $totalSaleAmount         = (float) $allSales->sum('total_amount');
+    $totalCost               = (float) $allSales->sum('total_cost');
+    $totalProductDiscountLkr = (float) $allSales->sum('discount');
+    $totalCustomDiscountLkr  = (float) $allSales->reduce(fn($c, $s) => $c + $customDiscountToLkr($s), 0.0);
     $netProfit               = $totalSaleAmount - $totalCost - ($totalProductDiscountLkr + $totalCustomDiscountLkr);
-    $totalTransactions       = $sales->count();
+    $totalTransactions       = $allSales->count();
     $averageTransactionValue = $totalTransactions > 0 ? ($totalSaleAmount / $totalTransactions) : 0;
 
-    // Distinct customers (same filter)
-    $totalCustomer = (clone $salesQuery)->distinct('customer_id')->count('customer_id');
-
-    
-
-    
-  
+    // Distinct customers
+    $totalCustomer = $allSales->groupBy('customer_id')->count();
 
     return Inertia::render('Reports/Index', [
-        'products'                  => $products,
-        'sales'                     => $sales,
+        'products'                  => $productsPaginated,
+        'sales'                     => $salesPaginated,
 
         'totalSaleAmount'           => round($totalSaleAmount, 2),
         'totalDiscountLkr'          => round($totalProductDiscountLkr, 2),
@@ -180,6 +179,8 @@ class ReportController extends Controller
             abort(403, 'Unauthorized');
         }
 
+        $perPage = $request->input('per_page', 10);
+        $page = $request->input('page', 1);
         $startDateRaw = $request->input('start_date');
         $endDateRaw = $request->input('end_date');
         $userId = $request->input('user_id');
@@ -187,24 +188,40 @@ class ReportController extends Controller
         $from = $startDateRaw ? Carbon::parse($startDateRaw)->startOfDay() : null;
         $to = $endDateRaw ? Carbon::parse($endDateRaw)->endOfDay() : null;
 
-        // Query cash drawers with expenses
-        $query = CashDrawer::with(['openedByUser', 'closedByUser', 'expenses']);
+        // Query for pagination (drawers only)
+        $drawerQuery = CashDrawer::with(['openedByUser', 'closedByUser', 'expenses']);
 
         if ($from && $to) {
-            $query->whereBetween('opened_at', [$from, $to]);
+            $drawerQuery->whereBetween('opened_at', [$from, $to]);
         } elseif ($from) {
-            $query->where('opened_at', '>=', $from);
+            $drawerQuery->where('opened_at', '>=', $from);
         } elseif ($to) {
-            $query->where('opened_at', '<=', $to);
+            $drawerQuery->where('opened_at', '<=', $to);
         }
 
         if ($userId) {
-            $query->where(function ($q) use ($userId) {
+            $drawerQuery->where(function ($q) use ($userId) {
                 $q->where('opened_by', $userId)->orWhere('closed_by', $userId);
             });
         }
 
-        $cashDrawers = $query->orderBy('opened_at', 'desc')->get();
+        $cashDrawersPaginated = $drawerQuery->orderBy('opened_at', 'desc')->paginate($perPage);
+
+        // Query all drawers (unfiltered by pagination) for statistics
+        $allDrawersQuery = CashDrawer::with(['openedByUser', 'closedByUser', 'expenses']);
+        if ($from && $to) {
+            $allDrawersQuery->whereBetween('opened_at', [$from, $to]);
+        } elseif ($from) {
+            $allDrawersQuery->where('opened_at', '>=', $from);
+        } elseif ($to) {
+            $allDrawersQuery->where('opened_at', '<=', $to);
+        }
+        if ($userId) {
+            $allDrawersQuery->where(function ($q) use ($userId) {
+                $q->where('opened_by', $userId)->orWhere('closed_by', $userId);
+            });
+        }
+        $allCashDrawers = $allDrawersQuery->get();
 
         // Query expenses directly (some expenses may not be linked to a drawer)
         $expenseQuery = Expense::with('user');
@@ -218,33 +235,33 @@ class ReportController extends Controller
         if ($userId) {
             $expenseQuery->where('user_id', $userId);
         }
-        $expenses = $expenseQuery->orderBy('created_at', 'desc')->get();
+        $expensesPaginated = $expenseQuery->orderBy('created_at', 'desc')->paginate($perPage, ['*'], 'expenses_page');
 
-        // Calculate statistics
-        $totalDrawers = $cashDrawers->count();
-        $openDrawers = $cashDrawers->where('status', 'open')->count();
-        $closedDrawers = $cashDrawers->where('status', 'closed')->count();
-        
-        $totalOpeningBalance = (float) $cashDrawers->sum('opening_balance');
-        $totalClosingBalance = (float) $cashDrawers->where('status', 'closed')->sum('closing_balance');
-        
+        // Calculate statistics from all filtered data
+        $totalDrawers = $allCashDrawers->count();
+        $openDrawers = $allCashDrawers->where('status', 'open')->count();
+        $closedDrawers = $allCashDrawers->where('status', 'closed')->count();
+
+        $totalOpeningBalance = (float) $allCashDrawers->sum('opening_balance');
+        $totalClosingBalance = (float) $allCashDrawers->where('status', 'closed')->sum('closing_balance');
+
         // Calculate total expenses
-        $totalExpenses = (float) $expenses->sum('amount');
-        
+        $totalExpenses = (float) $expensesPaginated->getCollection()->sum('amount');
+
         // Variance calculation (including expenses)
         $totalVariance = 0;
         $varianceByUser = [];
-        
-        foreach ($cashDrawers as $drawer) {
+
+        foreach ($allCashDrawers as $drawer) {
             if ($drawer->status === 'closed') {
                 $expenses = $drawer->expenses->sum('amount');
                 $variance = $drawer->closing_balance - $drawer->opening_balance - $expenses;
                 $totalVariance += $variance;
-                
-                $userId = $drawer->opened_by;
-                if (!isset($varianceByUser[$userId])) {
-                    $varianceByUser[$userId] = [
-                        'user_id' => $userId,
+
+                $drawerId = $drawer->opened_by;
+                if (!isset($varianceByUser[$drawerId])) {
+                    $varianceByUser[$drawerId] = [
+                        'user_id' => $drawerId,
                         'user_name' => $drawer->openedByUser->name ?? 'Unknown',
                         'count' => 0,
                         'total_variance' => 0,
@@ -253,17 +270,17 @@ class ReportController extends Controller
                         'total_expenses' => 0,
                     ];
                 }
-                $varianceByUser[$userId]['count']++;
-                $varianceByUser[$userId]['total_variance'] += $variance;
-                $varianceByUser[$userId]['total_opened'] += $drawer->opening_balance;
-                $varianceByUser[$userId]['total_closed'] += $drawer->closing_balance;
-                $varianceByUser[$userId]['total_expenses'] += $expenses;
+                $varianceByUser[$drawerId]['count']++;
+                $varianceByUser[$drawerId]['total_variance'] += $variance;
+                $varianceByUser[$drawerId]['total_opened'] += $drawer->opening_balance;
+                $varianceByUser[$drawerId]['total_closed'] += $drawer->closing_balance;
+                $varianceByUser[$drawerId]['total_expenses'] += $expenses;
             }
         }
 
         return Inertia::render('Reports/CashDrawer', [
-            'cashDrawers' => $cashDrawers,
-            'expenses' => $expenses,
+            'cashDrawers' => $cashDrawersPaginated,
+            'expenses' => $expensesPaginated,
             'statistics' => [
                 'total_drawers' => $totalDrawers,
                 'open_drawers' => $openDrawers,
@@ -341,7 +358,7 @@ class ReportController extends Controller
             }
             $userActivity[$userId]['cash_drawers_opened']++;
             $userActivity[$userId]['opening_balance'] += $drawer->opening_balance;
-            
+
             if ($drawer->status === 'closed') {
                 $userActivity[$userId]['cash_drawers_closed']++;
                 $userActivity[$userId]['closing_balance'] += $drawer->closing_balance;
