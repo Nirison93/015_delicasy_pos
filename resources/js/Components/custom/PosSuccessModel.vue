@@ -150,6 +150,43 @@ const props = defineProps({
   }
 });
 
+/**
+ * Shared helper: opens a hidden iframe, writes the given HTML into it,
+ * waits for it to actually finish loading/rendering, then prints and
+ * cleans up. Using onload (instead of print immediately) avoids the
+ * classic "blank first page" bug where Chrome prints before the
+ * @page rule / fonts have been applied to the iframe document.
+ */
+const printHtmlInIframe = (html) => {
+  const iframe = document.createElement("iframe");
+  iframe.style.position = "fixed";
+  iframe.style.right = "0";
+  iframe.style.bottom = "0";
+  iframe.style.width = "0";
+  iframe.style.height = "0";
+  iframe.style.border = "0";
+  document.body.appendChild(iframe);
+
+  const cleanup = () => {
+    if (iframe.parentNode) {
+      document.body.removeChild(iframe);
+    }
+  };
+
+  iframe.onload = () => {
+    // Give the browser one extra frame to finish layout before printing.
+    requestAnimationFrame(() => {
+      iframe.contentWindow.focus();
+      iframe.contentWindow.print();
+      setTimeout(cleanup, 500);
+    });
+  };
+
+  iframe.contentDocument.open();
+  iframe.contentDocument.write(html);
+  iframe.contentDocument.close();
+};
+
 const handlePrintReceipt = () => {
   // Calculate totals from props.products
   const subTotal = props.products.reduce(
@@ -190,9 +227,9 @@ const handlePrintReceipt = () => {
 
       return `
         <tr>
-          <td class="name" colspan="3" style="padding:4px 2px 1px;">${product.name}${product.size?.name ? ` (${product.size.name})` : ""}</td>
+          <td class="name" colspan="3">${product.name}${product.size?.name ? ` (${product.size.name})` : ""}</td>
         </tr>
-        <tr style="border-bottom: 1px dashed #aaa;">
+        <tr class="item-sub">
           <td></td>
           <td class="pqty">
             ${product.selling_price} \u00d7 ${product.quantity}
@@ -219,50 +256,110 @@ const handlePrintReceipt = () => {
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>Receipt</title>
       <style>
-          @page { size: 80mm auto; margin: 0; }
-          @media print {
-              body { margin: 0; padding: 0; -webkit-print-color-adjust: exact; }
+          /* ============================================================
+             THERMAL PRINT LAYOUT (80mm) — single continuous page.
+
+             Key fix: instead of forcing "avoid" on every element via a
+             blanket "*" selector (which confuses Chrome's pagination
+             engine and causes blank pages / a stranded footer), we only
+             mark ONE outer wrapper + the small atomic row-level units as
+             unbreakable. The page height itself is "auto" (@page 80mm
+             auto) so the whole receipt is always exactly one page tall —
+             there is nothing to paginate as long as nothing forces a
+             break.
+             ============================================================ */
+
+          @page {
+              size: 80mm auto;
+              margin: 0;
           }
-          * { box-sizing: border-box; }
-          body {
+
+          * {
+              box-sizing: border-box;
+          }
+
+          html, body {
+              width: 80mm;
+              height: auto;
+              min-height: 0;
+              margin: 0;
+              padding: 0;
               background: #fff;
+          }
+
+          body {
               font-family: 'Arial', sans-serif;
               font-size: 13px;
               color: #000;
-              margin: 0;
-              padding: 8px 10px 16px;
-              width: 80mm;
+              padding: 8px 10px;
+              overflow: visible;
           }
-          .header { text-align: center; padding-bottom: 8px; margin-bottom: 8px; border-bottom: 2px solid #000; }
+
+          /* Single outer wrapper: this is the only "big" block we mark
+             as unbreakable. Marking every nested block as well is what
+             caused the original blank-page bug. */
+          .receipt {
+              width: 100%;
+              overflow: visible;
+              page-break-inside: avoid;
+              break-inside: avoid;
+          }
+
+          .header {
+              text-align: center;
+              padding-bottom: 8px;
+              margin-bottom: 8px;
+              border-bottom: 2px solid #000;
+          }
           .header h1 { font-size: 18px; font-weight: 900; margin: 0 0 3px; letter-spacing: 0.5px; }
           .header p { font-size: 12px; margin: 2px 0; }
+
           .order-type {
               font-size: 13px; font-weight: 800; text-align: center;
               border: 2px solid #000; border-radius: 4px;
               padding: 4px 0; margin: 8px 0;
               letter-spacing: 0.5px; text-transform: uppercase;
           }
-          .meta { width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 8px; }
+
+          .meta {
+              width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 8px;
+          }
           .meta td { padding: 2px 0; vertical-align: top; }
           .meta td:first-child { font-weight: 700; width: 50%; }
           .meta td:last-child { text-align: right; font-weight: 400; }
+
           .divider-solid { border: none; border-top: 2px solid #000; margin: 6px 0; }
-          .items { width: 100%; border-collapse: collapse; font-size: 13px; }
+
+          .items {
+              width: 100%; border-collapse: collapse; font-size: 13px;
+          }
           .items thead tr { border-bottom: 1px solid #000; }
           .items th { font-size: 12px; font-weight: 800; padding: 4px 2px; text-transform: uppercase; }
           .items th:first-child { text-align: left; }
           .items th:nth-child(2) { text-align: center; }
           .items th:last-child { text-align: right; }
           .items td { padding: 3px 2px; }
-          .items td.name { font-weight: 700; font-size: 13px; }
+          .items td.name { font-weight: 700; font-size: 13px; padding-top: 4px; }
+          .items .item-sub { border-bottom: 1px dashed #aaa; }
           .items td.pqty { text-align: center; font-size: 12px; }
           .items td.ptotal { text-align: right; font-weight: 700; font-size: 13px; }
+          /* Atomic units: rows are the only elements that truly need
+             break-inside avoidance, since a row split mid-line is the
+             one thing that looks genuinely broken on a receipt. */
+          .items tr, .totals tr {
+              page-break-inside: avoid;
+              break-inside: avoid;
+          }
+
           .discount-badge {
               display: inline-block; background: #000; color: #fff;
               font-size: 10px; font-weight: 700; padding: 0 4px;
               border-radius: 3px; margin-top: 2px;
           }
-          .totals { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 4px; }
+
+          .totals {
+              width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 4px;
+          }
           .totals td { padding: 3px 0; }
           .totals td:last-child { text-align: right; }
           .totals .grand td {
@@ -270,159 +367,145 @@ const handlePrintReceipt = () => {
               border-top: 2px solid #000; border-bottom: 2px solid #000; padding: 5px 0;
           }
           .totals .bold td { font-weight: 700; }
+
           .kitchen-note {
               font-size: 12px; font-weight: 700;
               border-top: 1px dashed #555; border-bottom: 1px dashed #555;
               padding: 5px 0; margin: 8px 0;
           }
-          .footer { text-align: center; margin-top: 10px; }
+
+          .footer {
+              text-align: center;
+              margin-top: 10px;
+              padding-top: 0;
+          }
           .footer .no-refund { font-size: 13px; font-weight: 800; letter-spacing: 0.3px; margin: 6px 0; }
           .footer .thank-you { font-size: 14px; font-weight: 900; letter-spacing: 0.5px; margin: 4px 0; text-transform: uppercase; }
-          .footer .powered { font-size: 11px; margin-top: 6px; color: #444; }
+          .footer .powered { font-size: 11px; margin-top: 6px; margin-bottom: 0; color: #444; }
+
+          @media print {
+              @page {
+                  size: 80mm auto;
+                  margin: 0;
+              }
+              html, body {
+                  width: 80mm;
+                  height: auto;
+                  margin: 0;
+                  padding: 0;
+              }
+              body {
+                  padding: 8px 10px;
+                  -webkit-print-color-adjust: exact;
+                  print-color-adjust: exact;
+              }
+              /* Only the outer wrapper is forced to stay together, and
+                 "after: avoid" on it ensures nothing (e.g. a stray blank
+                 page) is inserted after the receipt content ends. */
+              .receipt {
+                  page-break-inside: avoid;
+                  break-inside: avoid;
+                  page-break-after: avoid;
+                  break-after: avoid;
+              }
+              .items tr, .totals tr {
+                  page-break-inside: avoid;
+                  break-inside: avoid;
+              }
+          }
       </style>
   </head>
   <body>
-      <!-- Header -->
-      <div class="header">
-          ${ companyInfo?.value?.name ? `<img src="/images/delicasy_logo.png" alt="${companyInfo.value.name}" style="max-width: 70mm; max-height: 50px; margin: 0 auto; display: block;">` : "" }
-          ${ companyInfo?.value?.address ? `<p>${companyInfo.value.address}</p>` : "" }
-          ${ (companyInfo?.value?.phone || companyInfo?.value?.phone2) ? `<p>${[companyInfo.value.phone, companyInfo.value.phone2].filter(Boolean).join(" | ")}</p>` : "" }
-          ${ companyInfo?.value?.email ? `<p>${companyInfo.value.email}</p>` : "" }
-      </div>
+      <div class="receipt">
+          <!-- Header -->
+          <div class="header">
+              ${ companyInfo?.value?.name ? `<img src="/images/delicasy_logo.png" alt="${companyInfo.value.name}" style="max-width: 70mm; max-height: 50px; margin: 0 auto; display: block;">` : "" }
+              ${ companyInfo?.value?.address ? `<p>${companyInfo.value.address}</p>` : "" }
+              ${ (companyInfo?.value?.phone || companyInfo?.value?.phone2) ? `<p>${[companyInfo.value.phone, companyInfo.value.phone2].filter(Boolean).join(" | ")}</p>` : "" }
+              ${ companyInfo?.value?.email ? `<p>${companyInfo.value.email}</p>` : "" }
+          </div>
 
-      <!-- Order type badge -->
-      <div class="order-type">
-          ${ props.order_type === 'takeaway' ? 'Takeaway' : props.order_type === 'pickup' ? 'Delivery' : 'Dine In' }
-      </div>
+          <!-- Order type badge -->
+          <div class="order-type">
+              ${ props.order_type === 'takeaway' ? 'Takeaway' : props.order_type === 'pickup' ? 'Delivery' : 'Dine In' }
+          </div>
 
-      <!-- Order meta -->
-      <table class="meta">
-          <tr><td>Date &amp; Time:</td><td>${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}</td></tr>
-          <tr><td>Order No:</td><td>${props.orderId}</td></tr>
-          <tr><td>Customer:</td><td>${props.customer?.name || 'Walking Customer'}</td></tr>
-          <tr><td>Cashier:</td><td>${props.cashier.name}</td></tr>
-          <tr><td>Payment:</td><td>${props.selectedPaymentMethod}</td></tr>
-      </table>
+          <!-- Order meta -->
+          <table class="meta">
+              <tr><td>Date &amp; Time:</td><td>${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}</td></tr>
+              <tr><td>Order No:</td><td>${props.orderId}</td></tr>
+              <tr><td>Customer:</td><td>${props.customer?.name || 'Walking Customer'}</td></tr>
+              <tr><td>Cashier:</td><td>${props.cashier.name}</td></tr>
+              <tr><td>Payment:</td><td>${props.selectedPaymentMethod}</td></tr>
+          </table>
 
-      <hr class="divider-solid" />
+          <hr class="divider-solid" />
 
-      <!-- Items -->
-      <table class="items">
-          <thead>
-              <tr>
-                  <th style="width:44%;text-align:left">Item</th>
-                  <th style="width:32%;text-align:center">Price × Qty</th>
-                  <th style="width:24%;text-align:right">Total</th>
-              </tr>
-          </thead>
-          <tbody>${productRows}</tbody>
-      </table>
+          <!-- Items -->
+          <table class="items">
+              <thead>
+                  <tr>
+                      <th style="width:44%;text-align:left">Item</th>
+                      <th style="width:32%;text-align:center">Price × Qty</th>
+                      <th style="width:24%;text-align:right">Total</th>
+                  </tr>
+              </thead>
+              <tbody>${productRows}</tbody>
+          </table>
 
-      <hr class="divider-solid" />
+          <hr class="divider-solid" />
 
-      <!-- Totals -->
-      <table class="totals">
-          ${Number(props.subTotal) !== Number(props.total) && Number(props.subTotal) !== 0
-              ? `<tr><td>Sub Total</td><td>${(Number(props.subTotal)||0).toFixed(2)} LKR</td></tr>` : ""}
-          ${Number(props.totalDiscount) !== 0
-              ? `<tr><td>Discount</td><td>(${(Number(props.totalDiscount)||0).toFixed(2)}) LKR</td></tr>` : ""}
-          ${Number(props.owner_discount_value) !== 0
-              ? `<tr><td>Owner Discount${props.owner_code ? ` (${props.owner_code})` : ""}</td><td>(${(Number(props.owner_discount_value)||0).toFixed(2)}) LKR</td></tr>` : ""}
-          ${Number(props.custom_discount) !== 0
-              ? `<tr><td>Customer Discount</td><td>(${(Number(props.custom_discount)||0).toFixed(2)}) LKR</td></tr>` : ""}
-          ${props.delivery_charge
-              ? `<tr><td>Delivery Charge</td><td>${(Number(props.delivery_charge)||0).toFixed(2)} LKR</td></tr>` : ""}
-          ${props.service_charge
-              ? `<tr><td>Service Charge</td><td>${(Number(props.service_charge)||0).toFixed(2)} %</td></tr>` : ""}
-          ${props.bank_service_charge
-              ? `<tr><td>Bank Service Charge</td><td>${(Number(props.bank_service_charge)||0).toFixed(2)} %</td></tr>` : ""}
-          ${Number(props.shopping_bag_charge) !== 0
-              ? `<tr><td>Shopping Bag</td><td>${(Number(props.shopping_bag_charge)||0).toFixed(2)} LKR</td></tr>` : ""}
-          ${Number(props.total) !== 0
-              ? `<tr class="grand"><td>TOTAL</td><td>${(Number(props.total)||0).toFixed(2)} LKR</td></tr>` : ""}
-          ${Number(props.cash) !== 0
-              ? `<tr><td>Cash Paid</td><td>${(Number(props.cash)||0).toFixed(2)} LKR</td></tr>` : ""}
-          ${Number(props.balance) !== 0
-              ? `<tr class="bold"><td>Balance</td><td>${(Number(props.balance)||0).toFixed(2)} LKR</td></tr>` : ""}
-      </table>
+          <!-- Totals -->
+          <table class="totals">
+              ${Number(props.subTotal) !== Number(props.total) && Number(props.subTotal) !== 0
+                  ? `<tr><td>Sub Total</td><td>${(Number(props.subTotal)||0).toFixed(2)} LKR</td></tr>` : ""}
+              ${Number(props.totalDiscount) !== 0
+                  ? `<tr><td>Discount</td><td>(${(Number(props.totalDiscount)||0).toFixed(2)}) LKR</td></tr>` : ""}
+              ${Number(props.owner_discount_value) !== 0
+                  ? `<tr><td>Owner Discount${props.owner_code ? ` (${props.owner_code})` : ""}</td><td>(${(Number(props.owner_discount_value)||0).toFixed(2)}) LKR</td></tr>` : ""}
+              ${Number(props.custom_discount) !== 0
+                  ? `<tr><td>Customer Discount</td><td>(${(Number(props.custom_discount)||0).toFixed(2)}) LKR</td></tr>` : ""}
+              ${props.delivery_charge
+                  ? `<tr><td>Delivery Charge</td><td>${(Number(props.delivery_charge)||0).toFixed(2)} LKR</td></tr>` : ""}
+              ${props.service_charge
+                  ? `<tr><td>Service Charge</td><td>${(Number(props.service_charge)||0).toFixed(2)} %</td></tr>` : ""}
+              ${props.bank_service_charge
+                  ? `<tr><td>Bank Service Charge</td><td>${(Number(props.bank_service_charge)||0).toFixed(2)} %</td></tr>` : ""}
+              ${Number(props.shopping_bag_charge) !== 0
+                  ? `<tr><td>Shopping Bag</td><td>${(Number(props.shopping_bag_charge)||0).toFixed(2)} LKR</td></tr>` : ""}
+              ${Number(props.total) !== 0
+                  ? `<tr class="grand"><td>TOTAL</td><td>${(Number(props.total)||0).toFixed(2)} LKR</td></tr>` : ""}
+              ${Number(props.cash) !== 0
+                  ? `<tr><td>Cash Paid</td><td>${(Number(props.cash)||0).toFixed(2)} LKR</td></tr>` : ""}
+              ${Number(props.balance) !== 0
+                  ? `<tr class="bold"><td>Balance</td><td>${(Number(props.balance)||0).toFixed(2)} LKR</td></tr>` : ""}
+          </table>
 
-      <!-- Kitchen note -->
-      ${props.kitchen_note ? `<div class="kitchen-note">Note: ${props.kitchen_note}</div>` : ""}
+          <!-- Kitchen note -->
+          ${props.kitchen_note ? `<div class="kitchen-note">Note: ${props.kitchen_note}</div>` : ""}
 
-      <!-- Footer -->
-      <div class="footer">
-          <p class="no-refund">-- No Exchange or Refunds --</p>
-          <p class="thank-you">Thank You, Come Again!</p>
-          <p class="powered">Powered by ඔන්ලයින් මුදලාලී.</p>
+          <!-- Footer -->
+          <div class="footer">
+              <p class="no-refund">-- No Exchange or Refunds --</p>
+              <p class="thank-you">Thank You, Come Again!</p>
+              <p class="powered">Powered by ඔන්ලයින් මුදලාලී.</p>
+          </div>
       </div>
   </body>
   </html>
   `;
 
-  // Create a hidden iframe for printing
-  const iframe = document.createElement("iframe");
-  iframe.style.display = "none";
-  document.body.appendChild(iframe);
-
-  // Write content to iframe
-  iframe.contentDocument.open();
-  iframe.contentDocument.write(receiptHTML);
-  iframe.contentDocument.close();
-
-  // Wait for content to load and then print
-  iframe.onload = () => {
-    iframe.contentWindow.focus();
-    iframe.contentWindow.print();
-    // Remove iframe after a delay to ensure print command is sent
-    setTimeout(() => {
-      document.body.removeChild(iframe);
-    }, 500);
-  };
+  printHtmlInIframe(receiptHTML);
 };
 
-
-
-
-
-
 const handleKOTPrintReceipt = () => {
-  // Calculate totals from props.products
-  const subTotal = props.products.reduce(
-    (sum, product) =>
-      sum + parseFloat(product.selling_price) * product.quantity,
-    0
-  );
-  const customDiscount = Number(props.custom_discount || 0);
-  const totalDiscount = props.products
-    .reduce((total, item) => {
-      // Check if item has a discount
-      if (item.discount && item.discount > 0 && item.apply_discount == true) {
-        const discountAmount =
-          (parseFloat(item.selling_price) - parseFloat(item.discounted_price)) *
-          item.quantity;
-        return total + discountAmount;
-      }
-      return total; // If no discount, return total as-is
-    }, 0)
-    .toFixed(2); // Ensures two decimal places
-
-  const discount = 0; // Example discount (can be dynamic)
-  const total = subTotal - totalDiscount - customDiscount;
-
   // Generate table rows dynamically using props.products
   const productRows = props.products
     .map((product) => {
-      // Determine the price based on discount
-      const price =
-        product.discount > 0 && product.apply_discount
-          ? product.discounted_price // Use discounted price if discount is applied
-          : product.selling_price; // Use selling price if no discount
-
       return `
         <tr>
           <td>${product.name}</td>
           <td style="text-align: center;">${product.quantity}</td>
-
         </tr>
       `;
     })
@@ -435,33 +518,49 @@ const handleKOTPrintReceipt = () => {
   <head>
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Receipt</title>
+      <title>KOT</title>
       <style>
-          @media print {
-              body {
-                  margin: 0;
-                  padding: 0;
-                  -webkit-print-color-adjust: exact;
-              }
-              @page {
-                  size: 80mm auto;
-                  margin: 0;
-              }
+          /* Same single-page thermal print approach as the customer
+             receipt: one outer unbreakable wrapper, atomic table rows,
+             auto page height, no blanket "*" avoid rule. */
+
+          @page {
+              size: 80mm auto;
+              margin: 0;
           }
+
+          * {
+              box-sizing: border-box;
+          }
+
+          html, body {
+              width: 80mm;
+              height: auto;
+              min-height: 0;
+              margin: 0;
+              padding: 0;
+              background: #fff;
+          }
+
           body {
-              background-color: #ffffff;
               font-size: 12px;
               font-family: 'Arial', sans-serif;
-              margin: 0;
-              padding: 10px;
               color: #000;
+              padding: 10px;
+              overflow: visible;
+          }
+
+          .receipt-container {
+              width: 100%;
+              overflow: visible;
+              page-break-inside: avoid;
+              break-inside: avoid;
           }
 
           .section {
-              margin-bottom: 16px;
-               margin: 8px 0;
-
+              margin: 8px 0;
           }
+
           .info-row {
               display: flex;
               justify-content: space-between;
@@ -475,15 +574,19 @@ const handleKOTPrintReceipt = () => {
           .info-row small {
               font-weight: normal;
           }
+
           table {
               width: 100%;
               font-size: 12px;
               border-collapse: collapse;
               margin-top: 8px;
           }
+          table tr {
+              page-break-inside: avoid;
+              break-inside: avoid;
+          }
           table th, table td {
               padding: 6px 8px;
-
           }
           table th {
               text-align: left;
@@ -494,6 +597,7 @@ const handleKOTPrintReceipt = () => {
           table td:first-child {
               text-align: left;
           }
+
           .totals {
               border-top: 1px solid #000;
               padding-top: 8px;
@@ -517,31 +621,50 @@ const handleKOTPrintReceipt = () => {
               font-style: italic;
           }
 
-
+          @media print {
+              @page {
+                  size: 80mm auto;
+                  margin: 0;
+              }
+              html, body {
+                  width: 80mm;
+                  height: auto;
+                  margin: 0;
+                  padding: 0;
+              }
+              body {
+                  padding: 10px;
+                  -webkit-print-color-adjust: exact;
+                  print-color-adjust: exact;
+              }
+              .receipt-container {
+                  page-break-inside: avoid;
+                  break-inside: avoid;
+                  page-break-after: avoid;
+                  break-after: avoid;
+              }
+              table tr {
+                  page-break-inside: avoid;
+                  break-inside: avoid;
+              }
+          }
       </style>
   </head>
   <body>
       <div class="receipt-container">
+          <h1 style="text-align:center">
+              <img src="/images/delicasy_logo.png" alt="KOT" style="max-width: 70mm; max-height: 50px; display: block; margin: 0 auto;">
+          </h1>
 
-
-<h1 style="text-align:center">
-<img src="/images/delicasy_logo.png" alt="KOT" style="max-width: 70mm; max-height: 50px; display: block; margin: 0 auto;">
-</h1>
-
-   <div style="font-weight: bold; border: 1px solid black; text-align: center; padding: 5px; margin: 8px 0;">
-                <small style="display: block;">
-
-
-
- Order Type: ${ props.order_type === 'takeaway'
-      ? 'Takeaway'
-      : props.order_type === 'pickup'
-        ? 'Delivery'
-        : 'Dine In' }
-
-
-                </small>
-              </div>
+          <div style="font-weight: bold; border: 1px solid black; text-align: center; padding: 5px; margin: 8px 0;">
+              <small style="display: block;">
+                  Order Type: ${ props.order_type === 'takeaway'
+                      ? 'Takeaway'
+                      : props.order_type === 'pickup'
+                        ? 'Delivery'
+                        : 'Dine In' }
+              </small>
+          </div>
 
           <div class="section">
               <div class="info-row">
@@ -564,16 +687,14 @@ const handleKOTPrintReceipt = () => {
                       <small>${props.cashier.name}</small>
                   </div>
               </div>
-
-
           </div>
+
           <div class="section">
               <table>
                   <thead>
                       <tr>
                           <th>Product Name</th>
                           <th style="text-align: center;">Qty</th>
-
                       </tr>
                   </thead>
                   <tbody>
@@ -587,46 +708,11 @@ const handleKOTPrintReceipt = () => {
               border-bottom: 1px solid black; padding-top: 10px; padding-bottom: 10px;">
                 <small style="display: block; text-align: left;">Note: ${props.kitchen_note}</small>
               </div>` : ''}
-
       </div>
   </body>
   </html>
   `;
 
-  // Create a hidden iframe for printing
-  const iframe = document.createElement("iframe");
-  iframe.style.display = "none";
-  document.body.appendChild(iframe);
-
-  // Write content to iframe
-  iframe.contentDocument.open();
-  iframe.contentDocument.write(receiptHTML);
-  iframe.contentDocument.close();
-
-  // Wait for content to load and then print
-  iframe.onload = () => {
-    iframe.contentWindow.focus();
-    iframe.contentWindow.print();
-    // Remove iframe after a delay to ensure print command is sent
-    setTimeout(() => {
-      if (iframe.parentNode) {
-        document.body.removeChild(iframe);
-      }
-    }, 500);
-  };
+  printHtmlInIframe(receiptHTML);
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 </script>

@@ -1432,7 +1432,7 @@
    import AlertModel from "@/Components/custom/AlertModel.vue";
    import WaiterOrderAlert from "@/Components/custom/WaiterOrderAlert.vue";
 
-   import { useForm, router } from "@inertiajs/vue3";
+   import { useForm, router, usePage } from "@inertiajs/vue3";
    import { ref, onMounted, computed, watch, nextTick } from "vue";
    import { Head, Link } from "@inertiajs/vue3";
    import axios from "axios";
@@ -3155,333 +3155,170 @@
    /* =========================
       Print Bill Only
    ========================= */
-   const printBillOnly = () => {
-       try {
-           const t = selectedTable.value;
-           if (!t || !Array.isArray(t.products) || t.products.length === 0) {
-               isAlertModalOpen.value = true; message.value = "No items to print."; return;
-           }
-           const fmt = (n) => (Number(n || 0)).toFixed(2);
-           const orderType = t.order_type === "takeaway" ? "Takeaway" : t.order_type === "pickup" ? "Delivery" : "Dine In";
-           const itemRows = t.products.map(p => {
-               const price = parseFloat(p.selling_price) || 0;
-               const qty = Number(p.quantity || 1);
-               const discP = Number(p.discount || 0);
-               const line = p.apply_discount ? (price * qty * (100 - discP)) / 100 : price * qty;
-               const sizeText = p.size?.name ? ` (${p.size.name})` : "";
-               const discText = p.apply_discount ? ` (${discP}% off)` : "";
-               return `
-           <tr>
-             <td>${p.name || ""}${sizeText}${discText}</td>
-             <td style="text-align:center;">${qty}</td>
-             <td style="text-align:right;">${fmt(price)}</td>
-             <td style="text-align:right;">${fmt(line)}</td>
-           </tr>
-         `;
-           }).join("");
+    const printBillOnly = () => {
+        try {
+            const t = selectedTable.value;
+            if (!t || !Array.isArray(t.products) || t.products.length === 0) {
+                isAlertModalOpen.value = true; message.value = "No items to print."; return;
+            }
+            const companyInfo = usePage().props.companyInfo;
+            const subTotal = Number(subtotal.value || 0);
+            const totalDisc = Number(totalDiscount.value || 0);
+            const customDisc = Number(customDiscCalculated.value || 0);
+            const deliv = t.order_type === "pickup" ? Number(t.delivery_charge || 0) : 0;
+            const svcRate = Number(t.service_charge || 0);
+            const svcAmt = (subTotal * svcRate) / 100;
+            const shoppingBagCharge = t.shopping_bag_charge_enabled ? 10.00 : 0;
+            const preBank = subTotal - totalDisc - customDisc + deliv + svcAmt + shoppingBagCharge;
+            const bankRate = Number(t.bank_service_charge || 0);
+            const bankAmt = (preBank * bankRate) / 100;
+            const grandTotal = Number(total.value || 0);
+            const cashVal = Number(t.cash || 0);
+            const balVal = Number(balance.value || 0);
+            const ownerVal = Number(ownerDiscountValue.value || 0);
+            const ownerCode = ownerCodeValue.value;
 
-           const sub = Number(subtotal.value || 0);
-           const discTotal = Number(totalDiscount.value || 0);
-           const customDisc = Number(customDiscCalculated.value || 0);
-           const deliv = t.order_type === "pickup" ? Number(t.delivery_charge || 0) : 0;
-           const svcRate = Number(t.service_charge || 0);
-           const svcAmt = (sub * svcRate) / 100;
-           const preBank = sub - discTotal - customDisc + deliv + svcAmt;
-           const bankRate = Number(t.bank_service_charge || 0);
-           const bankAmt = (preBank * bankRate) / 100;
-           const grandTotal = Number(total.value || 0);
-           const cashVal = Number(t.cash || 0);
-           const balVal = Number(balance.value || 0);
-           const couponVal = appliedCoupon.value ? Number(appliedCoupon.value.discount || 0) : 0;
-           const ownerVal = Number(ownerDiscountValue.value || 0);
+            const productRows = t.products.map(p => {
+                return `
+                <tr>
+                    <td class="name" colspan="3">${p.name}${p.size?.name ? ` (${p.size.name})` : ""}</td>
+                </tr>
+                <tr class="item-sub">
+                    <td></td>
+                    <td class="pqty">
+                        ${p.selling_price} \u00d7 ${p.quantity}
+                        ${p.discount > 0 && p.apply_discount ? `<div class="discount-badge">${p.discount}% OFF</div>` : ""}
+                    </td>
+                    <td class="ptotal">
+                        ${p.discount > 0 && p.apply_discount ? (p.selling_price * p.quantity * (1 - p.discount / 100)).toFixed(2) : (p.selling_price * p.quantity).toFixed(2)}
+                    </td>
+                </tr>
+            `;
+            }).join("");
 
-           const bankLine = selectedPaymentMethod.value === "card" ? `
-         <div class="row"><span><b>Bank:</b> ${t.bank_name || "-"}</span></div>
-         <div class="row"><span><b>Card:</b> ****${t.card_last4 || "-"}</span></div>` : "";
-           const cashLine = selectedPaymentMethod.value === "cash" ? `
-         <div class="divider"></div>
-         <div class="row"><div>Cash Paid</div><div>${fmt(cashVal)}</div></div>
-         <div class="row"><div>Balance</div><div>${fmt(balVal)}</div></div>` : "";
-           const couponLine = couponVal > 0 ? `<div class="row"><div>Coupon</div><div>-${fmt(couponVal)}</div></div>` : "";
-           const ownerLine = ownerVal > 0 ? `<div class="row"><div>Owner Disc</div><div>-${fmt(ownerVal)}</div></div>` : "";
-           const customLine = customDisc > 0 ? `<div class="row"><div>Custom Disc</div><div>-${fmt(customDisc)}</div></div>` : "";
-           const delivLine = deliv > 0 ? `<div class="row"><div>Delivery</div><div>+${fmt(deliv)}</div></div>` : "";
-           const svcLine = svcRate > 0 ? `<div class="row"><div>Service (${fmt(svcRate)}%)</div><div>+${fmt(svcAmt)}</div></div>` : "";
-           const bankSvcLine = bankRate > 0 ? `<div class="row"><div>Bank Fee (${fmt(bankRate)}%)</div><div>+${fmt(bankAmt)}</div></div>` : "";
+            const receiptHTML = `
+            <!DOCTYPE html>
+            <html lang="en">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Receipt</title>
+                <style>
+                    @page { size: 80mm auto; margin: 0; }
+                    * { box-sizing: border-box; }
+                    html, body { width: 80mm; height: auto; min-height: 0; margin: 0; padding: 0; background: #fff; }
+                    body { font-family: 'Arial', sans-serif; font-size: 13px; color: #000; padding: 8px 10px; overflow: visible; }
+                    .receipt { width: 100%; overflow: visible; page-break-inside: avoid; break-inside: avoid; }
+                    .header { text-align: center; padding-bottom: 8px; margin-bottom: 8px; border-bottom: 2px solid #000; }
+                    .header h1 { font-size: 18px; font-weight: 900; margin: 0 0 3px; letter-spacing: 0.5px; }
+                    .header p { font-size: 12px; margin: 2px 0; }
+                    .order-type { font-size: 13px; font-weight: 800; text-align: center; border: 2px solid #000; border-radius: 4px; padding: 4px 0; margin: 8px 0; letter-spacing: 0.5px; text-transform: uppercase; }
+                    .meta { width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 8px; }
+                    .meta td { padding: 2px 0; vertical-align: top; }
+                    .meta td:first-child { font-weight: 700; width: 50%; }
+                    .meta td:last-child { text-align: right; font-weight: 400; }
+                    .divider-solid { border: none; border-top: 2px solid #000; margin: 6px 0; }
+                    .items { width: 100%; border-collapse: collapse; font-size: 13px; }
+                    .items thead tr { border-bottom: 1px solid #000; }
+                    .items th { font-size: 12px; font-weight: 800; padding: 4px 2px; text-transform: uppercase; }
+                    .items th:first-child { text-align: left; }
+                    .items th:nth-child(2) { text-align: center; }
+                    .items th:last-child { text-align: right; }
+                    .items td { padding: 3px 2px; }
+                    .items td.name { font-weight: 700; font-size: 13px; padding-top: 4px; }
+                    .items .item-sub { border-bottom: 1px dashed #aaa; }
+                    .items td.pqty { text-align: center; font-size: 12px; }
+                    .items td.ptotal { text-align: right; font-weight: 700; font-size: 13px; }
+                    .items tr, .totals tr { page-break-inside: avoid; break-inside: avoid; }
+                    .discount-badge { display: inline-block; background: #000; color: #fff; font-size: 10px; font-weight: 700; padding: 0 4px; border-radius: 3px; margin-top: 2px; }
+                    .totals { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 4px; }
+                    .totals td { padding: 3px 0; }
+                    .totals td:last-child { text-align: right; }
+                    .totals .grand td { font-size: 15px; font-weight: 900; border-top: 2px solid #000; border-bottom: 2px solid #000; padding: 5px 0; }
+                    .totals .bold td { font-weight: 700; }
+                    .kitchen-note { font-size: 12px; font-weight: 700; border-top: 1px dashed #555; border-bottom: 1px dashed #555; padding: 5px 0; margin: 8px 0; }
+                    .footer { text-align: center; margin-top: 10px; padding-top: 0; }
+                    .footer .no-refund { font-size: 13px; font-weight: 800; letter-spacing: 0.3px; margin: 6px 0; }
+                    .footer .thank-you { font-size: 14px; font-weight: 900; letter-spacing: 0.5px; margin: 4px 0; text-transform: uppercase; }
+                    .footer .powered { font-size: 11px; margin-top: 6px; margin-bottom: 0; color: #444; }
+                    @media print {
+                        @page { size: 80mm auto; margin: 0; }
+                        html, body { width: 80mm; height: auto; margin: 0; padding: 0; }
+                        body { padding: 8px 10px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+                        .receipt { page-break-inside: avoid; break-inside: avoid; page-break-after: avoid; break-after: avoid; }
+                        .items tr, .totals tr { page-break-inside: avoid; break-inside: avoid; }
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="receipt">
+                    <div class="header">
+                        ${companyInfo?.name ? `<img src="/images/delicasy_logo.png" alt="${companyInfo.name}" style="max-width: 70mm; max-height: 50px; margin: 0 auto; display: block;">` : ""}
+                        ${companyInfo?.address ? `<p>${companyInfo.address}</p>` : ""}
+                        ${(companyInfo?.phone || companyInfo?.phone2) ? `<p>${[companyInfo.phone, companyInfo.phone2].filter(Boolean).join(" | ")}</p>` : ""}
+                        ${companyInfo?.email ? `<p>${companyInfo.email}</p>` : ""}
+                    </div>
 
-           const receiptHTML = `
-         <!DOCTYPE html>
-         <html>
-           <head>
-             <meta charset="utf-8" />
-             <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-             <title>Bill</title>
-             <style>
-               * {
-                 margin: 0;
-                 padding: 0;
-                 box-sizing: border-box;
-               }
+                    <div class="order-type">${t.id === 'default' ? 'Temporary Bill - ' : ''}${t.order_type === 'takeaway' ? 'Takeaway' : t.order_type === 'pickup' ? 'Delivery' : 'Dine In'}</div>
 
-               @page {
-                 size: 80mm auto;
-                 margin: 0;
-                 padding: 0;
-                 orphans: 1;
-                 widows: 1;
-               }
+                    <table class="meta">
+                        <tr><td>Date &amp; Time:</td><td>${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}</td></tr>
+                        <tr><td>Order No:</td><td>${t.orderId}</td></tr>
+                        <tr><td>Customer:</td><td>${customer.value?.name || 'Walking Customer'}</td></tr>
+                        <tr><td>Cashier:</td><td>${props.loggedInUser?.name}</td></tr>
+                        <tr><td>Payment:</td><td>${selectedPaymentMethod.value}</td></tr>
+                    </table>
 
-               @media print {
-                 html, body {
-                   margin: 0 !important;
-                   padding: 0 !important;
-                   width: 80mm !important;
-                   height: auto !important;
-                   background: white !important;
-                   overflow: visible !important;
-                   -webkit-print-color-adjust: exact !important;
-                   print-color-adjust: exact !important;
-                   color-adjust: exact !important;
-                 }
+                    <hr class="divider-solid" />
 
-                 * {
-                   -webkit-print-color-adjust: exact !important;
-                   print-color-adjust: exact !important;
-                   color-adjust: exact !important;
-                   margin: 0 !important;
-                   padding: inherit;
-                   page-break-inside: avoid !important;
-                   break-inside: avoid !important;
-                 }
+                    <table class="items">
+                        <thead>
+                            <tr>
+                                <th style="width:44%;text-align:left">Item</th>
+                                <th style="width:32%;text-align:center">Price \u00d7 Qty</th>
+                                <th style="width:24%;text-align:right">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>${productRows}</tbody>
+                    </table>
 
-                 body {
-                   padding: 8px 6px !important;
-                 }
-               }
+                    <hr class="divider-solid" />
 
-               html {
-                 margin: 0;
-                 padding: 0;
-               }
+                    <table class="totals">
+                        ${Number(subtotal.value) !== Number(grandTotal) && Number(subtotal.value) !== 0 ? `<tr><td>Sub Total</td><td>${(Number(subtotal.value)||0).toFixed(2)} LKR</td></tr>` : ""}
+                        ${Number(totalDisc) !== 0 ? `<tr><td>Discount</td><td>(${(Number(totalDisc)||0).toFixed(2)}) LKR</td></tr>` : ""}
+                        ${Number(ownerVal) !== 0 ? `<tr><td>Owner Discount${ownerCode ? ` (${ownerCode})` : ""}</td><td>(${(Number(ownerVal)||0).toFixed(2)}) LKR</td></tr>` : ""}
+                        ${Number(customDisc) !== 0 ? `<tr><td>Customer Discount</td><td>(${(Number(customDisc)||0).toFixed(2)}) LKR</td></tr>` : ""}
+                        ${t.delivery_charge ? `<tr><td>Delivery Charge</td><td>${(Number(t.delivery_charge)||0).toFixed(2)} LKR</td></tr>` : ""}
+                        ${t.service_charge ? `<tr><td>Service Charge</td><td>${(Number(t.service_charge)||0).toFixed(2)} %</td></tr>` : ""}
+                        ${t.bank_service_charge ? `<tr><td>Bank Service Charge</td><td>${(Number(t.bank_service_charge)||0).toFixed(2)} %</td></tr>` : ""}
+                        ${Number(shoppingBagCharge) !== 0 ? `<tr><td>Shopping Bag</td><td>${(Number(shoppingBagCharge)||0).toFixed(2)} LKR</td></tr>` : ""}
+                        ${Number(grandTotal) !== 0 ? `<tr class="grand"><td>TOTAL</td><td>${(Number(grandTotal)||0).toFixed(2)} LKR</td></tr>` : ""}
+                        ${Number(cashVal) !== 0 ? `<tr><td>Cash Paid</td><td>${(Number(cashVal)||0).toFixed(2)} LKR</td></tr>` : ""}
+                        ${Number(balVal) !== 0 ? `<tr class="bold"><td>Balance</td><td>${(Number(balVal)||0).toFixed(2)} LKR</td></tr>` : ""}
+                    </table>
 
-               body {
-                 background: white;
-                 font-size: 16px;
-                 font-family: 'Courier New', monospace;
-                 margin: 0;
-                 padding: 8px 6px;
-                 color: #000;
-                 width: 80mm;
-                 box-sizing: border-box;
-                 font-weight: 900;
-                 line-height: 1.2;
-               }
+                    ${t.kitchen_note ? `<div class="kitchen-note">Note: ${t.kitchen_note}</div>` : ""}
 
-               h1 {
-                 text-align: center;
-                 margin: 0 0 12px 0;
-                 font-size: 19px;
-                 font-weight: 900;
-                 color: #000;
-                 page-break-inside: avoid;
-                 break-inside: avoid;
-               }
+                    <div class="footer">
+                        <p class="no-refund">-- No Exchange or Refunds --</p>
+                        <p class="thank-you">Thank You, Come Again!</p>
+                        <p class="powered">Powered by \u0D94\u0DB1\u0DCA\u0DBD\u0DBA\u0DD2\u0DB1\u0DCA \u0DB8\u0DD4\u0DAF\u0DBD\u0DCF\u0DBD\u0DD3.</p>
+                    </div>
+                </div>
+            </body>
+            </html>
+            `;
 
-               .row {
-                 display: flex;
-                 justify-content: space-between;
-                 margin: 7px 0;
-                 word-break: break-word;
-                 color: #000;
-                 font-weight: 900;
-                 font-size: 15px;
-                 page-break-inside: avoid;
-                 break-inside: avoid;
-               }
-
-               .badge {
-                 border: 2px solid #000;
-                 padding: 6px 8px;
-                 text-align: center;
-                 margin: 10px 0;
-                 font-weight: 900;
-                 font-size: 14px;
-                 color: #000;
-                 page-break-inside: avoid;
-                 break-inside: avoid;
-               }
-
-               table {
-                 width: 100%;
-                 border-collapse: collapse;
-                 margin: 10px 0;
-                 font-size: 14px;
-                 font-weight: 900;
-                 page-break-inside: avoid;
-                 break-inside: avoid;
-               }
-
-               thead {
-                 page-break-inside: avoid;
-                 break-inside: avoid;
-               }
-
-               tbody {
-                 page-break-inside: avoid;
-                 break-inside: avoid;
-               }
-
-               th, td {
-                 padding: 6px 3px;
-                 color: #000;
-                 font-weight: 900;
-                 page-break-inside: avoid;
-                 break-inside: avoid;
-               }
-
-               th {
-                 text-align: left;
-                 font-weight: 900;
-                 border-bottom: 2px solid #000;
-                 padding-bottom: 8px;
-                 font-size: 14px;
-               }
-
-               tbody tr {
-                 border-bottom: 1px solid #ddd;
-                 page-break-inside: avoid;
-                 break-inside: avoid;
-               }
-
-               tbody tr:last-child {
-                 border-bottom: none;
-               }
-
-               td {
-                 text-align: right;
-                 color: #000;
-               }
-
-               td:first-child {
-                 text-align: left;
-                 max-width: 35mm;
-                 word-wrap: break-word;
-                 font-weight: 700;
-               }
-
-               .totals {
-                 margin-top: 10px;
-                 border-top: 1px solid #999;
-                 padding-top: 10px;
-                 font-size: 15px;
-                 font-weight: 900;
-                 page-break-inside: avoid;
-                 break-inside: avoid;
-               }
-
-               .grand {
-                 font-weight: 900;
-                 font-size: 16px;
-                 border-top: 2px solid #000;
-                 padding-top: 10px;
-                 margin-top: 8px;
-                 color: #000;
-                 page-break-inside: avoid;
-                 break-inside: avoid;
-               }
-
-               .note {
-                 border-top: 1px solid #000;
-                 padding-top: 10px;
-                 margin-top: 12px;
-                 font-weight: 900;
-                 font-size: 14px;
-                 color: #000;
-                 page-break-inside: avoid;
-                 break-inside: avoid;
-               }
-
-               .divider {
-                 border-top: 2px solid #000;
-                 margin: 10px 0;
-                 page-break-inside: avoid;
-                 break-inside: avoid;
-               }
-
-               b {
-                 font-weight: 900;
-                 color: #000;
-               }
-
-               span {
-                 color: #000;
-                 font-weight: 900;
-               }
-
-               .receipt-container {
-                 page-break-inside: avoid;
-                 break-inside: avoid;
-                 width: 80mm;
-               }
-             </style>
-           </head>
-           <body>
-             <div class="receipt-container">
-               <h1>Customer Bill</h1>
-               <div class="badge">
-                 ${t.id === 'default' ? 'Temporary Bill' : `Table: ${t.number}`} | ${orderType}
-               </div>
-               <div class="row">
-                 <span><b>Date:</b> ${new Date().toLocaleDateString()}</span>
-               </div>
-               <div class="row">
-                 <span><b>Time:</b> ${new Date().toLocaleTimeString()}</span>
-               </div>
-               <div class="row">
-                 <span><b>Order #:</b> ${t.orderId}</span>
-               </div>
-               <div class="row">
-                 <span><b>Cashier:</b> ${props.loggedInUser?.name ?? "-"}</span>
-               </div>
-               ${customer.value?.name ? `<div class="row"><span><b>Customer:</b> ${customer.value.name}</span></div>` : ""}
-               ${bankLine}
-               <div class="divider"></div>
-               <table>
-                 <thead>
-                   <tr>
-                     <th style="width: 40%; text-align: left;">Item</th>
-                     <th style="width: 12%; text-align: center;">Qty</th>
-                     <th style="width: 18%; text-align: right;">Price</th>
-                     <th style="width: 15%; text-align: right;">Total</th>
-                   </tr>
-                 </thead>
-                 <tbody>${itemRows}</tbody>
-               </table>
-               <div class="divider"></div>
-               <div class="totals">
-                 <div class="row"><div>Subtotal</div><div>${fmt(sub)}</div></div>
-                 ${discTotal > 0 ? `<div class="row"><div>Discount</div><div>-${fmt(discTotal)}</div></div>` : ""}
-                 ${couponLine}${ownerLine}${customLine}${delivLine}${svcLine}${bankSvcLine}
-                 <div class="grand row"><div>TOTAL</div><div>${fmt(grandTotal)}</div></div>
-               </div>
-               ${cashLine}
-               ${t.kitchen_note ? `<div class="note">Note: ${t.kitchen_note}</div>` : ""}
-               <div style="text-align: center; margin-top: 8px; font-size: 9px; page-break-inside: avoid; break-inside: avoid;">
-                 Thank you!
-               </div>
-             </div>
-           </body>
-         </html>
-       `;
-           const w = window.open("", "_blank");
-           if (!w) { isAlertModalOpen.value = true; message.value = "Popup blocked. Allow popups to print the bill."; return; }
-           w.document.open(); w.document.write(receiptHTML); w.document.close();
-           w.onload = () => { w.focus(); w.print(); w.close(); };
-       } catch (err) {
-           console.error("Bill print error:", err);
-           isAlertModalOpen.value = true; message.value = "Failed to print the bill.";
-       }
-   };
+            const w = window.open("", "_blank");
+            if (!w) { isAlertModalOpen.value = true; message.value = "Popup blocked. Allow popups to print the bill."; return; }
+            w.document.open(); w.document.write(receiptHTML); w.document.close();
+            w.onload = () => { w.focus(); w.print(); w.close(); };
+        } catch (err) {
+            console.error("Bill print error:", err);
+            isAlertModalOpen.value = true; message.value = "Failed to print the bill.";
+        }
+    };
 </script>
 <style scoped>
 /* ---- Ongoing Orders ring animation ---- */
