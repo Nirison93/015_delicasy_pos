@@ -15,6 +15,11 @@
                </h1>
             </div>
             <div class="flex items-center gap-4">
+               <a href="/reports/cash-drawer"
+                  class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-emerald-500/30 bg-emerald-500/15 text-emerald-300 hover:bg-emerald-500/25 hover:text-emerald-200 transition text-[11px] font-semibold">
+                  <i class="fas fa-cash-register text-sm"></i>
+                  <span>Cash Drawer Report</span>
+               </a>
                <!-- Waiter Orders Alert -->
                <!-- <WaiterOrderAlert /> -->
                <!-- Last Order List button -->
@@ -44,10 +49,7 @@
                <!-- <div v-if="selectedTable?.orderId" class="px-4 py-2 bg-zinc-800 rounded-xl border border-white/10 text-zinc-300 font-semibold text-[12px]">
                   Order No <span class="font-bold text-amber-400">#{{ selectedTable.orderId }}</span>
                   </div> -->
-               <button @click="refreshData"
-                  class="w-11 h-11 flex items-center justify-center rounded-xl bg-zinc-800 border border-white/10 text-zinc-400 hover:bg-zinc-700 hover:text-white transition">
-               <i class="ri-restart-line text-xl"></i>
-               </button>
+
                <!-- Divider -->
                <div class="w-px h-7 bg-white/10"></div>
                <!-- Logged-in user -->
@@ -64,6 +66,11 @@
                   title="Open/Close Cash Drawer">
                <i class="ri-safe-line text-md"></i>
                Cash Drawer
+               </button>
+
+                <button @click="refreshData"
+                  class="w-11 h-11 flex items-center justify-center rounded-xl bg-zinc-800 border border-white/10 text-zinc-400 hover:bg-zinc-700 hover:text-white transition">
+               <i class="ri-restart-line text-xl"></i>
                </button>
                <!-- Logout -->
                <Link href="/logout" method="post" as="button"
