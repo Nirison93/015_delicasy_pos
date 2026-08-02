@@ -565,35 +565,30 @@ Final Balance: ${f(Number(props.statistics.total_closing_balance) - Number(props
     iframe.style.border = '0';
     document.body.appendChild(iframe);
 
+    let isPrinted = false;
+
     const printFrame = () => {
-      if (!iframe.contentWindow) {
-        throw new Error('Print window unavailable');
-      }
+      if (isPrinted || !iframe.contentWindow) return;
+      isPrinted = true;
       iframe.contentWindow.focus();
       iframe.contentWindow.print();
+      setTimeout(() => {
+        if (iframe.parentNode) {
+          iframe.parentNode.removeChild(iframe);
+        }
+      }, 500);
     };
 
     iframe.contentDocument.open();
     iframe.contentDocument.write(reportHTML);
     iframe.contentDocument.close();
 
-    iframe.onload = () => {
-      try {
-        printFrame();
-      } finally {
-        setTimeout(() => {
-          if (iframe.parentNode) {
-            iframe.parentNode.removeChild(iframe);
-          }
-        }, 500);
-      }
-    };
-
-    setTimeout(() => {
-      if (iframe.contentDocument?.readyState === 'complete') {
-        printFrame();
-      }
-    }, 150);
+    if (iframe.contentDocument.readyState === 'loading') {
+      iframe.onload = printFrame;
+      setTimeout(printFrame, 300);
+    } else {
+      setTimeout(printFrame, 50);
+    }
   } catch (err) {
     console.error('Cash drawer print error:', err);
     alert('Failed to print the report.');
