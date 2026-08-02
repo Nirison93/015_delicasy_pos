@@ -19,6 +19,20 @@
 
         <!-- Date filters & Print -->
         <div class="flex flex-wrap items-center gap-2">
+
+
+
+          <a href="/pos"
+            class="h-12 px-5 inline-flex items-center gap-2 text-lg font-semibold text-white bg-slate-800 rounded-xl hover:bg-slate-700 active:scale-95 transition">
+            <i class="fas fa-cash-register text-sm"></i>
+            <span>POS</span>
+          </a>
+
+
+
+
+
+
           <button @click="printCashDrawerReport" class="h-12 px-5 inline-flex items-center gap-2 text-lg font-semibold text-white bg-emerald-600 ring-1 ring-emerald-700 rounded-xl hover:bg-emerald-700 transition select-none">
             <i class="ri-printer-line"></i> Print Report
           </button>
@@ -200,10 +214,10 @@ import { Head, Link, router } from "@inertiajs/vue3";
 import { computed, ref } from "vue";
 
 const props = defineProps({
-  cashDrawers: { type: Array, default: () => [] },
+  cashDrawers: { type: [Array, Object], default: () => [] },
   statistics: { type: Object, default: () => ({}) },
   varianceByUser: { type: Array, default: () => [] },
-  expenses: { type: Array, default: () => [] },
+  expenses: { type: [Array, Object], default: () => [] },
   startDate: { type: String, default: "" },
   endDate: { type: String, default: "" },
   companyInfo: { type: Object, default: () => ({}) },
@@ -329,6 +343,19 @@ const variance = (row) => {
   return close - open;
 };
 
+const normalizeRows = (value) => {
+  if (Array.isArray(value)) return value;
+  if (value && Array.isArray(value.data)) return value.data;
+  return [];
+};
+
+const escapeHtml = (value) => String(value ?? '')
+  .replace(/&/g, '&amp;')
+  .replace(/</g, '&lt;')
+  .replace(/>/g, '&gt;')
+  .replace(/"/g, '&quot;')
+  .replace(/'/g, '&#39;');
+
 const printCashDrawerReport = () => {
   try {
     const f = (val) => {
@@ -336,21 +363,21 @@ const printCashDrawerReport = () => {
       return n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     };
 
-    const drawerRows = props.cashDrawers.map((row, idx) => {
+    const drawerRows = normalizeRows(props.cashDrawers).map((row, idx) => {
       const var_val = variance(row);
       const varClass = var_val >= 0 ? '' : 'negative';
-      const openedByName = row.openedByUser?.name || row.opened_by || "-";
-      const closedByName = row.closedByUser?.name || row.closed_by || "-";
+      const openedByName = escapeHtml(row.openedByUser?.name || row.opened_by || "-");
+      const closedByName = escapeHtml(row.closedByUser?.name || row.closed_by || "-");
       const openedTime = row.opened_at
         ? new Date(row.opened_at).toLocaleString(undefined, { month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit' })
         : "-";
       const closedTime = row.closed_at
         ? new Date(row.closed_at).toLocaleString(undefined, { month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit' })
         : "-";
-      return `<tr><td>${idx + 1}</td><td>${openedByName}</td><td>${openedTime}</td><td>${f(row.opening_balance)}</td><td>${closedByName}</td><td>${closedTime}</td><td>${f(row.closing_balance)}</td><td class="${varClass}">${f(var_val)}</td></tr>`;
+      return `<tr><td>${idx + 1}</td><td>${openedByName}</td><td>${escapeHtml(openedTime)}</td><td>${f(row.opening_balance)}</td><td>${closedByName}</td><td>${escapeHtml(closedTime)}</td><td>${f(row.closing_balance)}</td><td class="${varClass}">${f(var_val)}</td></tr>`;
     }).join('');
 
-    const allExpenses = (props.expenses || []).map((exp) => {
+    const allExpenses = normalizeRows(props.expenses).map((exp) => {
       const rawDate = exp.date || exp.created_at;
       const expDate = rawDate ? new Date(rawDate).toLocaleString(undefined, { month: 'short', day: '2-digit' }) : '-';
       return {
@@ -375,6 +402,7 @@ const printCashDrawerReport = () => {
 <head>
 <meta charset="utf-8" />
 <title>Cash Drawer Report</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 
 <style>
 @page {
@@ -529,15 +557,43 @@ Final Balance: ${f(Number(props.statistics.total_closing_balance) - Number(props
 </html>`;
 
     const iframe = document.createElement('iframe');
-    iframe.style.display = 'none';
+    iframe.style.position = 'fixed';
+    iframe.style.right = '-9999px';
+    iframe.style.bottom = '-9999px';
+    iframe.style.width = '0';
+    iframe.style.height = '0';
+    iframe.style.border = '0';
     document.body.appendChild(iframe);
+
+    const printFrame = () => {
+      if (!iframe.contentWindow) {
+        throw new Error('Print window unavailable');
+      }
+      iframe.contentWindow.focus();
+      iframe.contentWindow.print();
+    };
+
     iframe.contentDocument.open();
     iframe.contentDocument.write(reportHTML);
     iframe.contentDocument.close();
+
     iframe.onload = () => {
-      iframe.contentWindow.print();
-      setTimeout(() => { document.body.removeChild(iframe); }, 250);
+      try {
+        printFrame();
+      } finally {
+        setTimeout(() => {
+          if (iframe.parentNode) {
+            iframe.parentNode.removeChild(iframe);
+          }
+        }, 500);
+      }
     };
+
+    setTimeout(() => {
+      if (iframe.contentDocument?.readyState === 'complete') {
+        printFrame();
+      }
+    }, 150);
   } catch (err) {
     console.error('Cash drawer print error:', err);
     alert('Failed to print the report.');

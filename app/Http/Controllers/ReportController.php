@@ -175,7 +175,7 @@ class ReportController extends Controller
      */
     public function cashDrawerReport(Request $request)
     {
-        if (!Gate::allows('hasRole', ['Admin'])) {
+        if (!auth()->check()) {
             abort(403, 'Unauthorized');
         }
 
