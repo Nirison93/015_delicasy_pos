@@ -1451,7 +1451,10 @@
    // fetchNextOrderId: always asks the backend for the correct next order ID
    const fetchNextOrderId = async () => {
        try {
-           const { data } = await axios.get('/pos/next-order-id');
+           const heldOrderIds = heldTakeawayOrders.value.map(o => o.orderId);
+           const { data } = await axios.get('/pos/next-order-id', {
+               params: { heldOrderIds }
+           });
            return data.nextOrderId || 'Delicasy/0001';
        } catch {
            return 'Delicasy/0001';
