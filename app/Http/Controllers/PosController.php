@@ -159,16 +159,36 @@ class PosController extends Controller
     }
 
     // AJAX: get the next sequential order ID based on the last sale in the DB
-    public function getNextOrderId()
+    public function getNextOrderId(Request $request)
     {
         $lastSale = Sale::latest('id')->first();
-        $nextOrderId = 'Delicasy/0001';
+        $nextNum = 1;
+
         if ($lastSale && $lastSale->order_id) {
             if (preg_match('/(\d+)$/', $lastSale->order_id, $matches)) {
                 $nextNum = intval($matches[1]) + 1;
-                $nextOrderId = 'Delicasy/' . str_pad($nextNum, 4, '0', STR_PAD_LEFT);
             }
         }
+
+        // Check held orders from frontend to ensure we don't duplicate IDs
+        $heldOrderIds = $request->input('heldOrderIds', []);
+        if (!empty($heldOrderIds)) {
+            $maxHeldNum = 0;
+            foreach ($heldOrderIds as $orderId) {
+                if (preg_match('/(\d+)$/', $orderId, $matches)) {
+                    $heldNum = intval($matches[1]);
+                    if ($heldNum >= $maxHeldNum) {
+                        $maxHeldNum = $heldNum;
+                    }
+                }
+            }
+            // Ensure next ID is higher than any held order ID
+            if ($maxHeldNum >= $nextNum) {
+                $nextNum = $maxHeldNum + 1;
+            }
+        }
+
+        $nextOrderId = 'Delicasy/' . str_pad($nextNum, 4, '0', STR_PAD_LEFT);
         return response()->json(['nextOrderId' => $nextOrderId]);
     }
 
