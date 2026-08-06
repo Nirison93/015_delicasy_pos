@@ -40,10 +40,10 @@
             <DashCard href="/reports/order-type-report" icon="/images/dashboard/history.png" label="Order Type Report" gradient="from-sky-500 to-blue-700" />
             <DashCard href="/reports/bar-sales-report" icon="/images/dashboard/waiter.png" label="Bar Sales Report" gradient="from-rose-500 to-red-700" />
             <DashCard href="/stock-transition" icon="/images/dashboard/stock_transtion.png" label="Stock Transition" gradient="from-indigo-500 to-blue-700" />
-            <DashCard href="/transactionHistory" icon="/images/dashboard/history.png" label="Order History" gradient="from-yellow-500 to-amber-600" />
+            <!-- <DashCard href="/transactionHistory" icon="/images/dashboard/history.png" label="Order History" gradient="from-yellow-500 to-amber-600" /> -->
             <DashCard href="/reports/cash-drawer" icon="/images/dashboard/financial.png" label="Cash Drawer Report" gradient="from-emerald-500 to-teal-700" />
           </div>
-      </section>  
+      </section>
 
       <!-- Section: Admin -->
       <section v-if="HasRole(['Admin'])" class="mb-10">

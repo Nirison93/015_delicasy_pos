@@ -78,7 +78,7 @@ class ReportController extends Controller
     });
 
     // -------- Sales (paginated) --------
-    $salesQuery = Sale::with(['saleItems.product.category', 'employee', 'customer']);
+    $salesQuery = Sale::with(['saleItems.product.category', 'employee', 'customer', 'owner']);
 
     if ($from || $to) {
         $applyCreatedWindow($salesQuery);
@@ -101,7 +101,7 @@ class ReportController extends Controller
     };
 
     // -------- Calculate totals from ALL filtered data (not just paginated) --------
-    $allSalesQuery = Sale::with(['saleItems.product.category', 'employee', 'customer']);
+    $allSalesQuery = Sale::with(['saleItems.product.category', 'employee', 'customer', 'owner']);
     if ($from || $to) {
         $applyCreatedWindow($allSalesQuery);
     }
@@ -409,56 +409,4 @@ class ReportController extends Controller
 
 
 
-
-
-
-
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(Report $report)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Report $report)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Report $report)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Report $report)
-    {
-        //
-    }
 }
