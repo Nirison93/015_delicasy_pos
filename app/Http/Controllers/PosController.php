@@ -403,6 +403,7 @@ class PosController extends Controller
                 'customer_id'         => $customer ? $customer->id : null,
                 'employee_id'         => $request->input('employee_id'),
                 'user_id'             => $request->input('userId'),
+                'cash_drawer_id'      => $openDrawer->id,
                 'order_id'            => $generatedOrderId,
                 'total_amount'        => $request->input('total', $totalAmount),
                 'discount'            => $totalDiscount,

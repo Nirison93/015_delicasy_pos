@@ -14,7 +14,7 @@
                         <Link href="/" class="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-white border border-slate-200 text-slate-500 hover:text-slate-900 hover:bg-slate-50 transition mb-4">
                             <i class="ri-arrow-left-line text-lg"></i>
                         </Link>
-                        <div class="flex items-center gap-2 text-xs font-semibold text-[var(--accent-600)] uppercase tracking-widest mb-1">
+                        <div class="flex items-center gap-2 text-lg font-semibold text-[var(--accent-600)] uppercase tracking-widest mb-1">
                             <i class="ri-bar-chart-2-line"></i>
                             <span>Analytics</span>
                         </div>
@@ -22,7 +22,7 @@
                         <p class="text-slate-500 mt-1 text-sm">Comprehensive sales analytics, transaction detail and stock performance</p>
                     </div>
 
-                    <div class="hidden sm:flex items-center gap-2 text-xs font-medium text-slate-500 bg-white border border-slate-200 rounded-lg px-3 py-2">
+                    <div class="hidden sm:flex items-center gap-2   text-lg text-slate-500 bg-white border border-slate-200 rounded-lg px-3 py-2">
                         <i class="ri-calendar-2-line text-[var(--accent-600)]"></i>
                         <span>{{ dateRangeLabel }}</span>
                     </div>
@@ -33,9 +33,9 @@
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
                         <!-- Quick Filter -->
                         <div class="relative">
-                            <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">Quick Filter</label>
+                            <label class="block text-lg font-semibold text-slate-500 uppercase tracking-wide mb-2">Quick Filter</label>
                             <button @click="showQuickFilter = !showQuickFilter"
-                                class="w-full h-10 px-4 flex items-center justify-between text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:border-slate-400 focus:border-[var(--accent-600)] focus:ring-2 focus:ring-[var(--accent-100)] transition">
+                                class="w-full h-10 px-4 flex items-center justify-between  text-lg text-slate-700 bg-white border border-slate-300 rounded-lg hover:border-slate-400 focus:border-[var(--accent-600)] focus:ring-2 focus:ring-[var(--accent-100)] transition">
                                 <span class="flex items-center gap-2"><i class="ri-flashlight-line text-slate-400"></i>Select period</span>
                                 <i :class="showQuickFilter ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'"></i>
                             </button>
@@ -45,7 +45,7 @@
                                 class="absolute left-0 top-full mt-2 z-50 w-full bg-white border border-slate-200 rounded-lg shadow-lg overflow-hidden py-1">
                                 <li v-for="qf in quickFilterOptions" :key="qf.key">
                                     <button @click="applyQuickFilter(qf.key)"
-                                        class="w-full text-left px-4 py-2 text-sm text-slate-600 hover:bg-[var(--accent-50)] hover:text-[var(--accent-700)] transition">
+                                        class="w-full text-left px-4 py-2 text-lg text-slate-600 hover:bg-[var(--accent-50)] hover:text-[var(--accent-700)] transition">
                                         {{ qf.label }}
                                     </button>
                                 </li>
@@ -54,22 +54,22 @@
 
                         <!-- Start Date -->
                         <div>
-                            <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">From</label>
+                            <label class="block text-lg font-semibold text-slate-500 uppercase tracking-wide mb-2">From</label>
                             <input v-model="startDate" type="date"
-                                class="w-full h-10 px-4 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:border-slate-400 focus:border-[var(--accent-600)] focus:ring-2 focus:ring-[var(--accent-100)] transition" />
+                                class="w-full h-10 px-4 t  text-lg text-slate-700 bg-white border border-slate-300 rounded-lg hover:border-slate-400 focus:border-[var(--accent-600)] focus:ring-2 focus:ring-[var(--accent-100)] transition" />
                         </div>
 
                         <!-- End Date -->
                         <div>
-                            <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">To</label>
+                            <label class="block text-lg font-semibold text-slate-500 uppercase tracking-wide mb-2">To</label>
                             <input v-model="endDate" type="date"
-                                class="w-full h-10 px-4 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:border-slate-400 focus:border-[var(--accent-600)] focus:ring-2 focus:ring-[var(--accent-100)] transition" />
+                                class="w-full h-10 px-4  text-lg text-slate-700 bg-white border border-slate-300 rounded-lg hover:border-slate-400 focus:border-[var(--accent-600)] focus:ring-2 focus:ring-[var(--accent-100)] transition" />
                         </div>
 
                         <!-- Filter Button -->
                         <div class="flex items-end">
                             <button @click="filterData"
-                                class="w-full h-10 px-4 text-sm font-semibold text-white bg-[var(--accent-600)] rounded-lg hover:bg-[var(--accent-700)] active:scale-[.98] transition flex items-center justify-center gap-2 shadow-sm shadow-[var(--accent-600)]/20">
+                                class="w-full h-10 px-4 text-lg font-semibold text-white bg-[var(--accent-600)] rounded-lg hover:bg-[var(--accent-700)] active:scale-[.98] transition flex items-center justify-center gap-2 shadow-sm shadow-[var(--accent-600)]/20">
                                 <i class="ri-filter-3-line"></i> Apply Filter
                             </button>
                         </div>
@@ -77,7 +77,7 @@
                         <!-- Reset Button -->
                         <div class="flex items-end">
                             <Link href="/reports"
-                                class="w-full h-10 px-4 text-sm font-semibold text-slate-600 bg-slate-100 rounded-lg hover:bg-slate-200 transition flex items-center justify-center gap-2">
+                                class="w-full h-10 px-4 text-lg font-semibold text-slate-600 bg-slate-100 rounded-lg hover:bg-slate-200 transition flex items-center justify-center gap-2">
                                 <i class="ri-refresh-line"></i> Reset
                             </Link>
                         </div>
@@ -86,15 +86,15 @@
             </div>
 
             <!-- KPI Cards -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 mb-6">
                 <div v-for="kpi in kpiCards" :key="kpi.label"
                     class="group relative bg-white rounded-xl shadow-sm ring-1 ring-slate-200 p-5 overflow-hidden hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
                     <div class="absolute inset-x-0 top-0 h-0.5" :style="{ background: kpi.color }"></div>
                     <div class="flex items-start justify-between">
                         <div class="min-w-0">
-                            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">{{ kpi.label }}</p>
+                            <p class="text-lg font-semibold text-slate-500 uppercase tracking-wide mb-1.5">{{ kpi.label }}</p>
                             <p class="text-xl font-bold text-slate-900 truncate" :style="{ color: kpi.textColor }">{{ kpi.value }}</p>
-                            <p class="text-[11px] text-slate-400 mt-1">{{ kpi.suffix }}</p>
+                            <p class="text-[11px] text-slate-900 mt-1">{{ kpi.suffix }}</p>
                         </div>
                         <div class="w-10 h-10 shrink-0 rounded-lg flex items-center justify-center" :style="{ background: kpi.bg }">
                             <i :class="kpi.icon" class="text-lg" :style="{ color: kpi.textColor }"></i>
@@ -103,7 +103,26 @@
                 </div>
             </div>
 
-
+            <!-- Cash Drawer Summary -->
+            <div class="bg-white rounded-xl shadow-sm ring-1 ring-slate-200 px-6 py-4 mb-8 flex flex-wrap items-center justify-between gap-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-lg bg-emerald-100 flex items-center justify-center">
+                        <i class="ri-safe-2-line text-emerald-600 text-sm"></i>
+                    </div>
+                    <div>
+                        <p class="text-[11px] text-slate-500">Cash Drawer (this period)</p>
+                        <p class="text-lg font-bold text-slate-900">
+                            {{ cashDrawerSummary.total_drawers ?? 0 }} drawers
+                            <span class="mx-1 text-slate-300">|</span>
+                            Variance {{ Number(cashDrawerSummary.total_variance || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }} LKR
+                            <span v-if="cashDrawerSummary.pending_approval_count" class="ml-1 text-amber-600">
+                                ({{ cashDrawerSummary.pending_approval_count }} pending approval)
+                            </span>
+                        </p>
+                    </div>
+                </div>
+                <Link href="/reports/cash-drawer" class="text-lg font-semibold text-indigo-600 hover:text-indigo-700">View Full Cash Drawer Report →</Link>
+            </div>
 
             <!-- Sales Table -->
             <div class="bg-white rounded-xl shadow-md ring-1 ring-slate-200 overflow-hidden mb-8">
@@ -117,16 +136,20 @@
                                 </div>
                                 Sales Transactions
                             </h2>
-                            <p class="text-xs text-slate-400 mt-1 ml-10">Showing {{ salesPaginationInfo }}</p>
+                            <p class="text-lg text-slate-900 mt-1 ml-10">Showing {{ salesPaginationInfo }}</p>
                         </div>
                         <div class="flex items-center gap-2">
                             <button @click="downloadSalesTablePDF"
-                                class="h-9 px-4 inline-flex items-center gap-2 text-xs font-semibold text-white bg-rose-600 rounded-lg hover:bg-rose-700 active:scale-[.98] transition shadow-sm">
+                                class="h-9 px-4 inline-flex items-center gap-2 text-lg font-semibold text-white bg-rose-600 rounded-lg hover:bg-rose-700 active:scale-[.98] transition shadow-sm">
                                 <i class="ri-file-pdf-line"></i> PDF
                             </button>
                             <button @click="downloadSalesTableExcel"
-                                class="h-9 px-4 inline-flex items-center gap-2 text-xs font-semibold text-white bg-emerald-600 rounded-lg hover:bg-emerald-700 active:scale-[.98] transition shadow-sm">
-                                <i class="ri-file-excel-2-line"></i> Excel
+                                class="h-9 px-4 inline-flex items-center gap-2 text-lg font-semibold text-white bg-emerald-600 rounded-lg hover:bg-emerald-700 active:scale-[.98] transition shadow-sm">
+                                <i class="ri-file-excel-2-line"></i> Excel (Page)
+                            </button>
+                            <button @click="downloadAllSalesTableExcel"
+                                class="h-9 px-4 inline-flex items-center gap-2 text-lg font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700 active:scale-[.98] transition shadow-sm">
+                                <i class="ri-file-excel-2-line"></i> Excel (All)
                             </button>
                         </div>
                     </div>
@@ -140,8 +163,8 @@
                                 <i class="ri-shopping-bag-line text-emerald-600 text-sm"></i>
                             </div>
                             <div>
-                                <p class="text-[11px] text-slate-500 font-medium">Total Qty</p>
-                                <p class="text-sm font-bold text-slate-900">{{ salesTotalQty.toLocaleString() }}</p>
+                                <p class="text-[11px] text-slate-500 text-lg ">Total Qty</p>
+                                <p class="text-lg font-bold text-slate-900">{{ salesTotalQty.toLocaleString() }}</p>
                             </div>
                         </div>
                         <div class="flex items-center gap-3">
@@ -149,8 +172,8 @@
                                 <i class="ri-money-dollar-circle-line text-blue-600 text-sm"></i>
                             </div>
                             <div>
-                                <p class="text-[11px] text-slate-500 font-medium">Gross Sales</p>
-                                <p class="text-sm font-bold text-slate-900">{{ finalSalesAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}</p>
+                                <p class="text-[11px] text-slate-500 text-lg ">Gross Sales</p>
+                                <p class="text-lg font-bold text-slate-900">{{ finalSalesAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}</p>
                             </div>
                         </div>
                         <div class="flex items-center gap-3">
@@ -158,8 +181,8 @@
                                 <i class="ri-percent-line text-amber-600 text-sm"></i>
                             </div>
                             <div>
-                                <p class="text-[11px] text-slate-500 font-medium">Discounts</p>
-                                <p class="text-sm font-bold text-slate-900">{{ totalDiscounts.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}</p>
+                                <p class="text-[11px] text-slate-500 text-lg ">Discounts</p>
+                                <p class="text-lg font-bold text-slate-900">{{ totalDiscounts.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}</p>
                             </div>
                         </div>
                         <div class="flex items-center gap-3">
@@ -167,8 +190,8 @@
                                 <i class="ri-line-chart-line text-rose-600 text-sm"></i>
                             </div>
                             <div>
-                                <p class="text-[11px] text-slate-500 font-medium">Profit</p>
-                                <p class="text-sm font-bold text-slate-900">{{ salesProfitTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}</p>
+                                <p class="text-[11px] text-slate-500 text-lg ">Profit</p>
+                                <p class="text-lg font-bold text-slate-900">{{ salesProfitTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}</p>
                             </div>
                         </div>
                     </div>
@@ -176,61 +199,61 @@
 
                 <!-- Table -->
                 <div class="overflow-x-auto">
-                    <table id="salesTbl" class="sales-table w-full text-sm text-slate-700 min-w-[1200px]">
+                    <table id="salesTbl" class="sales-table w-full text-lg text-slate-700 min-w-[700px]">
                         <colgroup>
                             <col style="width:50px" />
-                            <col style="width:100px" />
-                            <col style="width:130px" />
-                            <col style="width:180px" />
+                            <col style="width:90px" />
+                            <col style="width:114px " />
+                            <col style="width:60px" />
+                            <col style="width:90px" />
                             <col style="width:70px" />
-                            <col style="width:120px" />
                             <col style="width:100px" />
-                            <col style="width:140px" />
-                            <col style="width:130px" />
-                            <col style="width:120px" />
-                            <col style="width:120px" />
-                            <col style="width:120px" />
+                            <col style="width:60px" />
                         </colgroup>
 
                         <thead>
                             <tr class="bg-slate-900 text-white">
-                                <th class="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wider">#</th>
-                                <th class="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wider">Date</th>
-                                <th class="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wider">Order</th>
-                                <th class="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wider">Customer</th>
-                                <th class="px-4 py-3 text-center text-[11px] font-semibold uppercase tracking-wider">Qty</th>
-                                <th class="px-4 py-3 text-right text-[11px] font-semibold uppercase tracking-wider">Total</th>
-                                <th class="px-4 py-3 text-right text-[11px] font-semibold uppercase tracking-wider">Svc %</th>
-                                <th class="px-4 py-3 text-right text-[11px] font-semibold uppercase tracking-wider">Price+Svc</th>
-                                <th class="px-4 py-3 text-right text-[11px] font-semibold uppercase tracking-wider">C.Disc</th>
-                                <th class="px-4 py-3 text-center text-[11px] font-semibold uppercase tracking-wider">Owner</th>
-                                <th class="px-4 py-3 text-right text-[11px] font-semibold uppercase tracking-wider">O.Disc</th>
-                                <th class="px-4 py-3 text-right text-[11px] font-semibold uppercase tracking-wider">Profit</th>
+                                <th class="px-3 py-2 text-center text-[14px] font-semibold uppercase tracking-wider"># / Date</th>
+                                <th class="px-3 py-2 text-left text-[14px] font-semibold uppercase tracking-wider">Order</th>
+                                <th class="px-3 py-2 text-left text-[14px] font-semibold uppercase tracking-wider">Customer</th>
+                                <th class="px-3 py-2 text-center text-[14px] font-semibold uppercase tracking-wider">Qty</th>
+                                <th class="px-3 py-2 text-right text-[14px] font-semibold uppercase tracking-wider">Total</th>
+                                <th class="px-3 py-2 text-right text-[14px] font-semibold uppercase tracking-wider">Svc %</th>
+                                <th class="px-3 py-2 text-right text-[14px] font-semibold uppercase tracking-wider">Price+Svc</th>
+                                <th class="px-3 py-2 text-center text-[14px] font-semibold uppercase tracking-wider">Action</th>
                             </tr>
                         </thead>
 
                         <tbody class="divide-y divide-slate-100">
                             <tr v-for="(s, i) in salesData" :key="s.id ?? i" class="hover:bg-[var(--accent-50)]/60 transition-colors">
-                                <td class="px-4 py-3 text-center text-slate-400 font-medium">{{ (sales.current_page - 1) * 25 + i + 1 }}</td>
-                                <td class="px-4 py-3 whitespace-nowrap text-slate-500">{{ formatDate(s.sale_date) }}</td>
-                                <td class="px-4 py-3 font-semibold text-slate-900">{{ s.order_id || 'Service' }}</td>
-                                <td class="px-4 py-3 text-slate-600">{{ s.customer?.name ?? 'N/A' }}</td>
-                                <td class="px-4 py-3 text-center font-medium text-slate-900">{{ saleQty(s) }}</td>
-                                <td class="px-4 py-3 text-right font-medium text-slate-900">{{ toMoney(Number(s.total_amount || 0)) }}</td>
-                                <td class="px-4 py-3 text-right text-slate-500">{{ Number(s.service_charge || 0).toFixed(2) }}%</td>
-                                <td class="px-4 py-3 text-right font-medium text-slate-900">{{ toMoney(priceWithService(s)) }}</td>
-                                <td class="px-4 py-3 text-right text-slate-500">{{ toMoney(customerDiscountAmount(s)) }}</td>
-                                <td class="px-4 py-3 text-center font-medium">
-                                    <span v-if="s.owner_discount_value && s.owner_discount_value != 0" class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-slate-100 text-slate-700">{{ s.owner?.name ?? '—' }}</span>
-                                    <span v-else class="text-slate-300">—</span>
+                                <td class="px-3 py-2 text-center text-slate-500 text-xs">
+                                    <div class="font-semibold text-slate-900">{{ (sales.current_page - 1) * 25 + i + 1 }}</div>
+                                    <div class="text-[9px] text-slate-900">{{ formatDate(s.sale_date) }}</div>
                                 </td>
-                                <td class="px-4 py-3 text-right font-medium">{{ (s.owner_discount_value && s.owner_discount_value != 0) ? toMoney(s.owner_discount_value) : '—' }}</td>
-                                <td class="px-4 py-3 text-right font-semibold" :class="(Number(s.total_amount ?? 0) - Number(s.total_cost ?? 0)) >= 0 ? 'text-emerald-600' : 'text-rose-600'">
-                                    {{ (Number(s.total_amount ?? 0) - Number(s.total_cost ?? 0)).toFixed(2) }}
+                                <td class="px-3 py-2 font-semibold text-slate-900">{{ s.order_id || 'Service' }}</td>
+                                <td class="px-3 py-2 text-slate-700">{{ s.customer?.name ?? 'N/A' }}</td>
+                                <td class="px-3 py-2 text-center text-slate-900">{{ saleQty(s) }}</td>
+                                <td class="px-3 py-2 text-right text-slate-900">{{ toMoney(Number(s.total_amount || 0)) }}</td>
+                                <td class="px-3 py-2 text-right text-slate-500">{{ Number(s.service_charge || 0).toFixed(2) }}%</td>
+                                <td class="px-3 py-2 text-right text-slate-900">{{ toMoney(priceWithService(s)) }}</td>
+                                <td class="px-3 py-2 text-center">
+                                    <div class="flex items-center justify-center gap-1">
+                                        <button @click="printBill(s)"
+                                            class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-blue-600 hover:bg-blue-50 transition">
+                                            <i class="ri-printer-line text-lg"></i>
+                                        </button>
+                                        <button @click="openRefundModal(s)" title="Issue Refund"
+                                            class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-rose-600 hover:bg-rose-50 transition">
+                                            <i class="ri-refund-2-line text-lg"></i>
+                                        </button>
+                                    </div>
+                                    <div v-if="refundedTotal(s) > 0" class="mt-1 text-[10px] font-bold text-rose-600">
+                                        Refunded: {{ toMoney(refundedTotal(s)) }}
+                                    </div>
                                 </td>
                             </tr>
                             <tr v-if="!salesData.length">
-                                <td colspan="12" class="px-4 py-12 text-center text-slate-400">
+                                <td colspan="9" class="px-3 py-12 text-center text-slate-400">
                                     <i class="ri-inbox-line text-3xl mb-2 block"></i>
                                     No transactions found for the selected period.
                                 </td>
@@ -239,15 +262,12 @@
 
                         <tfoot v-if="salesData.length">
                             <tr class="bg-slate-100 border-t-2 border-slate-300 font-semibold text-slate-900">
-                                <td class="px-4 py-3 text-right" colspan="4">Totals:</td>
-                                <td class="px-4 py-3 text-center">{{ salesTotalQty.toLocaleString() }}</td>
-                                <td class="px-4 py-3 text-right">{{ salesGrossTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}</td>
-                                <td class="px-4 py-3 text-center">—</td>
-                                <td class="px-4 py-3 text-right">{{ salesWithServiceTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}</td>
-                                <td class="px-4 py-3 text-right">{{ salesCustomerDiscountTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}</td>
-                                <td class="px-4 py-3 text-center">—</td>
-                                <td class="px-4 py-3 text-right">{{ salesOwnerDiscountTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}</td>
-                                <td class="px-4 py-3 text-right text-emerald-600">{{ salesProfitTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}</td>
+                                <td class="px-3 py-2 text-right" colspan="3">Totals:</td>
+                                <td class="px-3 py-2 text-center">{{ salesTotalQty.toLocaleString() }}</td>
+                                <td class="px-3 py-2 text-right">{{ salesGrossTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}</td>
+                                <td class="px-3 py-2 text-center">—</td>
+                                <td class="px-3 py-2 text-right">{{ salesWithServiceTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}</td>
+                                <td class="px-3 py-2"></td>
                             </tr>
                         </tfoot>
                     </table>
@@ -256,9 +276,9 @@
                 <!-- Pagination Footer -->
                 <div class="border-t border-slate-200 px-6 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-slate-50/70">
                     <div class="flex items-center gap-3">
-                        <label class="text-xs font-medium text-slate-500">Show entries:</label>
+                        <label class="  text-lg text-slate-500">Show entries:</label>
                         <select v-model.number="salesPerPage" @change="changeSalesPerPage"
-                            class="h-9 px-3 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:border-slate-400 focus:border-[var(--accent-600)] focus:ring-2 focus:ring-[var(--accent-100)] transition">
+                            class="h-9 px-3   text-lg text-slate-700 bg-white border border-slate-300 rounded-lg hover:border-slate-400 focus:border-[var(--accent-600)] focus:ring-2 focus:ring-[var(--accent-100)] transition">
                             <option :value="10">10</option>
                             <option :value="25">25</option>
                             <option :value="50">50</option>
@@ -277,7 +297,7 @@
                         </button>
 
                         <button v-for="p in salesPageNumbers" :key="'sp-' + p" @click="() => goToSalesPage(p)"
-                            class="h-9 min-w-9 px-2 inline-flex items-center justify-center text-sm font-semibold rounded-lg border transition"
+                            class="h-9 min-w-9 px-2 inline-flex items-center justify-center text-lg font-semibold rounded-lg border transition"
                             :class="p === sales.current_page
                                 ? 'bg-slate-900 border-slate-900 text-white'
                                 : 'bg-white border-slate-300 text-slate-600 hover:bg-slate-100 hover:border-slate-400'">
@@ -295,7 +315,7 @@
                     </div>
 
                     <div class="text-right">
-                        <p class="text-xs text-slate-500">
+                        <p class="text-lg text-slate-500">
                             <span class="font-semibold text-slate-800">{{ sales.total ? (sales.current_page - 1) * 25 + 1 : 0 }}</span>
                             to
                             <span class="font-semibold text-slate-800">{{ Math.min(sales.current_page * 25, sales.total) }}</span>
@@ -307,8 +327,45 @@
                 </div>
             </div>
 
-            
 
+
+        </div>
+    </div>
+
+    <!-- Refund Modal -->
+    <div v-if="isRefundModalOpen" class="fixed inset-0 z-[1200] flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" @click="isRefundModalOpen = false"></div>
+        <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
+            <div class="px-6 py-5 border-b border-slate-200 flex items-center justify-between">
+                <h3 class="text-xl font-bold text-slate-800">Issue Refund</h3>
+                <button @click="isRefundModalOpen = false" class="w-9 h-9 flex items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition">
+                    <i class="ri-close-line text-xl"></i>
+                </button>
+            </div>
+            <div class="px-6 py-5 space-y-4">
+                <p class="text-md text-slate-500">
+                    Order <span class="font-semibold text-slate-800">{{ refundTarget?.order_id || refundTarget?.id }}</span>
+                    — Total {{ toMoney(Number(refundTarget?.total_amount || 0)) }} LKR
+                    (already refunded {{ toMoney(refundedTotal(refundTarget || {})) }})
+                </p>
+                <div>
+                    <label class="block text-md font-semibold text-slate-600 mb-1">Amount (LKR)</label>
+                    <input v-model="refundAmount" type="number" min="0.01" step="0.01" placeholder="0.00"
+                        class="w-full h-12 px-4 text-lg bg-slate-50 ring-1 ring-slate-200 rounded-xl text-slate-800 focus:ring-2 focus:ring-rose-400 focus:outline-none transition" />
+                </div>
+                <div>
+                    <label class="block text-md font-semibold text-slate-600 mb-1">Reason</label>
+                    <textarea v-model="refundReason" rows="3" placeholder="Reason for the refund"
+                        class="w-full px-4 py-3 text-lg bg-slate-50 ring-1 ring-slate-200 rounded-xl text-slate-800 focus:ring-2 focus:ring-rose-400 focus:outline-none transition"></textarea>
+                </div>
+                <p v-if="refundError" class="text-rose-600 text-md">{{ refundError }}</p>
+            </div>
+            <div class="px-6 py-5 bg-slate-50 border-t border-slate-200 flex gap-3">
+                <button @click="isRefundModalOpen = false" class="flex-1 h-12 rounded-xl bg-white ring-1 ring-slate-200 text-slate-600 font-semibold hover:bg-slate-100 transition">Cancel</button>
+                <button @click="submitRefund" :disabled="refundSubmitting" class="flex-1 h-12 rounded-xl bg-rose-600 text-white font-semibold hover:bg-rose-700 transition disabled:opacity-60">
+                    {{ refundSubmitting ? 'Processing...' : 'Issue Refund' }}
+                </button>
+            </div>
         </div>
     </div>
     <Footer />
@@ -321,6 +378,7 @@ import { Link, router, Head } from "@inertiajs/vue3";
 import Header from "@/Components/custom/Header.vue";
 import Footer from "@/Components/custom/Footer.vue";
 import Banner from "@/Components/Banner.vue";
+import axios from "axios";
 import jsPDF from "jspdf";
 import * as XLSX from "xlsx";
 import autoTable from "jspdf-autotable";
@@ -350,6 +408,8 @@ const props = defineProps({
     totalDiscountLkr: { type: Number, required: true },
     totalCustomDiscountLkr: { type: Number, required: true },
     totalCustomer: { type: Number, required: true },
+    totalRefunds: { type: Number, default: 0 },
+    cashDrawerSummary: { type: Object, default: () => ({}) },
     startDate: { type: String, default: "" },
     endDate: { type: String, default: "" },
     categorySales: { type: Object, required: true },
@@ -459,54 +519,70 @@ const totalProfit = (product) => profitPerUnit(product) * Number(product.sales_q
 const totalSalesQty = computed(() => productsData.value.reduce((s, p) => s + Number(p.sales_qty || 0), 0));
 const grandTotalProfit = computed(() => productsData.value.reduce((s, p) => s + totalProfit(p), 0));
 
-// KPI cards (driven from a config array for consistent styling)
-const kpiCards = computed(() => [
-    {
-        label: "Total Sales Amount",
-        value: finalSalesAmount.value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
-        suffix: "LKR",
-        icon: "ri-money-dollar-circle-line",
-        color: "linear-gradient(90deg,#f97316,#fb923c)",
-        bg: "#FFF1E6",
-        textColor: "#ea580c",
-    },
-    {
-        label: "Net Profit",
-        value: salesProfitTotal.value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
-        suffix: "LKR",
-        icon: "ri-line-chart-line",
-        color: "linear-gradient(90deg,#059669,#34d399)",
-        bg: "#E9F9F2",
-        textColor: "#059669",
-    },
-    {
-        label: "Total Discount",
-        value: totalDiscounts.value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
-        suffix: "LKR",
-        icon: "ri-percent-line",
-        color: "linear-gradient(90deg,#2563eb,#60a5fa)",
-        bg: "#EAF2FE",
-        textColor: "#2563eb",
-    },
-    {
-        label: "Transactions",
-        value: totalTransactionsDisplay.value,
-        suffix: "Total",
-        icon: "ri-exchange-line",
-        color: "linear-gradient(90deg,#7c3aed,#a78bfa)",
-        bg: "#F2EDFE",
-        textColor: "#7c3aed",
-    },
-    {
-        label: "Total Customers",
-        value: props.totalCustomer,
-        suffix: "Unique",
-        icon: "ri-team-line",
-        color: "linear-gradient(90deg,#db2777,#f472b6)",
-        bg: "#FDECF4",
-        textColor: "#db2777",
-    },
-]);
+ // KPI cards (driven from a config array for consistent styling)
+// NOTE: Uses full-dataset props (totalSaleAmount, netProfit, totalDiscountLkr, totalCustomDiscountLkr,
+// totalTransactions, totalCustomer) instead of page-local computed values, so KPIs show ALL data totals,
+// not just the current page's 25 rows.
+const kpiCards = computed(() => {
+    const fullDiscountTotal = Number(props.totalDiscountLkr || 0) + Number(props.totalCustomDiscountLkr || 0);
+
+    return [
+        {
+            label: "Total Sales Amount",
+            value: Number(props.totalSaleAmount || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+            suffix: "LKR",
+            icon: "ri-money-dollar-circle-line",
+            color: "linear-gradient(90deg,#f97316,#fb923c)",
+            bg: "#FFF1E6",
+            textColor: "#ea580c",
+        },
+        {
+            label: "Total Discount",
+            value: fullDiscountTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+            suffix: "LKR",
+            icon: "ri-percent-line",
+            color: "linear-gradient(90deg,#2563eb,#60a5fa)",
+            bg: "#EAF2FE",
+            textColor: "#2563eb",
+        },
+        {
+            label: "Net Profit",
+            value: Number(props.netProfit || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+            suffix: "LKR",
+            icon: "ri-line-chart-line",
+            color: "linear-gradient(90deg,#059669,#34d399)",
+            bg: "#E9F9F2",
+            textColor: "#059669",
+        },
+        {
+            label: "Transactions",
+            value: Number(props.totalTransactions || 0).toLocaleString(),
+            suffix: "Total",
+            icon: "ri-exchange-line",
+            color: "linear-gradient(90deg,#7c3aed,#a78bfa)",
+            bg: "#F2EDFE",
+            textColor: "#7c3aed",
+        },
+        {
+            label: "Total Customers",
+            value: (props.totalCustomer || 0).toLocaleString(),
+            suffix: "Unique",
+            icon: "ri-team-line",
+            color: "linear-gradient(90deg,#db2777,#f472b6)",
+            bg: "#FDECF4",
+            textColor: "#db2777",
+        },
+        {
+            label: "Refunds",
+            value: Number(props.totalRefunds || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+            suffix: "LKR",
+            icon: "ri-refund-2-line",
+            color: "linear-gradient(90deg,#dc2626,#f87171)",
+            bg: "#FDEDEC",
+            textColor: "#dc2626",
+        },
+    ];
+});
 
 const totalTransactionsDisplay = computed(() => (sales.value && sales.value.total) ? sales.value.total : (props.totalTransactions ?? salesData.value.length));
 
@@ -817,8 +893,7 @@ const dateRangeLabel = computed(() => {
 const downloadSalesTableExcel = () => {
     const header = [
         "#", "Date", "Order Number", "Customer", "Dish Qty",
-        "Total Price", "Service Charge (%)", "Price with Service",
-        "Customer Discounts", "Owner", "Owner Discount", "Profit"
+        "Total Price", "Service Charge (%)", "Price with Service"
     ];
 
     const salesRows = (sales.value && sales.value.data) || sales.value || [];
@@ -828,11 +903,6 @@ const downloadSalesTableExcel = () => {
         const total = Number(s.total_amount || 0);
         const svcPct = Number(s.service_charge || 0);
         const priceWSvc = priceWithService(s);
-        const custDisc = customerDiscountAmount(s);
-        const owner = (s.owner_discount_value && s.owner_discount_value != 0) ? (s.owner?.name ?? "—") : "—";
-        const ownerDisc = Number(s.owner_discount_value || 0);
-        // Match the table Profit column (gross: total - cost)
-        const profit = Number(s.total_amount ?? 0) - Number(s.total_cost ?? 0);
 
         return [
             pageStart + i + 1,
@@ -843,10 +913,6 @@ const downloadSalesTableExcel = () => {
             total,
             svcPct,            // numeric; header clarifies it's %
             priceWSvc,
-            custDisc,
-            owner,
-            ownerDisc,
-            profit,
         ];
     });
 
@@ -867,7 +933,7 @@ const downloadSalesTableExcel = () => {
     // Number formats for money/qty/percent-like
     const formatCols = {
         qty: 4,
-        money: [5, 7, 8, 10, 11],
+        money: [5, 7],
         percent: 6,
     };
     const range = XLSX.utils.decode_range(ws['!ref']);
@@ -891,6 +957,104 @@ const downloadSalesTableExcel = () => {
 
     XLSX.utils.book_append_sheet(wb, ws, "Sales");
     XLSX.writeFile(wb, `Sales_Report_${safe(dateRangeLabel.value)}.xlsx`);
+};
+
+// Download all sales data to Excel (regardless of pagination)
+const downloadAllSalesTableExcel = async () => {
+    try {
+        const allSales = [];
+        let currentPage = 1;
+        const lastPage = sales.value?.last_page || 1;
+
+        // Collect data from all pages
+        while (currentPage <= lastPage) {
+            await new Promise((resolve) => {
+                router.get(
+                    route("reports.index"),
+                    {
+                        start_date: startDate.value,
+                        end_date: endDate.value,
+                        sales_page: currentPage,
+                        per_page: 100,
+                    },
+                    {
+                        preserveScroll: true,
+                        onSuccess: (page) => {
+                            const pageData = page.props.sales?.data || [];
+                            allSales.push(...pageData);
+                            resolve();
+                        },
+                        onError: () => {
+                            throw new Error("Failed to fetch page " + currentPage);
+                        },
+                    }
+                );
+            });
+
+            currentPage++;
+        }
+
+        if (allSales.length === 0) {
+            alert("No data available to download.");
+            return;
+        }
+
+        const header = [
+            "#", "Date", "Order Number", "Customer", "Dish Qty",
+            "Total Price", "Service Charge (%)", "Price with Service"
+        ];
+
+        const rows = allSales.map((s, i) => {
+            const qty = saleQty(s);
+            const total = Number(s.total_amount || 0);
+            const svcPct = Number(s.service_charge || 0);
+            const priceWSvc = priceWithService(s);
+
+            return [
+                i + 1,
+                formatDate(s.sale_date),
+                s.order_id ? s.order_id : `Service - ${s.service_name || ""}`,
+                s.customer?.name ?? "N/A",
+                qty,
+                total,
+                svcPct,
+                priceWSvc,
+            ];
+        });
+
+        const aoa = [header, ...rows];
+        const wb = XLSX.utils.book_new();
+        const ws = XLSX.utils.aoa_to_sheet(aoa);
+
+        const widths = header.map((h, c) => {
+            const contentLens = aoa.map(r => (r[c] == null ? 0 : String(r[c]).length));
+            const maxLen = Math.max(h.length, ...contentLens);
+            return { wch: Math.min(Math.max(maxLen + 2, 12), 40) };
+        });
+        ws['!cols'] = widths;
+
+        const formatCols = { qty: 4, money: [5, 7], percent: 6 };
+        const range = XLSX.utils.decode_range(ws['!ref']);
+
+        for (let R = 1; R <= range.e.r; R++) {
+            const qCell = ws[XLSX.utils.encode_cell({ r: R, c: formatCols.qty })];
+            if (qCell && typeof qCell.v === "number") qCell.z = "0";
+
+            for (const C of formatCols.money) {
+                const cell = ws[XLSX.utils.encode_cell({ r: R, c: C })];
+                if (cell && typeof cell.v === "number") cell.z = "0.00";
+            }
+
+            const pCell = ws[XLSX.utils.encode_cell({ r: R, c: formatCols.percent })];
+            if (pCell && typeof pCell.v === "number") pCell.z = "0.00";
+        }
+
+        XLSX.utils.book_append_sheet(wb, ws, "Sales");
+        XLSX.writeFile(wb, `Sales_Report_All_${safe(dateRangeLabel.value)}.xlsx`);
+    } catch (error) {
+        console.error("Error downloading all sales data:", error);
+        alert(`Failed to download all data: ${error.message}`);
+    }
 };
 
 // ---------- PDF/CSV Exports ----------
@@ -938,9 +1102,8 @@ const downloadPaymentMethodPDF = () => {
 
 const downloadSalesTableCSV = () => {
     const header = [
-        "#", "Date", "Order Number", "Customer", "Owner", "Qty",
-        "Total Price (LKR)", "Service Charge (%)", "Customer Discounts (LKR)",
-        "Owner Discount (LKR)", "Profit (LKR)"
+        "#", "Date", "Order Number", "Customer", "Qty",
+        "Total Price (LKR)", "Service Charge (%)", "Price with Service (LKR)"
     ];
     const escapeCsv = (v) => {
         const s = String(v ?? "");
@@ -951,13 +1114,10 @@ const downloadSalesTableCSV = () => {
         formatDate(s.sale_date),
         s.order_id ? s.order_id : `Service - ${s.service_name || ""}`,
         s.customer?.name ?? "N/A",
-        (s.owner_discount_value && s.owner_discount_value != 0) ? (s.owner?.name ?? "—") : "—",
         saleQty(s),
         (+s.total_amount || 0).toFixed(2),
         (+s.service_charge || 0).toFixed(2),
-        customerDiscountAmount(s).toFixed(2),
-        (+s.owner_discount_value || 0).toFixed(2),
-        saleProfit(s).toFixed(2),
+        priceWithService(s).toFixed(2),
     ]);
     const csv = [header, ...rows].map(r => r.map(escapeCsv).join(",")).join("\n");
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
@@ -1048,7 +1208,6 @@ const downloadSalesTablePDF = () => {
     const head = [[
         "#", "Date", "Order", "Customer",
         "Qty", "Total (LKR)", "Svc %", "Price+Svc",
-        "Cust.Disc", "Owner", "Owner Disc", "Profit (LKR)",
     ]];
 
     const salesRows = (sales.value && sales.value.data) || sales.value || [];
@@ -1062,10 +1221,6 @@ const downloadSalesTablePDF = () => {
         (+s.total_amount || 0).toFixed(2),
         `${(+s.service_charge || 0).toFixed(2)}%`,
         priceWithService(s).toFixed(2),
-        customerDiscountAmount(s).toFixed(2),
-        (s.owner_discount_value && s.owner_discount_value != 0) ? (s.owner?.name ?? "—") : "—",
-        (s.owner_discount_value && s.owner_discount_value != 0) ? (+s.owner_discount_value || 0).toFixed(2) : "—",
-        (Number(s.total_amount ?? 0) - Number(s.total_cost ?? 0)).toFixed(2),
     ]);
 
     // Totals foot row
@@ -1075,10 +1230,6 @@ const downloadSalesTablePDF = () => {
         salesGrossTotal.value.toFixed(2),
         "—",
         salesWithServiceTotal.value.toFixed(2),
-        salesCustomerDiscountTotal.value.toFixed(2),
-        "—",
-        salesOwnerDiscountTotal.value.toFixed(2),
-        salesProfitTotal.value.toFixed(2),
     ]];
 
     autoTable(doc, {
@@ -1118,10 +1269,6 @@ const downloadSalesTablePDF = () => {
             5: { cellWidth: 24, halign: "right" },
             6: { cellWidth: 16, halign: "right" },
             7: { cellWidth: 26, halign: "right" },
-            8: { cellWidth: 22, halign: "right" },
-            9: { cellWidth: 26 },
-            10: { cellWidth: 22, halign: "right" },
-            11: { cellWidth: 26, halign: "right" },
         },
         // Page numbers in footer
         didDrawPage: (data) => {
@@ -1222,6 +1369,222 @@ const downloadStockTablePDF = () => {
     });
 
     doc.save(`Top_Products_Stock_${safe(dateRangeLabel.value)}.pdf`);
+};
+
+ // ---------- Refunds ----------
+ const isRefundModalOpen = ref(false);
+ const refundTarget = ref(null);
+ const refundAmount = ref("");
+ const refundReason = ref("");
+ const refundSubmitting = ref(false);
+ const refundError = ref("");
+
+ const refundedTotal = (sale) => (sale.refunds || []).reduce((sum, r) => sum + Number(r.amount || 0), 0);
+
+ const openRefundModal = (sale) => {
+    refundTarget.value = sale;
+    refundAmount.value = "";
+    refundReason.value = "";
+    refundError.value = "";
+    isRefundModalOpen.value = true;
+ };
+
+ const submitRefund = async () => {
+    refundError.value = "";
+    const amount = parseFloat(refundAmount.value || "");
+    if (!amount || amount <= 0) {
+        refundError.value = "Enter a valid refund amount.";
+        return;
+    }
+    if (!refundReason.value.trim()) {
+        refundError.value = "Reason is required.";
+        return;
+    }
+    refundSubmitting.value = true;
+    try {
+        const { data } = await axios.post("/refunds", {
+            sale_id: refundTarget.value.id,
+            amount,
+            reason: refundReason.value,
+        });
+        if (!refundTarget.value.refunds) refundTarget.value.refunds = [];
+        refundTarget.value.refunds.push(data.refund);
+        isRefundModalOpen.value = false;
+    } catch (err) {
+        refundError.value = err.response?.data?.message || "Failed to record refund.";
+    } finally {
+        refundSubmitting.value = false;
+    }
+ };
+
+ const printBill = (sale) => {
+    if (!sale) return;
+
+    const items = sale.sale_items || [];
+    const company = props.companyInfo || {};
+
+    // ---- Totals (same calc as before) ----
+    const subtotal = Number(sale.total_amount || 0);
+    const serviceChargePct = Number(sale.service_charge || 0);
+    const serviceChargeAmt = (subtotal * serviceChargePct) / 100;
+    const customerDiscount = customerDiscountAmount(sale);
+    const ownerDiscount = Number(sale.owner_discount_value || 0);
+    const finalTotal = Math.max(0, subtotal + serviceChargeAmt - customerDiscount - ownerDiscount);
+    const cashPaid = Number(sale.cash_paid || finalTotal);
+    const balance = Math.max(0, cashPaid - finalTotal);
+
+    // ---- Item rows ----
+    const productRows = items.length
+        ? items.map((item) => {
+            const name = item.product?.name || "N/A";
+            const qty = Number(item.quantity || 0);
+            const unitPrice = Number(item.unit_price || 0);
+            const total = qty * unitPrice;
+            return `
+                <tr class="item-sub">
+                    <td class="name" colspan="3">${name}</td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td class="pqty">${unitPrice.toFixed(2)} × ${qty}</td>
+                    <td class="ptotal">${total.toFixed(2)}</td>
+                </tr>
+            `;
+        }).join("")
+        : `<tr><td colspan="3" style="text-align:center;padding:8px 0;">No items found</td></tr>`;
+
+    const saleDate = sale.sale_date ? new Date(sale.sale_date) : new Date();
+    const saleType = (sale.sale_type || "dine_in").toLowerCase();
+    const orderTypeLabel = saleType === "takeaway" ? "Takeaway" : saleType === "pickup" ? "Delivery" : "Dine In";
+
+    // ---- Receipt HTML (thermal 80mm layout) ----
+    const receiptHTML = `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Receipt</title>
+        <style>
+            @page { size: 80mm auto; margin: 0; }
+            * { box-sizing: border-box; }
+            html, body { width: 80mm; height: auto; min-height: 0; margin: 0; padding: 0; background: #fff; }
+            body { font-family: 'Arial', sans-serif; font-size: 13px; color: #000; padding: 8px 10px; overflow: visible; }
+            .receipt { width: 100%; overflow: visible; page-break-inside: avoid; break-inside: avoid; }
+            .header { text-align: center; padding-bottom: 8px; margin-bottom: 8px; border-bottom: 2px solid #000; }
+            .header h1 { font-size: 18px; font-weight: 900; margin: 0 0 3px; letter-spacing: 0.5px; }
+            .header p { font-size: 12px; margin: 2px 0; }
+            .order-type { font-size: 13px; font-weight: 800; text-align: center; border: 2px solid #000; border-radius: 4px; padding: 4px 0; margin: 8px 0; letter-spacing: 0.5px; text-transform: uppercase; }
+            .meta { width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 8px; }
+            .meta td { padding: 2px 0; vertical-align: top; }
+            .meta td:first-child { font-weight: 700; width: 50%; }
+            .meta td:last-child { text-align: right; font-weight: 400; }
+            .divider-solid { border: none; border-top: 2px solid #000; margin: 6px 0; }
+            .items { width: 100%; border-collapse: collapse; font-size: 13px; }
+            .items thead tr { border-bottom: 1px solid #000; }
+            .items th { font-size: 12px; font-weight: 800; padding: 4px 2px; text-transform: uppercase; }
+            .items th:first-child { text-align: left; }
+            .items th:nth-child(2) { text-align: center; }
+            .items th:last-child { text-align: right; }
+            .items td { padding: 3px 2px; }
+            .items td.name { font-weight: 700; font-size: 13px; padding-top: 4px; }
+            .items .item-sub { border-bottom: 1px dashed #aaa; }
+            .items td.pqty { text-align: center; font-size: 12px; }
+            .items td.ptotal { text-align: right; font-weight: 700; font-size: 13px; }
+            .items tr, .totals tr { page-break-inside: avoid; break-inside: avoid; }
+            .totals { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 4px; }
+            .totals td { padding: 3px 0; }
+            .totals td:last-child { text-align: right; }
+            .totals .grand td { font-size: 15px; font-weight: 900; border-top: 2px solid #000; border-bottom: 2px solid #000; padding: 5px 0; }
+            .totals .bold td { font-weight: 700; }
+            .footer { text-align: center; margin-top: 10px; padding-top: 0; }
+            .footer .no-refund { font-size: 13px; font-weight: 800; letter-spacing: 0.3px; margin: 6px 0; }
+            .footer .thank-you { font-size: 14px; font-weight: 900; letter-spacing: 0.5px; margin: 4px 0; text-transform: uppercase; }
+            .footer .powered { font-size: 11px; margin-top: 6px; margin-bottom: 0; color: #444; }
+            @media print {
+                @page { size: 80mm auto; margin: 0; }
+                html, body { width: 80mm; height: auto; margin: 0; padding: 0; }
+                body { padding: 8px 10px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+                .receipt { page-break-inside: avoid; break-inside: avoid; page-break-after: avoid; break-after: avoid; }
+                .items tr, .totals tr { page-break-inside: avoid; break-inside: avoid; }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="receipt">
+            <div class="header">
+                <h1>${(company.name || "DELICASY").toUpperCase()}</h1>
+                ${company.address ? `<p>${company.address}</p>` : ""}
+                ${(company.phone || company.phone2) ? `<p>${[company.phone, company.phone2].filter(Boolean).join(" | ")}</p>` : ""}
+                ${company.email ? `<p>${company.email}</p>` : ""}
+            </div>
+
+            <div class="order-type">${orderTypeLabel}</div>
+
+            <table class="meta">
+                <tr><td>Date &amp; Time:</td><td>${saleDate.toLocaleDateString()} ${saleDate.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</td></tr>
+             
+                <tr><td>Order No:</td><td>${sale.order_id || "N/A"}</td></tr>
+                <tr><td>Customer:</td><td>${sale.customer?.name ?? "Walking Customer"}</td></tr>
+                <tr><td>Cashier:</td><td>${sale.user?.name || "Admin"}</td></tr>
+                <tr><td>Payment:</td><td>${sale.payment_method || "Cash"}</td></tr>
+            </table>
+
+            <hr class="divider-solid" />
+
+            <table class="items">
+                <thead>
+                    <tr>
+                        <th style="width:44%;text-align:left">Item</th>
+                        <th style="width:32%;text-align:center">Price × Qty</th>
+                        <th style="width:24%;text-align:right">Total</th>
+                    </tr>
+                </thead>
+                <tbody>${productRows}</tbody>
+            </table>
+
+            <hr class="divider-solid" />
+
+            <table class="totals">
+                ${subtotal !== finalTotal ? `<tr><td>Sub Total</td><td>${subtotal.toFixed(2)} LKR</td></tr>` : ""}
+                ${ownerDiscount !== 0 ? `<tr><td>Owner Discount</td><td>(${ownerDiscount.toFixed(2)}) LKR</td></tr>` : ""}
+                ${customerDiscount !== 0 ? `<tr><td>Customer Discount</td><td>(${customerDiscount.toFixed(2)}) LKR</td></tr>` : ""}
+                ${serviceChargePct !== 0 ? `<tr><td>Service Charge</td><td>${serviceChargePct.toFixed(2)} %</td></tr>` : ""}
+                <tr class="grand"><td>TOTAL</td><td>${finalTotal.toFixed(2)} LKR</td></tr>
+                <tr><td>Cash Paid</td><td>${cashPaid.toFixed(2)} LKR</td></tr>
+                <tr class="bold"><td>Balance</td><td>${balance.toFixed(2)} LKR</td></tr>
+            </table>
+
+            <div class="footer">
+                <p class="no-refund">-- No Exchange or Refunds --</p>
+                <p class="thank-you">Thank You, Come Again!</p>
+                <p class="powered">Powered by Delicasy POS</p>
+            </div>
+        </div>
+    </body>
+    </html>
+    `;
+
+    // ---- Open + print ----
+    const printWindow = window.open("", "_blank", "width=380,height=600");
+    if (!printWindow) {
+        alert("Popup block wela thiyenne. Browser eke popup allow karala try karanna.");
+        return;
+    }
+    printWindow.document.open();
+    printWindow.document.write(receiptHTML);
+    printWindow.document.close();
+
+    // Onload trigger, + fallback timeout (image load slow unata)
+    let printed = false;
+    const triggerPrint = () => {
+        if (printed) return;
+        printed = true;
+        printWindow.focus();
+        printWindow.print();
+    };
+    printWindow.onload = triggerPrint;
+    setTimeout(triggerPrint, 600); // fallback if onload eka fire wenne naththan
 };
 
 onMounted(() => {

@@ -469,9 +469,9 @@
             </div>
          </div>
       </Teleport>
-      <!-- Cash Drawer Modal (open/close) -->
+      <!-- Cash Drawer Modal — open-balance form (no drawer currently open) -->
       <Teleport to="body">
-         <div v-if="isCashDrawerModalOpen" class="fixed inset-0 z-[1000] flex items-center justify-center">
+         <div v-if="isCashDrawerModalOpen && !openCashDrawer" class="fixed inset-0 z-[1000] flex items-center justify-center">
             <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" @click="isCashDrawerModalOpen = false"></div>
             <div class="relative bg-zinc-900 rounded-2xl border border-white/10 shadow-2xl w-[760px] max-w-[94vw]">
                <div
@@ -489,27 +489,7 @@
                   </button>
                </div>
                <div class="p-8 space-y-8">
-                  <div v-if="openCashDrawer" class="space-y-5">
-                     <div class="flex items-center justify-between text-xl text-zinc-400">
-                        <span class="text-amber-300 font-semibold">Opening: {{
-                        Number(openCashDrawer?.opening_balance || 0).toFixed(2) }} LKR</span>
-                        <span class="text-xl">Opened Time : {{ new Date(openCashDrawer.opened_at).toLocaleString()
-                        }}</span>
-                     </div>
-                     <div>
-                        <label class="block text-2xl font-semibold text-zinc-300 mb-3">Closing Balance</label>
-                        <input v-model="closingBalanceInput" type="number" min="0" step="0.01" inputmode="decimal"
-                           placeholder="0.00"
-                           class="w-full h-16 px-5 text-2xl bg-zinc-800 border border-white/10 rounded-xl text-white placeholder-zinc-500 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30 transition" />
-                        <p v-if="closingBalanceError" class="mt-2 text-xl text-red-400">{{ closingBalanceError }}
-                        </p>
-                     </div>
-                     <button @click="submitClosingBalance" :disabled="isClosingBalanceSaving"
-                        class="w-full h-16 text-2xl rounded-xl font-bold text-white bg-rose-500 hover:bg-rose-400 transition disabled:opacity-60 disabled:cursor-not-allowed">
-                     {{ isClosingBalanceSaving ? "Closing..." : "Close Drawer" }}
-                     </button>
-                  </div>
-                  <div v-else class="space-y-5">
+                  <div class="space-y-5">
                      <p class="text-xl text-zinc-400">No cash drawer is open. Enter the opening balance to start.</p>
                      <div>
                         <label class="block text-2xl font-semibold text-zinc-300 mb-3">Opening Balance</label>
@@ -528,6 +508,17 @@
             </div>
          </div>
       </Teleport>
+
+      <!-- Cash Drawer Modal — closing / reconciliation (drawer is open) -->
+      <CashDrawerClosingModal
+         :open="isCashDrawerModalOpen && !!openCashDrawer"
+         :cash-drawer="openCashDrawer"
+         :logged-in-user="loggedInUser"
+         ref="cashDrawerClosingModalRef"
+         @update:open="(val) => { isCashDrawerModalOpen = val; if (!val) checkOpenCashDrawer(); }"
+         @closed="onDrawerClosed"
+         @open-expense-modal="openExpensesModal" />
+
       <PosSuccessModel :open="isSuccessModalOpen" @update:open="handleModalOpenUpdate" :products="selectedTable.products"
          :cashier="loggedInUser" :customer="customer" :orderId="selectedTable.orderId" :cash="selectedTable.cash"
          :balance="balance" :subTotal="subtotal" :totalDiscount="totalDiscount" :total="total"
@@ -1229,6 +1220,25 @@
                         <input v-model="newExpense.amount" type="number" placeholder="0.00" step="0.01" min="0"
                            class="w-full px-5 py-4 text-xl bg-zinc-800 border border-white/10 rounded-xl text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent transition" />
                      </div>
+                     <!-- Category & Payment Method -->
+                     <div class="grid grid-cols-2 gap-4">
+                        <div>
+                           <label class="block text-xl font-semibold text-zinc-300 mb-2">Category</label>
+                           <select v-model="newExpense.category"
+                              class="w-full px-5 py-4 text-xl bg-zinc-800 border border-white/10 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent transition">
+                              <option value="">Select category</option>
+                              <option v-for="c in expenseCategories" :key="c" :value="c">{{ c }}</option>
+                           </select>
+                        </div>
+                        <div>
+                           <label class="block text-xl font-semibold text-zinc-300 mb-2">Payment Method <span
+                              class="text-rose-400">*</span></label>
+                           <select v-model="newExpense.payment_method"
+                              class="w-full px-5 py-4 text-xl bg-zinc-800 border border-white/10 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent transition">
+                              <option v-for="pm in expensePaymentMethods" :key="pm" :value="pm">{{ pm }}</option>
+                           </select>
+                        </div>
+                     </div>
                      <!-- Display Info -->
                      <div class="bg-zinc-800/50 rounded-xl p-5 border border-white/5 space-y-3 text-md">
                         <div class="flex justify-between text-zinc-400">
@@ -1436,6 +1446,7 @@
    import Header from "@/Components/custom/Header.vue";
    import Banner from "@/Components/Banner.vue";
    import PosSuccessModel from "@/Components/custom/PosSuccessModel.vue";
+   import CashDrawerClosingModal from "@/Components/custom/CashDrawerClosingModal.vue";
    import AlertModel from "@/Components/custom/AlertModel.vue";
    import WaiterOrderAlert from "@/Components/custom/WaiterOrderAlert.vue";
 
@@ -1569,9 +1580,7 @@
    const isOpeningBalanceSaving = ref(false);
    const openCashDrawer = ref(null);
    const isCashDrawerModalOpen = ref(false);
-   const closingBalanceInput = ref("");
-   const closingBalanceError = ref("");
-   const isClosingBalanceSaving = ref(false);
+   const cashDrawerClosingModalRef = ref(null);
    const appliedCoupon = ref(null);
    const cash = ref(0);
    const isSelectModalOpen = ref(false);
@@ -1589,8 +1598,10 @@
 
    // Expenses panel
    const isExpensesModalOpen = ref(false);
-   const newExpense = ref({ reason: '', amount: '' });
+   const newExpense = ref({ reason: '', amount: '', category: '', payment_method: 'Cash' });
    const isExpenseSubmitting = ref(false);
+   const expenseCategories = ['Utilities', 'Maintenance', 'Supplies', 'Ingredients', 'Salaries', 'Other'];
+   const expensePaymentMethods = ['Cash', 'Card', 'QR', 'Bank Transfer', 'Other'];
 
    // Product size/quantity selection modal
    const isProductSelectionModalOpen = ref(false);
@@ -1739,7 +1750,7 @@
 
    const openExpensesModal = () => {
        isExpensesModalOpen.value = true;
-       newExpense.value = { reason: '', amount: '' };
+       newExpense.value = { reason: '', amount: '', category: '', payment_method: 'Cash' };
    };
 
    const submitExpense = async () => {
@@ -1753,14 +1764,19 @@
            const response = await axios.post('/expenses', {
                reason: newExpense.value.reason,
                amount: parseFloat(newExpense.value.amount),
-               cash_drawer_id: null,
+               category: newExpense.value.category || null,
+               payment_method: newExpense.value.payment_method || 'Cash',
+               cash_drawer_id: openCashDrawer.value?.id ?? null,
            });
 
            if (response.status === 201) {
                isAlertModalOpen.value = true;
                message.value = 'Expense recorded successfully';
                isExpensesModalOpen.value = false;
-               newExpense.value = { reason: '', amount: '' };
+               newExpense.value = { reason: '', amount: '', category: '', payment_method: 'Cash' };
+               if (isCashDrawerModalOpen.value) {
+                   cashDrawerClosingModalRef.value?.refreshPreview();
+               }
            }
        } catch (err) {
            console.error('Error recording expense:', err);
@@ -1769,6 +1785,11 @@
        } finally {
            isExpenseSubmitting.value = false;
        }
+   };
+
+   const onDrawerClosed = async () => {
+       openCashDrawer.value = null;
+       await checkOpenCashDrawer();
    };
 
    // Compute the items subtotal from the stored sale items
@@ -1972,40 +1993,6 @@
        await checkOpenCashDrawer();
        isCashDrawerModalOpen.value = true;
        openingBalanceError.value = "";
-       closingBalanceError.value = "";
-   };
-
-   const submitClosingBalance = async () => {
-       closingBalanceError.value = "";
-       if (!openCashDrawer.value?.id) {
-           closingBalanceError.value = "No open cash drawer found.";
-           return;
-       }
-       const raw = String(closingBalanceInput.value ?? "").trim();
-       if (!raw) {
-           closingBalanceError.value = "Closing balance is required.";
-           return;
-       }
-       const amount = parseFloat(raw);
-       if (Number.isNaN(amount) || amount < 0) {
-           closingBalanceError.value = "Enter a valid amount (0 or more).";
-           return;
-       }
-
-       isClosingBalanceSaving.value = true;
-       try {
-           await axios.post(`/cash-drawer/${openCashDrawer.value.id}`, {
-               _method: "PUT",
-               closing_balance: amount,
-           });
-           closingBalanceInput.value = "";
-           isCashDrawerModalOpen.value = false;
-           await checkOpenCashDrawer();
-       } catch (error) {
-           closingBalanceError.value = error.response?.data?.message || "Failed to close cash drawer.";
-       } finally {
-           isClosingBalanceSaving.value = false;
-       }
    };
 
    // Cash numpad state

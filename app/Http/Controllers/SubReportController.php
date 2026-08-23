@@ -6,6 +6,9 @@ use App\Models\CompanyInfo;
 use App\Models\Sale;
 use App\Models\SaleItem;
 use App\Models\Category;
+use App\Models\Expense;
+use App\Models\User;
+use App\Services\CashDrawerReconciliationService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -220,6 +223,113 @@ class SubReportController extends Controller
             'startDate'     => $startRaw,
             'endDate'       => $endRaw,
             'companyInfo'   => CompanyInfo::first(),
+        ]);
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    //  4. Payment Method Report
+    // ─────────────────────────────────────────────────────────────
+    public function paymentMethodReport(Request $request, CashDrawerReconciliationService $service)
+    {
+        if (!Gate::allows('hasRole', ['Admin'])) abort(403);
+
+        [$from, $to, $startRaw, $endRaw] = $this->dateRange($request);
+
+        $salesQuery = Sale::query();
+        $this->applyWindow($salesQuery, $from, $to);
+        $sales = $salesQuery->select('payment_method', 'total_amount')->get();
+
+        $labels = [
+            'cash' => 'Cash',
+            'card' => 'Card',
+            'qr' => 'QR / Online',
+            'bank_transfer' => 'Bank Transfer',
+            'other' => 'Other',
+        ];
+
+        $buckets = [];
+        foreach ($labels as $key => $label) {
+            $buckets[$key] = ['method' => $label, 'transactions' => 0, 'total' => 0.0];
+        }
+
+        foreach ($sales as $sale) {
+            $bucket = $service->bucketPaymentMethod($sale->payment_method);
+            $buckets[$bucket]['transactions']++;
+            $buckets[$bucket]['total'] += (float) $sale->total_amount;
+        }
+
+        $grandTotal = array_sum(array_column($buckets, 'total'));
+        foreach ($buckets as &$row) {
+            $row['total'] = round($row['total'], 2);
+            $row['percent'] = $grandTotal > 0 ? round(($row['total'] / $grandTotal) * 100, 1) : 0;
+        }
+        unset($row);
+
+        return Inertia::render('Reports/PaymentMethod', [
+            'buckets'     => array_values($buckets),
+            'grandTotal'  => round($grandTotal, 2),
+            'startDate'   => $startRaw,
+            'endDate'     => $endRaw,
+            'companyInfo' => CompanyInfo::first(),
+        ]);
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    //  5. Expense Report
+    // ─────────────────────────────────────────────────────────────
+    public function expenseReport(Request $request)
+    {
+        if (!Gate::allows('hasRole', ['Admin'])) abort(403);
+
+        $perPage = $request->input('per_page', 25);
+        [$from, $to, $startRaw, $endRaw] = $this->dateRange($request);
+
+        $userId = $request->input('user_id');
+        $category = $request->input('category');
+        $paymentMethod = $request->input('payment_method');
+
+        $applyFilters = function ($query) use ($from, $to, $userId, $category, $paymentMethod) {
+            $this->applyWindow($query, $from, $to);
+            if ($userId) {
+                $query->where('user_id', $userId);
+            }
+            if ($category) {
+                $query->where('category', $category);
+            }
+            if ($paymentMethod) {
+                $query->where('payment_method', $paymentMethod);
+            }
+        };
+
+        $expenseQuery = Expense::with(['user', 'cashDrawer']);
+        $applyFilters($expenseQuery);
+        $expensesPaginated = $expenseQuery->orderBy('created_at', 'desc')->paginate($perPage);
+
+        $allExpensesQuery = Expense::query();
+        $applyFilters($allExpensesQuery);
+        $allExpenses = $allExpensesQuery->get();
+
+        $totalsByPaymentMethod = $allExpenses->groupBy('payment_method')->map(
+            fn($g) => round((float) $g->sum('amount'), 2)
+        )->toArray();
+
+        $categories = Expense::whereNotNull('category')->distinct()->orderBy('category')->pluck('category');
+
+        return Inertia::render('Reports/Expense', [
+            'expenses'              => $expensesPaginated,
+            'totalExpenses'         => round((float) $allExpenses->sum('amount'), 2),
+            'totalCount'            => $allExpenses->count(),
+            'totalsByPaymentMethod' => $totalsByPaymentMethod,
+            'categories'            => $categories,
+            'cashiers'              => User::whereIn('role_type', ['Admin', 'Manager', 'Cashier'])->select('id', 'name')->orderBy('name')->get(),
+            'filters' => [
+                'user_id' => $userId,
+                'category' => $category,
+                'payment_method' => $paymentMethod,
+            ],
+            'startDate'   => $startRaw,
+            'endDate'     => $endRaw,
+            'companyInfo' => CompanyInfo::first(),
         ]);
     }
 }

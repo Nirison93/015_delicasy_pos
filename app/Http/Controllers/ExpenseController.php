@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\CashDrawer;
 use App\Models\Expense;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 class ExpenseController extends Controller
 {
@@ -47,18 +49,29 @@ class ExpenseController extends Controller
      */
     public function store(Request $request)
     {
+        if (!Gate::allows('hasRole', ['Admin', 'Manager', 'Cashier'])) {
+            abort(403, 'Unauthorized');
+        }
+
         $validated = $request->validate([
             'reason' => 'required|string|max:255',
             'amount' => 'required|numeric|min:0.01',
+            'category' => 'nullable|string|max:100',
+            'payment_method' => 'required|string|in:Cash,Card,QR,Bank Transfer,Other',
             'cash_drawer_id' => 'nullable|exists:cash_drawers,id',
         ]);
 
+        $cashDrawerId = $validated['cash_drawer_id']
+            ?? CashDrawer::where('status', 'open')->latest()->value('id');
+
         $expense = Expense::create([
             'reason' => $validated['reason'],
+            'category' => $validated['category'] ?? null,
             'amount' => $validated['amount'],
-            'cash_drawer_id' => $validated['cash_drawer_id'] ?? null,
+            'payment_method' => $validated['payment_method'],
+            'cash_drawer_id' => $cashDrawerId,
             'user_id' => auth()->id(),
-            'user_role' => auth()->user()?->role ?? 'unknown',
+            'user_role' => auth()->user()?->role_type ?? 'unknown',
             'created_at' => now(),
         ]);
 

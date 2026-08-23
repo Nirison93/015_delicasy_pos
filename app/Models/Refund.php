@@ -5,33 +5,36 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Expense extends Model
+class Refund extends Model
 {
     use HasFactory;
+
     protected $fillable = [
+        'sale_id',
+        'order_id',
         'cash_drawer_id',
-        'user_id',
-        'reason',
-        'category',
         'amount',
         'payment_method',
-        'user_role',
+        'reason',
+        'user_id',
     ];
 
     protected $casts = [
         'amount' => 'decimal:2',
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
     ];
 
-    // Relationships
-    public function user()
+    public function sale()
     {
-        return $this->belongsTo(User::class, 'user_id','id');
+        return $this->belongsTo(Sale::class);
     }
 
     public function cashDrawer()
     {
         return $this->belongsTo(CashDrawer::class);
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 }

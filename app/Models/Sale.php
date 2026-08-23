@@ -13,6 +13,7 @@ class Sale extends Model
         'customer_id',
         'employee_id',
         'user_id',
+        'cash_drawer_id',
         'order_id',
         'total_amount',
         'discount',
@@ -75,6 +76,16 @@ class Sale extends Model
     public function owner()
     {
         return $this->belongsTo(Owner::class, 'owner_id', 'id');
+    }
+
+    public function cashDrawer()
+    {
+        return $this->belongsTo(CashDrawer::class, 'cash_drawer_id', 'id');
+    }
+
+    public function refunds()
+    {
+        return $this->hasMany(Refund::class);
     }
 
 }

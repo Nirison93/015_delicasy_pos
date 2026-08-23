@@ -41,6 +41,15 @@
             <DashCard href="/reports/bar-sales-report" icon="/images/dashboard/waiter.png" label="Bar Sales Report" gradient="from-rose-500 to-red-700" />
             <DashCard href="/stock-transition" icon="/images/dashboard/stock_transtion.png" label="Stock Transition" gradient="from-indigo-500 to-blue-700" />
             <!-- <DashCard href="/transactionHistory" icon="/images/dashboard/history.png" label="Order History" gradient="from-yellow-500 to-amber-600" /> -->
+            <DashCard href="/reports/payment-method-report" icon="/images/dashboard/financial.png" label="Payment Method Report" gradient="from-cyan-500 to-sky-700" />
+            <DashCard href="/reports/expense-report" icon="/images/dashboard/financial.png" label="Expense Report" gradient="from-rose-500 to-orange-700" />
+          </div>
+      </section>
+
+      <!-- Section: Cash Drawer (Admin + Manager, so managers can approve variances) -->
+      <section v-if="HasRole(['Admin', 'Manager'])" class="mb-10">
+          <h2 class="section-heading">Cash Drawer</h2>
+          <div class="grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
             <DashCard href="/reports/cash-drawer" icon="/images/dashboard/financial.png" label="Cash Drawer Report" gradient="from-emerald-500 to-teal-700" />
           </div>
       </section>
