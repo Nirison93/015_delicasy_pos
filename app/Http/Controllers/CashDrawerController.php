@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\CashDrawer;
 use App\Models\User;
+use App\Services\CashDrawerReconciliationService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 
@@ -159,14 +161,13 @@ class CashDrawerController extends Controller
     }
 
     /**
-     * Close a cash drawer.
+     * Close a cash drawer with full server-side reconciliation.
+     * Only closing_balance (actual counted cash), an optional denomination
+     * breakdown, and optional closing notes are ever trusted from the
+     * client — every money total is recomputed here from real records.
      */
-    public function update(Request $request, CashDrawer $cashDrawer)
+    public function update(Request $request, CashDrawer $cashDrawer, CashDrawerReconciliationService $service)
     {
-        if (!Gate::allows('hasRole', ['Admin', 'Cashier'])) {
-            abort(403, 'Unauthorized');
-        }
-
         if ($cashDrawer->status === 'closed') {
             if ($request->expectsJson()) {
                 return response()->json([
@@ -176,18 +177,55 @@ class CashDrawerController extends Controller
             return back()->withErrors(['error' => 'This cash drawer is already closed.']);
         }
 
+        if (!$cashDrawer->canBeManagedBy(auth()->user())) {
+            abort(403, 'You can only close your own cash drawer.');
+        }
+
         $validated = $request->validate([
             'closing_balance' => 'required|numeric|min:0',
-            'notes' => 'nullable|string|max:500',
+            'denomination_breakdown' => 'nullable|array',
+            'closing_notes' => 'nullable|string|max:1000',
         ]);
 
-        $cashDrawer->update([
-            'closed_by' => auth()->id(),
-            'closing_balance' => $validated['closing_balance'],
-            'closed_at' => Carbon::now(),
-            'status' => 'closed',
-            'notes' => $validated['notes'] ?? $cashDrawer->notes,
-        ]);
+        $snapshot = $service->computeSnapshot($cashDrawer);
+        $expectedCash = $snapshot['expected_cash'];
+        $actualCash = (float) $validated['closing_balance'];
+
+        $variance = round($actualCash - $expectedCash, 2);
+        $varianceStatus = abs($variance) < 0.01 ? 'balanced' : ($variance > 0 ? 'over' : 'short');
+        $threshold = (float) config('pos.cash_drawer.variance_threshold');
+        $requiresApproval = abs($variance) > $threshold;
+
+        if ($requiresApproval && empty($validated['closing_notes'])) {
+            return response()->json([
+                'message' => 'Closing notes are required when the cash difference exceeds Rs. ' . number_format($threshold, 2) . '.',
+                'errors' => [
+                    'closing_notes' => ['Closing notes are required when the cash difference exceeds Rs. ' . number_format($threshold, 2) . '.'],
+                ],
+                'expected_cash' => $expectedCash,
+                'variance' => $variance,
+                'variance_status' => $varianceStatus,
+            ], 422);
+        }
+
+        // sales_count is a helper breakdown for the JSON preview only — not a real column.
+        $persistableSnapshot = collect($snapshot)->except('sales_count')->all();
+
+        DB::transaction(function () use ($cashDrawer, $persistableSnapshot, $validated, $actualCash, $variance, $varianceStatus, $requiresApproval) {
+            $cashDrawer->update(array_merge($persistableSnapshot, [
+                'closed_by' => auth()->id(),
+                'closing_balance' => $actualCash,
+                'closed_at' => Carbon::now(),
+                'status' => 'closed',
+                'denomination_breakdown' => $validated['denomination_breakdown'] ?? null,
+                'closing_notes' => $validated['closing_notes'] ?? null,
+                'variance' => $variance,
+                'variance_status' => $varianceStatus,
+                'requires_approval' => $requiresApproval,
+            ]));
+        });
+
+        $cashDrawer->refresh()->load(['openedByUser', 'closedByUser', 'expenses', 'refunds', 'cashMovements']);
 
         if ($request->expectsJson()) {
             return response()->json([
@@ -196,6 +234,55 @@ class CashDrawerController extends Controller
         }
 
         return redirect()->route('cashDrawer.show', $cashDrawer)->with('success', 'Cash drawer closed successfully.');
+    }
+
+    /**
+     * Live, unpersisted reconciliation preview for the closing modal —
+     * lets the cashier see Expected Cash / payment breakdown before
+     * they submit the actual close.
+     */
+    public function preview(CashDrawer $cashDrawer, CashDrawerReconciliationService $service)
+    {
+        if (!$cashDrawer->canBeManagedBy(auth()->user())) {
+            abort(403, 'Unauthorized');
+        }
+
+        $snapshot = $service->computeSnapshot($cashDrawer);
+
+        return response()->json(array_merge($snapshot, [
+            'cash_drawer' => $cashDrawer->load('openedByUser'),
+            'variance_threshold' => (float) config('pos.cash_drawer.variance_threshold'),
+            'movements' => $cashDrawer->cashMovements()->with('user')->latest()->get(),
+            'expenses' => $cashDrawer->expenses()->with('user')->latest()->get(),
+        ]));
+    }
+
+    /**
+     * Manager/Admin approval of a drawer whose variance exceeded the
+     * threshold. Non-blocking: the drawer is already closed by the time
+     * this runs, this just records the after-the-fact sign-off.
+     */
+    public function approve(Request $request, CashDrawer $cashDrawer)
+    {
+        if (!Gate::allows('hasRole', ['Admin', 'Manager'])) {
+            abort(403, 'Unauthorized');
+        }
+
+        if (!$cashDrawer->requires_approval || $cashDrawer->approved_at !== null) {
+            return response()->json([
+                'message' => 'This drawer has nothing pending approval.',
+            ], 409);
+        }
+
+        $cashDrawer->update([
+            'approved_by' => auth()->id(),
+            'approved_at' => Carbon::now(),
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'cashDrawer' => $cashDrawer->fresh()->load(['approvedByUser']),
+        ]);
     }
 
     /**

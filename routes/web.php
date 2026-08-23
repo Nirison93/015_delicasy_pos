@@ -23,6 +23,8 @@ use App\Http\Controllers\TransactionHistoryController;
 use App\Http\Controllers\StockTransactionController;
 use App\Http\Controllers\BankServiceChargeController;
 use App\Http\Controllers\ExpenseController;
+use App\Http\Controllers\CashMovementController;
+use App\Http\Controllers\RefundController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -121,11 +123,21 @@ Route::middleware([
     ]);
     Route::get('/cash-drawer/api/open', [CashDrawerController::class, 'getOpen'])->name('cashDrawer.getOpen');
     Route::get('/cash-drawer/report/activity', [CashDrawerController::class, 'activityReport'])->name('cashDrawer.activityReport');
+    Route::get('/cash-drawer/{cash_drawer}/preview', [CashDrawerController::class, 'preview'])->name('cashDrawer.preview');
+    Route::post('/cash-drawer/{cash_drawer}/approve', [CashDrawerController::class, 'approve'])->name('cashDrawer.approve');
+
+    Route::post('/cash-movements', [CashMovementController::class, 'store'])->name('cashMovements.store');
+    Route::get('/cash-movements/current-drawer', [CashMovementController::class, 'currentDrawer'])->name('cashMovements.currentDrawer');
+
+    Route::post('/refunds', [RefundController::class, 'store'])->name('refunds.store');
+
     Route::get('/reports/cash-drawer', [ReportController::class, 'cashDrawerReport'])->name('reports.cashDrawer');
     Route::get('/reports/user-activity', [ReportController::class, 'userActivityReport'])->name('reports.userActivity');
     Route::get('/reports/category-wise-sales', [SubReportController::class, 'categoryWiseSales'])->name('reports.categoryWiseSales');
     Route::get('/reports/order-type-report',   [SubReportController::class, 'orderTypeReport'])->name('reports.orderTypeReport');
     Route::get('/reports/bar-sales-report',    [SubReportController::class, 'barSalesReport'])->name('reports.barSalesReport');
+    Route::get('/reports/payment-method-report', [SubReportController::class, 'paymentMethodReport'])->name('reports.paymentMethodReport');
+    Route::get('/reports/expense-report',        [SubReportController::class, 'expenseReport'])->name('reports.expenseReport');
     Route::resource('reports', ReportController::class);
     Route::post('/customers/check', [CustomerController::class, 'checkCustomer'])->name('customers.check');
     Route::resource('customers', CustomerController::class);

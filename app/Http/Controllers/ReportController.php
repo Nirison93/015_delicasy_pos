@@ -9,6 +9,8 @@ use App\Models\Sale;
 use App\Models\CashDrawer;
 use App\Models\SaleItem;
 use App\Models\Expense;
+use App\Models\Refund;
+use App\Models\User;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -78,7 +80,7 @@ class ReportController extends Controller
     });
 
     // -------- Sales (paginated) --------
-    $salesQuery = Sale::with(['saleItems.product.category', 'employee', 'customer', 'owner']);
+    $salesQuery = Sale::with(['saleItems.product.category', 'employee', 'customer', 'owner', 'refunds']);
 
     if ($from || $to) {
         $applyCreatedWindow($salesQuery);
@@ -101,7 +103,7 @@ class ReportController extends Controller
     };
 
     // -------- Calculate totals from ALL filtered data (not just paginated) --------
-    $allSalesQuery = Sale::with(['saleItems.product.category', 'employee', 'customer', 'owner']);
+    $allSalesQuery = Sale::with(['saleItems.product.category', 'employee', 'customer', 'owner', 'refunds']);
     if ($from || $to) {
         $applyCreatedWindow($allSalesQuery);
     }
@@ -148,6 +150,26 @@ class ReportController extends Controller
     // Distinct customers
     $totalCustomer = $allSales->groupBy('customer_id')->count();
 
+    // Refunds within the filtered range
+    $totalRefunds = round((float) $allSales->flatMap->refunds->sum('amount'), 2);
+
+    // Lightweight Cash Drawer summary for the same date range (Section 13 —
+    // extends the Sales Report rather than duplicating a Daily Summary page)
+    $drawersInRangeQuery = CashDrawer::query();
+    if ($from && $to) {
+        $drawersInRangeQuery->whereBetween('opened_at', [$from, $to]);
+    } elseif ($from) {
+        $drawersInRangeQuery->where('opened_at', '>=', $from);
+    } elseif ($to) {
+        $drawersInRangeQuery->where('opened_at', '<=', $to);
+    }
+    $drawersInRange = $drawersInRangeQuery->get();
+    $cashDrawerSummary = [
+        'total_drawers' => $drawersInRange->count(),
+        'total_variance' => round((float) $drawersInRange->where('status', 'closed')->sum('variance'), 2),
+        'pending_approval_count' => $drawersInRange->where('requires_approval', true)->whereNull('approved_at')->count(),
+    ];
+
     return Inertia::render('Reports/Index', [
         'products'                  => $productsPaginated,
         'sales'                     => $salesPaginated,
@@ -159,6 +181,8 @@ class ReportController extends Controller
         'totalTransactions'         => $totalTransactions,
         'averageTransactionValue'   => round($averageTransactionValue, 2),
         'totalCustomer'             => $totalCustomer,
+        'totalRefunds'              => $totalRefunds,
+        'cashDrawerSummary'         => $cashDrawerSummary,
 
         'startDate'                 => $startDateRaw,
         'endDate'                   => $endDateRaw,
@@ -171,59 +195,69 @@ class ReportController extends Controller
 }
 
     /**
-     * Cash Drawer Report
+     * Cash Drawer Report — reconciliation history + payment-method breakdown.
      */
     public function cashDrawerReport(Request $request)
     {
-        if (!auth()->check()) {
+        if (!Gate::allows('hasRole', ['Admin', 'Manager'])) {
             abort(403, 'Unauthorized');
         }
 
         $perPage = $request->input('per_page', 10);
-        $page = $request->input('page', 1);
         $startDateRaw = $request->input('start_date');
         $endDateRaw = $request->input('end_date');
         $userId = $request->input('user_id');
+        $drawerId = $request->input('drawer_id');
+        $status = $request->input('status'); // open | closed | pending_approval
+        $paymentMethod = $request->input('payment_method');
 
         $from = $startDateRaw ? Carbon::parse($startDateRaw)->startOfDay() : null;
         $to = $endDateRaw ? Carbon::parse($endDateRaw)->endOfDay() : null;
 
+        $applyFilters = function ($query) use ($from, $to, $userId, $drawerId, $status, $paymentMethod) {
+            if ($from && $to) {
+                $query->whereBetween('opened_at', [$from, $to]);
+            } elseif ($from) {
+                $query->where('opened_at', '>=', $from);
+            } elseif ($to) {
+                $query->where('opened_at', '<=', $to);
+            }
+
+            if ($userId) {
+                $query->where(function ($q) use ($userId) {
+                    $q->where('opened_by', $userId)->orWhere('closed_by', $userId);
+                });
+            }
+
+            if ($drawerId) {
+                $query->where('id', $drawerId);
+            }
+
+            if ($status === 'pending_approval') {
+                $query->where('requires_approval', true)->whereNull('approved_at');
+            } elseif (in_array($status, ['open', 'closed'])) {
+                $query->where('status', $status);
+            }
+
+            if ($paymentMethod) {
+                $query->whereHas('sales', function ($q) use ($paymentMethod) {
+                    $q->whereRaw('LOWER(payment_method) = ?', [strtolower($paymentMethod)]);
+                });
+            }
+        };
+
         // Query for pagination (drawers only)
-        $drawerQuery = CashDrawer::with(['openedByUser', 'closedByUser', 'expenses']);
-
-        if ($from && $to) {
-            $drawerQuery->whereBetween('opened_at', [$from, $to]);
-        } elseif ($from) {
-            $drawerQuery->where('opened_at', '>=', $from);
-        } elseif ($to) {
-            $drawerQuery->where('opened_at', '<=', $to);
-        }
-
-        if ($userId) {
-            $drawerQuery->where(function ($q) use ($userId) {
-                $q->where('opened_by', $userId)->orWhere('closed_by', $userId);
-            });
-        }
-
+        $drawerQuery = CashDrawer::with(['openedByUser', 'closedByUser', 'approvedByUser']);
+        $applyFilters($drawerQuery);
         $cashDrawersPaginated = $drawerQuery->orderBy('opened_at', 'desc')->paginate($perPage);
 
         // Query all drawers (unfiltered by pagination) for statistics
-        $allDrawersQuery = CashDrawer::with(['openedByUser', 'closedByUser', 'expenses']);
-        if ($from && $to) {
-            $allDrawersQuery->whereBetween('opened_at', [$from, $to]);
-        } elseif ($from) {
-            $allDrawersQuery->where('opened_at', '>=', $from);
-        } elseif ($to) {
-            $allDrawersQuery->where('opened_at', '<=', $to);
-        }
-        if ($userId) {
-            $allDrawersQuery->where(function ($q) use ($userId) {
-                $q->where('opened_by', $userId)->orWhere('closed_by', $userId);
-            });
-        }
+        $allDrawersQuery = CashDrawer::query();
+        $applyFilters($allDrawersQuery);
         $allCashDrawers = $allDrawersQuery->get();
 
-        // Query expenses directly (some expenses may not be linked to a drawer)
+        // Query expenses within the same date window (for the "Expenses in this
+        // period" mini table — some expenses may not be linked to a drawer)
         $expenseQuery = Expense::with('user');
         if ($from && $to) {
             $expenseQuery->whereBetween('created_at', [$from, $to]);
@@ -241,41 +275,43 @@ class ReportController extends Controller
         $totalDrawers = $allCashDrawers->count();
         $openDrawers = $allCashDrawers->where('status', 'open')->count();
         $closedDrawers = $allCashDrawers->where('status', 'closed')->count();
+        $pendingApprovalCount = $allCashDrawers->where('requires_approval', true)->whereNull('approved_at')->count();
 
+        $closedCashDrawers = $allCashDrawers->where('status', 'closed');
         $totalOpeningBalance = (float) $allCashDrawers->sum('opening_balance');
-        $totalClosingBalance = (float) $allCashDrawers->where('status', 'closed')->sum('closing_balance');
+        $totalClosingBalance = (float) $closedCashDrawers->sum('closing_balance');
+        $totalExpenses = (float) $closedCashDrawers->sum('total_expenses');
+        $totalVariance = (float) $closedCashDrawers->sum('variance');
 
-        // Calculate total expenses
-        $totalExpenses = (float) $expensesPaginated->getCollection()->sum('amount');
+        // Payment-method totals across the filtered closed drawers (cheap —
+        // reads the already-fetched snapshot columns, no extra query)
+        $paymentMethodTotals = [
+            'cash' => round((float) $closedCashDrawers->sum('cash_sales'), 2),
+            'card' => round((float) $closedCashDrawers->sum('card_sales'), 2),
+            'qr' => round((float) $closedCashDrawers->sum('qr_sales'), 2),
+            'bank_transfer' => round((float) $closedCashDrawers->sum('bank_transfer_sales'), 2),
+            'other' => round((float) $closedCashDrawers->sum('other_sales'), 2),
+        ];
 
-        // Variance calculation (including expenses)
-        $totalVariance = 0;
         $varianceByUser = [];
-
-        foreach ($allCashDrawers as $drawer) {
-            if ($drawer->status === 'closed') {
-                $expenses = $drawer->expenses->sum('amount');
-                $variance = $drawer->closing_balance - $drawer->opening_balance - $expenses;
-                $totalVariance += $variance;
-
-                $drawerId = $drawer->opened_by;
-                if (!isset($varianceByUser[$drawerId])) {
-                    $varianceByUser[$drawerId] = [
-                        'user_id' => $drawerId,
-                        'user_name' => $drawer->openedByUser->name ?? 'Unknown',
-                        'count' => 0,
-                        'total_variance' => 0,
-                        'total_opened' => 0,
-                        'total_closed' => 0,
-                        'total_expenses' => 0,
-                    ];
-                }
-                $varianceByUser[$drawerId]['count']++;
-                $varianceByUser[$drawerId]['total_variance'] += $variance;
-                $varianceByUser[$drawerId]['total_opened'] += $drawer->opening_balance;
-                $varianceByUser[$drawerId]['total_closed'] += $drawer->closing_balance;
-                $varianceByUser[$drawerId]['total_expenses'] += $expenses;
+        foreach ($closedCashDrawers as $drawer) {
+            $drawerUserId = $drawer->opened_by;
+            if (!isset($varianceByUser[$drawerUserId])) {
+                $varianceByUser[$drawerUserId] = [
+                    'user_id' => $drawerUserId,
+                    'user_name' => $drawer->openedByUser->name ?? 'Unknown',
+                    'count' => 0,
+                    'total_variance' => 0,
+                    'total_opened' => 0,
+                    'total_closed' => 0,
+                    'total_expenses' => 0,
+                ];
             }
+            $varianceByUser[$drawerUserId]['count']++;
+            $varianceByUser[$drawerUserId]['total_variance'] += (float) $drawer->variance;
+            $varianceByUser[$drawerUserId]['total_opened'] += (float) $drawer->opening_balance;
+            $varianceByUser[$drawerUserId]['total_closed'] += (float) $drawer->closing_balance;
+            $varianceByUser[$drawerUserId]['total_expenses'] += (float) $drawer->total_expenses;
         }
 
         return Inertia::render('Reports/CashDrawer', [
@@ -285,12 +321,21 @@ class ReportController extends Controller
                 'total_drawers' => $totalDrawers,
                 'open_drawers' => $openDrawers,
                 'closed_drawers' => $closedDrawers,
+                'pending_approval_count' => $pendingApprovalCount,
                 'total_opening_balance' => round($totalOpeningBalance, 2),
                 'total_closing_balance' => round($totalClosingBalance, 2),
                 'total_expenses' => round($totalExpenses, 2),
                 'total_variance' => round($totalVariance, 2),
+                'payment_method_totals' => $paymentMethodTotals,
             ],
             'varianceByUser' => array_values($varianceByUser),
+            'cashiers' => User::whereIn('role_type', ['Admin', 'Manager', 'Cashier'])->select('id', 'name')->orderBy('name')->get(),
+            'filters' => [
+                'drawer_id' => $drawerId,
+                'status' => $status,
+                'payment_method' => $paymentMethod,
+                'user_id' => $userId,
+            ],
             'startDate' => $startDateRaw,
             'endDate' => $endDateRaw,
             'companyInfo' => CompanyInfo::first(),

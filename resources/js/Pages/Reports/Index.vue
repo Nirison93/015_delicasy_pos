@@ -86,7 +86,7 @@
             </div>
 
             <!-- KPI Cards -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 mb-6">
                 <div v-for="kpi in kpiCards" :key="kpi.label"
                     class="group relative bg-white rounded-xl shadow-sm ring-1 ring-slate-200 p-5 overflow-hidden hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
                     <div class="absolute inset-x-0 top-0 h-0.5" :style="{ background: kpi.color }"></div>
@@ -103,7 +103,26 @@
                 </div>
             </div>
 
-
+            <!-- Cash Drawer Summary -->
+            <div class="bg-white rounded-xl shadow-sm ring-1 ring-slate-200 px-6 py-4 mb-8 flex flex-wrap items-center justify-between gap-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-lg bg-emerald-100 flex items-center justify-center">
+                        <i class="ri-safe-2-line text-emerald-600 text-sm"></i>
+                    </div>
+                    <div>
+                        <p class="text-[11px] text-slate-500">Cash Drawer (this period)</p>
+                        <p class="text-lg font-bold text-slate-900">
+                            {{ cashDrawerSummary.total_drawers ?? 0 }} drawers
+                            <span class="mx-1 text-slate-300">|</span>
+                            Variance {{ Number(cashDrawerSummary.total_variance || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }} LKR
+                            <span v-if="cashDrawerSummary.pending_approval_count" class="ml-1 text-amber-600">
+                                ({{ cashDrawerSummary.pending_approval_count }} pending approval)
+                            </span>
+                        </p>
+                    </div>
+                </div>
+                <Link href="/reports/cash-drawer" class="text-lg font-semibold text-indigo-600 hover:text-indigo-700">View Full Cash Drawer Report →</Link>
+            </div>
 
             <!-- Sales Table -->
             <div class="bg-white rounded-xl shadow-md ring-1 ring-slate-200 overflow-hidden mb-8">
@@ -218,10 +237,19 @@
                                 <td class="px-3 py-2 text-right text-slate-500">{{ Number(s.service_charge || 0).toFixed(2) }}%</td>
                                 <td class="px-3 py-2 text-right text-slate-900">{{ toMoney(priceWithService(s)) }}</td>
                                 <td class="px-3 py-2 text-center">
-                                    <button @click="printBill(s)"
-                                        class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-blue-600 hover:bg-blue-50 transition">
-                                        <i class="ri-printer-line text-lg"></i>
-                                    </button>
+                                    <div class="flex items-center justify-center gap-1">
+                                        <button @click="printBill(s)"
+                                            class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-blue-600 hover:bg-blue-50 transition">
+                                            <i class="ri-printer-line text-lg"></i>
+                                        </button>
+                                        <button @click="openRefundModal(s)" title="Issue Refund"
+                                            class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-rose-600 hover:bg-rose-50 transition">
+                                            <i class="ri-refund-2-line text-lg"></i>
+                                        </button>
+                                    </div>
+                                    <div v-if="refundedTotal(s) > 0" class="mt-1 text-[10px] font-bold text-rose-600">
+                                        Refunded: {{ toMoney(refundedTotal(s)) }}
+                                    </div>
                                 </td>
                             </tr>
                             <tr v-if="!salesData.length">
@@ -303,6 +331,43 @@
 
         </div>
     </div>
+
+    <!-- Refund Modal -->
+    <div v-if="isRefundModalOpen" class="fixed inset-0 z-[1200] flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" @click="isRefundModalOpen = false"></div>
+        <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
+            <div class="px-6 py-5 border-b border-slate-200 flex items-center justify-between">
+                <h3 class="text-xl font-bold text-slate-800">Issue Refund</h3>
+                <button @click="isRefundModalOpen = false" class="w-9 h-9 flex items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition">
+                    <i class="ri-close-line text-xl"></i>
+                </button>
+            </div>
+            <div class="px-6 py-5 space-y-4">
+                <p class="text-md text-slate-500">
+                    Order <span class="font-semibold text-slate-800">{{ refundTarget?.order_id || refundTarget?.id }}</span>
+                    — Total {{ toMoney(Number(refundTarget?.total_amount || 0)) }} LKR
+                    (already refunded {{ toMoney(refundedTotal(refundTarget || {})) }})
+                </p>
+                <div>
+                    <label class="block text-md font-semibold text-slate-600 mb-1">Amount (LKR)</label>
+                    <input v-model="refundAmount" type="number" min="0.01" step="0.01" placeholder="0.00"
+                        class="w-full h-12 px-4 text-lg bg-slate-50 ring-1 ring-slate-200 rounded-xl text-slate-800 focus:ring-2 focus:ring-rose-400 focus:outline-none transition" />
+                </div>
+                <div>
+                    <label class="block text-md font-semibold text-slate-600 mb-1">Reason</label>
+                    <textarea v-model="refundReason" rows="3" placeholder="Reason for the refund"
+                        class="w-full px-4 py-3 text-lg bg-slate-50 ring-1 ring-slate-200 rounded-xl text-slate-800 focus:ring-2 focus:ring-rose-400 focus:outline-none transition"></textarea>
+                </div>
+                <p v-if="refundError" class="text-rose-600 text-md">{{ refundError }}</p>
+            </div>
+            <div class="px-6 py-5 bg-slate-50 border-t border-slate-200 flex gap-3">
+                <button @click="isRefundModalOpen = false" class="flex-1 h-12 rounded-xl bg-white ring-1 ring-slate-200 text-slate-600 font-semibold hover:bg-slate-100 transition">Cancel</button>
+                <button @click="submitRefund" :disabled="refundSubmitting" class="flex-1 h-12 rounded-xl bg-rose-600 text-white font-semibold hover:bg-rose-700 transition disabled:opacity-60">
+                    {{ refundSubmitting ? 'Processing...' : 'Issue Refund' }}
+                </button>
+            </div>
+        </div>
+    </div>
     <Footer />
 </template>
 
@@ -313,6 +378,7 @@ import { Link, router, Head } from "@inertiajs/vue3";
 import Header from "@/Components/custom/Header.vue";
 import Footer from "@/Components/custom/Footer.vue";
 import Banner from "@/Components/Banner.vue";
+import axios from "axios";
 import jsPDF from "jspdf";
 import * as XLSX from "xlsx";
 import autoTable from "jspdf-autotable";
@@ -342,6 +408,8 @@ const props = defineProps({
     totalDiscountLkr: { type: Number, required: true },
     totalCustomDiscountLkr: { type: Number, required: true },
     totalCustomer: { type: Number, required: true },
+    totalRefunds: { type: Number, default: 0 },
+    cashDrawerSummary: { type: Object, default: () => ({}) },
     startDate: { type: String, default: "" },
     endDate: { type: String, default: "" },
     categorySales: { type: Object, required: true },
@@ -503,6 +571,15 @@ const kpiCards = computed(() => {
             color: "linear-gradient(90deg,#db2777,#f472b6)",
             bg: "#FDECF4",
             textColor: "#db2777",
+        },
+        {
+            label: "Refunds",
+            value: Number(props.totalRefunds || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+            suffix: "LKR",
+            icon: "ri-refund-2-line",
+            color: "linear-gradient(90deg,#dc2626,#f87171)",
+            bg: "#FDEDEC",
+            textColor: "#dc2626",
         },
     ];
 });
@@ -1293,6 +1370,52 @@ const downloadStockTablePDF = () => {
 
     doc.save(`Top_Products_Stock_${safe(dateRangeLabel.value)}.pdf`);
 };
+
+ // ---------- Refunds ----------
+ const isRefundModalOpen = ref(false);
+ const refundTarget = ref(null);
+ const refundAmount = ref("");
+ const refundReason = ref("");
+ const refundSubmitting = ref(false);
+ const refundError = ref("");
+
+ const refundedTotal = (sale) => (sale.refunds || []).reduce((sum, r) => sum + Number(r.amount || 0), 0);
+
+ const openRefundModal = (sale) => {
+    refundTarget.value = sale;
+    refundAmount.value = "";
+    refundReason.value = "";
+    refundError.value = "";
+    isRefundModalOpen.value = true;
+ };
+
+ const submitRefund = async () => {
+    refundError.value = "";
+    const amount = parseFloat(refundAmount.value || "");
+    if (!amount || amount <= 0) {
+        refundError.value = "Enter a valid refund amount.";
+        return;
+    }
+    if (!refundReason.value.trim()) {
+        refundError.value = "Reason is required.";
+        return;
+    }
+    refundSubmitting.value = true;
+    try {
+        const { data } = await axios.post("/refunds", {
+            sale_id: refundTarget.value.id,
+            amount,
+            reason: refundReason.value,
+        });
+        if (!refundTarget.value.refunds) refundTarget.value.refunds = [];
+        refundTarget.value.refunds.push(data.refund);
+        isRefundModalOpen.value = false;
+    } catch (err) {
+        refundError.value = err.response?.data?.message || "Failed to record refund.";
+    } finally {
+        refundSubmitting.value = false;
+    }
+ };
 
  const printBill = (sale) => {
     if (!sale) return;

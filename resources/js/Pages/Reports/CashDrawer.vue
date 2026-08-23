@@ -19,19 +19,11 @@
 
         <!-- Date filters & Print -->
         <div class="flex flex-wrap items-center gap-2">
-
-
-
           <a href="/pos"
             class="h-12 px-5 inline-flex items-center gap-2 text-lg font-semibold text-white bg-slate-800 rounded-xl hover:bg-slate-700 active:scale-95 transition">
             <i class="fas fa-cash-register text-sm"></i>
             <span>POS</span>
           </a>
-
-
-
-
-
 
           <button @click="printCashDrawerReport" class="h-12 px-5 inline-flex items-center gap-2 text-lg font-semibold text-white bg-emerald-600 ring-1 ring-emerald-700 rounded-xl hover:bg-emerald-700 transition select-none">
             <i class="ri-printer-line"></i> Print Report
@@ -63,8 +55,54 @@
         </div>
       </div>
 
+      <!-- Secondary Filters -->
+      <div class="bg-white rounded-2xl ring-1 ring-slate-200 shadow-sm px-5 py-4 flex flex-wrap items-end gap-3">
+        <div>
+          <label class="block text-sm font-semibold text-slate-500 mb-1">Cashier</label>
+          <select v-model="cashierId" class="h-11 px-3 text-md bg-white ring-1 ring-slate-200 border-0 rounded-lg text-slate-700 focus:ring-2 focus:ring-blue-400 transition">
+            <option value="">All Cashiers</option>
+            <option v-for="c in cashiers" :key="c.id" :value="c.id">{{ c.name }}</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-slate-500 mb-1">Drawer ID</label>
+          <input v-model="drawerId" type="number" min="1" placeholder="e.g. 42"
+            class="h-11 w-28 px-3 text-md bg-white ring-1 ring-slate-200 border-0 rounded-lg text-slate-700 focus:ring-2 focus:ring-blue-400 transition" />
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-slate-500 mb-1">Status</label>
+          <select v-model="status" class="h-11 px-3 text-md bg-white ring-1 ring-slate-200 border-0 rounded-lg text-slate-700 focus:ring-2 focus:ring-blue-400 transition">
+            <option value="">All</option>
+            <option value="open">Open</option>
+            <option value="closed">Closed</option>
+            <option value="pending_approval">Pending Approval</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-slate-500 mb-1">Payment Method</label>
+          <select v-model="paymentMethod" class="h-11 px-3 text-md bg-white ring-1 ring-slate-200 border-0 rounded-lg text-slate-700 focus:ring-2 focus:ring-blue-400 transition">
+            <option value="">All</option>
+            <option value="Cash">Cash</option>
+            <option value="Card">Card</option>
+            <option value="QR">QR / Online</option>
+            <option value="Bank Transfer">Bank Transfer</option>
+          </select>
+        </div>
+        <button @click="filterData" class="h-11 px-5 text-md font-semibold text-white bg-slate-800 rounded-lg hover:bg-slate-700 active:scale-95 transition">
+          Apply Filters
+        </button>
+        <div class="ml-auto flex gap-2">
+          <Link href="/reports/payment-method-report" class="h-11 px-4 inline-flex items-center gap-1 text-md font-semibold text-indigo-700 bg-indigo-50 ring-1 ring-indigo-200 rounded-lg hover:bg-indigo-100 transition">
+            <i class="ri-bank-card-line"></i> Payment Method Report
+          </Link>
+          <Link href="/reports/expense-report" class="h-11 px-4 inline-flex items-center gap-1 text-md font-semibold text-rose-700 bg-rose-50 ring-1 ring-rose-200 rounded-lg hover:bg-rose-100 transition">
+            <i class="ri-receipt-line"></i> Expense Report
+          </Link>
+        </div>
+      </div>
+
       <!-- KPI Pills -->
-      <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-4">
+      <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-4">
         <div class="rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 p-5 flex flex-col gap-1 shadow-md">
           <p class="text-base font-semibold text-white/80 uppercase tracking-wider">Total Drawers</p>
           <p class="text-2xl font-bold text-white">{{ statistics.total_drawers ?? 0 }}</p>
@@ -78,10 +116,14 @@
           <p class="text-2xl font-bold text-white">{{ statistics.closed_drawers ?? 0 }}</p>
         </div>
         <div class="rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 p-5 flex flex-col gap-1 shadow-md">
+          <p class="text-base font-semibold text-white/80 uppercase tracking-wider">Pending Approval</p>
+          <p class="text-2xl font-bold text-white">{{ statistics.pending_approval_count ?? 0 }}</p>
+        </div>
+        <div class="rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 p-5 flex flex-col gap-1 shadow-md">
           <p class="text-base font-semibold text-white/80 uppercase tracking-wider">Total Opening</p>
           <p class="text-2xl font-bold text-white">{{ fmt(statistics.total_opening_balance) }} LKR</p>
         </div>
-        <div class="rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 p-5 flex flex-col gap-1 shadow-md">
+        <div class="rounded-2xl bg-gradient-to-br from-fuchsia-500 to-purple-700 p-5 flex flex-col gap-1 shadow-md">
           <p class="text-base font-semibold text-white/80 uppercase tracking-wider">Total Closing</p>
           <p class="text-2xl font-bold text-white">{{ fmt(statistics.total_closing_balance) }} LKR</p>
         </div>
@@ -95,46 +137,88 @@
         </div>
       </div>
 
+      <!-- Payment Method Breakdown -->
+      <div class="bg-white rounded-2xl ring-1 ring-slate-200 shadow-sm overflow-hidden">
+        <div class="px-5 py-4 border-b border-slate-200">
+          <h2 class="text-xl font-bold text-slate-800">Payment Method Breakdown <span class="text-sm font-normal text-slate-500">(closed drawers in range)</span></h2>
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-5 gap-4 p-5">
+          <div v-for="b in paymentBreakdown" :key="b.key" class="bg-slate-50 rounded-xl ring-1 ring-slate-100 p-4">
+            <p class="text-sm font-semibold text-slate-500 uppercase">{{ b.label }}</p>
+            <p class="text-xl font-bold text-slate-800">{{ fmt(b.value) }}</p>
+          </div>
+        </div>
+      </div>
+
       <!-- Cash Drawer Table -->
       <div class="bg-white rounded-2xl ring-1 ring-slate-200 shadow-sm overflow-hidden">
         <div class="px-5 py-4 border-b border-slate-200 flex items-center justify-between">
           <h2 class="text-xl font-bold text-slate-800">Cash Drawer History <span class="text-sm font-normal text-slate-500">({{ drawerPaginationInfo }})</span></h2>
         </div>
         <div class="overflow-x-auto">
-          <table class="w-full text-lg">
+          <table class="w-full text-md whitespace-nowrap">
             <thead class="bg-slate-100 text-slate-600">
               <tr>
-                <th class="text-left px-4 py-3">#</th>
-                <th class="text-left px-4 py-3">Opened By</th>
-                <th class="text-left px-4 py-3">Opened At</th>
-                <th class="text-right px-4 py-3">Opening</th>
-                <th class="text-left px-4 py-3">Closed By</th>
-                <th class="text-left px-4 py-3">Closed At</th>
-                <th class="text-right px-4 py-3">Closing</th>
-                <th class="text-right px-4 py-3">Variance</th>
-                <th class="text-center px-4 py-3">Status</th>
+                <th class="text-left px-3 py-3">#</th>
+                <th class="text-left px-3 py-3">Cashier</th>
+                <th class="text-left px-3 py-3">Opened</th>
+                <th class="text-left px-3 py-3">Closed</th>
+                <th class="text-right px-3 py-3">Opening</th>
+                <th class="text-right px-3 py-3">Cash</th>
+                <th class="text-right px-3 py-3">Card</th>
+                <th class="text-right px-3 py-3">QR</th>
+                <th class="text-right px-3 py-3">Bank Tr.</th>
+                <th class="text-right px-3 py-3">Cash In</th>
+                <th class="text-right px-3 py-3">Cash Out</th>
+                <th class="text-right px-3 py-3">Expenses</th>
+                <th class="text-right px-3 py-3">Refunds</th>
+                <th class="text-right px-3 py-3">Expected</th>
+                <th class="text-right px-3 py-3">Actual</th>
+                <th class="text-right px-3 py-3">Difference</th>
+                <th class="text-center px-3 py-3">Status</th>
+                <th class="text-center px-3 py-3">Action</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-100">
-              <tr v-for="(row, idx) in cashDrawers.data ?? cashDrawers" :key="row.id" class="hover:bg-slate-50">
-                <td class="px-4 py-3 text-slate-600 font-semibold">{{ (cashDrawers.current_page ? cashDrawers.current_page - 1 : 0) * 25 + idx + 1 }}</td>
-                <td class="px-4 py-3 text-slate-700">{{ row.openedByUser?.name || row.opened_by || "-" }}</td>
-                <td class="px-4 py-3 text-slate-500">{{ fmtDate(row.opened_at) }}</td>
-                <td class="px-4 py-3 text-right font-semibold text-emerald-600">{{ fmt(row.opening_balance) }}</td>
-                <td class="px-4 py-3 text-slate-700">{{ row.closedByUser?.name || row.closed_by || "-" }}</td>
-                <td class="px-4 py-3 text-slate-500">{{ fmtDate(row.closed_at) }}</td>
-                <td class="px-4 py-3 text-right font-semibold text-slate-700">{{ fmt(row.closing_balance) }}</td>
-                <td class="px-4 py-3 text-right font-semibold" :class="variance(row) >= 0 ? 'text-emerald-600' : 'text-rose-600'">
-                  {{ fmt(variance(row)) }}
+              <tr v-for="(row, idx) in cashDrawersData" :key="row.id" class="hover:bg-slate-50">
+                <td class="px-3 py-3 text-slate-600 font-semibold">{{ row.id }}</td>
+                <td class="px-3 py-3 text-slate-700">{{ row.openedByUser?.name || "-" }}</td>
+                <td class="px-3 py-3 text-slate-500">{{ fmtDate(row.opened_at) }}</td>
+                <td class="px-3 py-3 text-slate-500">{{ fmtDate(row.closed_at) }}</td>
+                <td class="px-3 py-3 text-right font-semibold text-slate-700">{{ fmt(row.opening_balance) }}</td>
+                <template v-if="row.status === 'closed'">
+                  <td class="px-3 py-3 text-right text-emerald-600 font-semibold">{{ fmt(row.cash_sales) }}</td>
+                  <td class="px-3 py-3 text-right text-slate-600">{{ fmt(row.card_sales) }}</td>
+                  <td class="px-3 py-3 text-right text-slate-600">{{ fmt(row.qr_sales) }}</td>
+                  <td class="px-3 py-3 text-right text-slate-600">{{ fmt(row.bank_transfer_sales) }}</td>
+                  <td class="px-3 py-3 text-right text-slate-600">{{ fmt(row.cash_in) }}</td>
+                  <td class="px-3 py-3 text-right text-slate-600">{{ fmt(row.cash_out) }}</td>
+                  <td class="px-3 py-3 text-right text-rose-600">{{ fmt(row.total_expenses) }}</td>
+                  <td class="px-3 py-3 text-right text-rose-600">{{ fmt(row.cash_refunds) }}</td>
+                  <td class="px-3 py-3 text-right font-semibold text-slate-700">{{ fmt(row.expected_cash) }}</td>
+                  <td class="px-3 py-3 text-right font-semibold text-slate-700">{{ fmt(row.closing_balance) }}</td>
+                  <td class="px-3 py-3 text-right font-semibold" :class="Number(row.variance) >= 0 ? 'text-emerald-600' : 'text-rose-600'">
+                    {{ fmt(row.variance) }}
+                  </td>
+                </template>
+                <template v-else>
+                  <td colspan="11" class="px-3 py-3 text-center text-slate-300">— drawer still open —</td>
+                </template>
+                <td class="px-3 py-3 text-center">
+                  <span v-if="row.status === 'open'" class="bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-sm font-bold uppercase">Open</span>
+                  <span v-else-if="row.requires_approval && !row.approved_at" class="bg-orange-100 text-orange-700 px-3 py-1 rounded-full text-sm font-bold uppercase">Pending Approval</span>
+                  <span v-else-if="row.requires_approval && row.approved_at" class="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-sm font-bold uppercase" :title="'Approved by ' + (row.approvedByUser?.name || '')">Approved</span>
+                  <span v-else class="bg-slate-100 text-slate-600 px-3 py-1 rounded-full text-sm font-bold uppercase">Closed</span>
                 </td>
-                <td class="px-4 py-3 text-center">
-                  <span :class="row.status === 'open' ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700'" class="px-3 py-1 rounded-full text-base font-bold uppercase">
-                    {{ row.status }}
-                  </span>
+                <td class="px-3 py-3 text-center">
+                  <button v-if="canApprove(row)" @click="approveDrawer(row)"
+                    class="px-3 py-1.5 text-sm font-bold text-white bg-emerald-600 rounded-lg hover:bg-emerald-700 transition">
+                    Approve
+                  </button>
                 </td>
               </tr>
-              <tr v-if="!cashDrawers.length">
-                <td colspan="9" class="px-4 py-6 text-center text-slate-400">No cash drawer records found.</td>
+              <tr v-if="!cashDrawersData.length">
+                <td colspan="18" class="px-4 py-6 text-center text-slate-400">No cash drawer records found.</td>
               </tr>
             </tbody>
           </table>
@@ -203,6 +287,41 @@
           </table>
         </div>
       </div>
+
+      <!-- Expenses in this period -->
+      <div class="bg-white rounded-2xl ring-1 ring-slate-200 shadow-sm overflow-hidden">
+        <div class="px-5 py-4 border-b border-slate-200 flex items-center justify-between">
+          <h2 class="text-xl font-bold text-slate-800">Expenses in this Period</h2>
+          <Link href="/reports/expense-report" class="text-md font-semibold text-indigo-600 hover:text-indigo-700">View Full Expense Report →</Link>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-lg">
+            <thead class="bg-slate-100 text-slate-600">
+              <tr>
+                <th class="text-left px-4 py-3">Date</th>
+                <th class="text-left px-4 py-3">Reason</th>
+                <th class="text-left px-4 py-3">Category</th>
+                <th class="text-left px-4 py-3">Payment Method</th>
+                <th class="text-right px-4 py-3">Amount</th>
+                <th class="text-left px-4 py-3">User</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+              <tr v-for="exp in expensesData" :key="exp.id" class="hover:bg-slate-50">
+                <td class="px-4 py-3 text-slate-500">{{ fmtDate(exp.created_at) }}</td>
+                <td class="px-4 py-3 text-slate-700 font-semibold">{{ exp.reason }}</td>
+                <td class="px-4 py-3 text-slate-600">{{ exp.category || "-" }}</td>
+                <td class="px-4 py-3 text-slate-600">{{ exp.payment_method || "-" }}</td>
+                <td class="px-4 py-3 text-right text-rose-600 font-semibold">{{ fmt(exp.amount) }}</td>
+                <td class="px-4 py-3 text-slate-500">{{ exp.user?.name || exp.user_role || "-" }}</td>
+              </tr>
+              <tr v-if="!expensesData.length">
+                <td colspan="6" class="px-4 py-6 text-center text-slate-400">No expenses recorded in this period.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -212,12 +331,17 @@ import Header from "@/Components/custom/Header.vue";
 import Banner from "@/Components/Banner.vue";
 import { Head, Link, router } from "@inertiajs/vue3";
 import { computed, ref } from "vue";
+import axios from "axios";
+import { HasRole } from "@/Utils/Permissions";
+import { printHtmlInIframe } from "@/Utils/print.js";
 
 const props = defineProps({
   cashDrawers: { type: [Array, Object], default: () => [] },
   statistics: { type: Object, default: () => ({}) },
   varianceByUser: { type: Array, default: () => [] },
   expenses: { type: [Array, Object], default: () => [] },
+  cashiers: { type: Array, default: () => [] },
+  filters: { type: Object, default: () => ({}) },
   startDate: { type: String, default: "" },
   endDate: { type: String, default: "" },
   companyInfo: { type: Object, default: () => ({}) },
@@ -227,6 +351,10 @@ const startDate = ref(props.startDate || "");
 const endDate = ref(props.endDate || "");
 const showQuickFilter = ref(false);
 const drawerPerPage = ref(25);
+const cashierId = ref(props.filters?.user_id || "");
+const drawerId = ref(props.filters?.drawer_id || "");
+const status = ref(props.filters?.status || "");
+const paymentMethod = ref(props.filters?.payment_method || "");
 
 const quickFilters = [
   { key: "today", label: "Today" },
@@ -265,58 +393,44 @@ const applyQuick = (period) => {
   filterData();
 };
 
+const baseFilterParams = () => ({
+  start_date: startDate.value,
+  end_date: endDate.value,
+  user_id: cashierId.value || undefined,
+  drawer_id: drawerId.value || undefined,
+  status: status.value || undefined,
+  payment_method: paymentMethod.value || undefined,
+});
+
 const filterData = () => {
-  router.get(route("reports.cashDrawer"), { start_date: startDate.value, end_date: endDate.value, page: 1 }, { preserveScroll: true });
+  router.get(route("reports.cashDrawer"), { ...baseFilterParams(), page: 1 }, { preserveScroll: true });
 };
+
+const cashDrawersData = computed(() => normalizeRows(props.cashDrawers));
+const expensesData = computed(() => normalizeRows(props.expenses));
 
 const drawerPaginationInfo = computed(() => {
   if (!props.cashDrawers || !props.cashDrawers.current_page) return "";
-  const from = (props.cashDrawers.current_page - 1) * 25 + 1;
-  const to = Math.min(props.cashDrawers.current_page * 25, props.cashDrawers.total);
+  const perPage = props.cashDrawers.per_page || 25;
+  const from = (props.cashDrawers.current_page - 1) * perPage + 1;
+  const to = Math.min(props.cashDrawers.current_page * perPage, props.cashDrawers.total);
   return `${from}-${to} of ${props.cashDrawers.total}`;
 });
 
 const nextDrawersPage = () => {
   if (props.cashDrawers && props.cashDrawers.next_page_url) {
-    router.get(
-      route("reports.cashDrawer"),
-      {
-        start_date: startDate.value,
-        end_date: endDate.value,
-        page: props.cashDrawers.current_page + 1,
-        per_page: drawerPerPage.value,
-      },
-      { preserveScroll: true }
-    );
+    router.get(route("reports.cashDrawer"), { ...baseFilterParams(), page: props.cashDrawers.current_page + 1, per_page: drawerPerPage.value }, { preserveScroll: true });
   }
 };
 
 const prevDrawersPage = () => {
   if (props.cashDrawers && props.cashDrawers.prev_page_url) {
-    router.get(
-      route("reports.cashDrawer"),
-      {
-        start_date: startDate.value,
-        end_date: endDate.value,
-        page: props.cashDrawers.current_page - 1,
-        per_page: drawerPerPage.value,
-      },
-      { preserveScroll: true }
-    );
+    router.get(route("reports.cashDrawer"), { ...baseFilterParams(), page: props.cashDrawers.current_page - 1, per_page: drawerPerPage.value }, { preserveScroll: true });
   }
 };
 
 const changeDrawersPerPage = () => {
-  router.get(
-    route("reports.cashDrawer"),
-    {
-      start_date: startDate.value,
-      end_date: endDate.value,
-      page: 1,
-      per_page: drawerPerPage.value,
-    },
-    { preserveScroll: true }
-  );
+  router.get(route("reports.cashDrawer"), { ...baseFilterParams(), page: 1, per_page: drawerPerPage.value }, { preserveScroll: true });
 };
 
 const dateRangeLabel = computed(() => {
@@ -337,12 +451,6 @@ const fmtDate = (val) => {
   return isNaN(d.getTime()) ? "-" : d.toLocaleString();
 };
 
-const variance = (row) => {
-  const open = Number(row?.opening_balance || 0);
-  const close = Number(row?.closing_balance || 0);
-  return close - open;
-};
-
 const normalizeRows = (value) => {
   if (Array.isArray(value)) return value;
   if (value && Array.isArray(value.data)) return value.data;
@@ -356,46 +464,52 @@ const escapeHtml = (value) => String(value ?? '')
   .replace(/"/g, '&quot;')
   .replace(/'/g, '&#39;');
 
+const paymentBreakdown = computed(() => {
+  const t = props.statistics?.payment_method_totals || {};
+  return [
+    { key: 'cash', label: 'Cash', value: t.cash },
+    { key: 'card', label: 'Card', value: t.card },
+    { key: 'qr', label: 'QR / Online', value: t.qr },
+    { key: 'bank_transfer', label: 'Bank Transfer', value: t.bank_transfer },
+    { key: 'other', label: 'Other', value: t.other },
+  ];
+});
+
+const canApprove = (row) => row.status === 'closed' && row.requires_approval && !row.approved_at && HasRole(['Admin', 'Manager']);
+
+const approveDrawer = async (row) => {
+  try {
+    await axios.post(`/cash-drawer/${row.id}/approve`);
+    router.reload({ preserveScroll: true });
+  } catch (err) {
+    alert(err.response?.data?.message || 'Failed to approve this drawer.');
+  }
+};
+
 const printCashDrawerReport = () => {
   try {
-    const f = (val) => {
-      const n = Number(val || 0);
-      return n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    };
+    const f = fmt;
 
-    const drawerRows = normalizeRows(props.cashDrawers).map((row, idx) => {
-      const var_val = variance(row);
-      const varClass = var_val >= 0 ? '' : 'negative';
-      const openedByName = escapeHtml(row.openedByUser?.name || row.opened_by || "-");
-      const closedByName = escapeHtml(row.closedByUser?.name || row.closed_by || "-");
-      const openedTime = row.opened_at
-        ? new Date(row.opened_at).toLocaleString(undefined, { month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit' })
-        : "-";
-      const closedTime = row.closed_at
-        ? new Date(row.closed_at).toLocaleString(undefined, { month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit' })
-        : "-";
-      return `<tr><td>${idx + 1}</td><td>${openedByName}</td><td>${escapeHtml(openedTime)}</td><td>${f(row.opening_balance)}</td><td>${closedByName}</td><td>${escapeHtml(closedTime)}</td><td>${f(row.closing_balance)}</td><td class="${varClass}">${f(var_val)}</td></tr>`;
+    const drawerRows = cashDrawersData.value.map((row) => {
+      const varClass = Number(row.variance) >= 0 ? '' : 'negative';
+      const openedByName = escapeHtml(row.openedByUser?.name || "-");
+      const openedTime = row.opened_at ? new Date(row.opened_at).toLocaleString(undefined, { month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit' }) : "-";
+      const closedTime = row.closed_at ? new Date(row.closed_at).toLocaleString(undefined, { month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit' }) : "-";
+      return `<tr><td>${row.id}</td><td>${openedByName}</td><td>${escapeHtml(openedTime)}</td><td>${f(row.opening_balance)}</td><td>${escapeHtml(closedTime)}</td><td>${f(row.closing_balance)}</td><td class="${varClass}">${f(row.variance)}</td></tr>`;
     }).join('');
 
-    const allExpenses = normalizeRows(props.expenses).map((exp) => {
-      const rawDate = exp.date || exp.created_at;
-      const expDate = rawDate ? new Date(rawDate).toLocaleString(undefined, { month: 'short', day: '2-digit' }) : '-';
-      return {
-        date: expDate,
-        reason: exp.reason || '-',
-        amount: exp.amount,
-        user: exp.user?.name || exp.user_role || 'Unknown'
-      };
-    });
-
     let expenseHtml = '';
-    if (allExpenses.length > 0) {
-      expenseHtml = '<h2>EXPENSES DETAILS</h2><table style="width:100%; border-collapse:collapse; margin:4px 0; font-size:14px;"><thead><tr style="font-weight:800; border-bottom:1px solid #999;"><th style="width:20%; text-align:left; padding:2px;">Date</th><th style="width:40%; text-align:left; padding:2px;">Reason</th><th style="width:20%; text-align:right; padding:2px;">Amount</th><th style="width:20%; text-align:left; padding:2px; font-size:12px;">User</th></tr></thead><tbody>';
-      allExpenses.forEach((exp) => {
-        expenseHtml += `<tr style="border-bottom:1px solid #ddd;"><td style="padding:2px; text-align:left;">${exp.date}</td><td style="padding:2px; text-align:left;">${exp.reason}</td><td style="padding:2px; text-align:right;">${f(exp.amount)}</td><td style="padding:2px; text-align:left; font-size:12px;">${exp.user}</td></tr>`;
+    if (expensesData.value.length > 0) {
+      expenseHtml = '<h2>EXPENSES DETAILS</h2><table style="width:100%; border-collapse:collapse; margin:4px 0; font-size:14px;"><thead><tr style="font-weight:800; border-bottom:1px solid #999;"><th style="width:20%; text-align:left; padding:2px;">Date</th><th style="width:35%; text-align:left; padding:2px;">Reason</th><th style="width:20%; text-align:right; padding:2px;">Amount</th><th style="width:25%; text-align:left; padding:2px; font-size:12px;">Method / User</th></tr></thead><tbody>';
+      expensesData.value.forEach((exp) => {
+        const expDate = exp.created_at ? new Date(exp.created_at).toLocaleString(undefined, { month: 'short', day: '2-digit' }) : '-';
+        expenseHtml += `<tr style="border-bottom:1px solid #ddd;"><td style="padding:2px; text-align:left;">${expDate}</td><td style="padding:2px; text-align:left;">${escapeHtml(exp.reason || '-')}</td><td style="padding:2px; text-align:right;">${f(exp.amount)}</td><td style="padding:2px; text-align:left; font-size:12px;">${escapeHtml(exp.payment_method || '-')} / ${escapeHtml(exp.user?.name || exp.user_role || 'Unknown')}</td></tr>`;
       });
       expenseHtml += '</tbody></table>';
     }
+
+    const pb = paymentBreakdown.value;
+    const paymentHtml = `<h2>PAYMENT METHOD BREAKDOWN</h2><div class="summary-box">${pb.map(b => `<div class="summary-row"><span>${b.label}:</span><span>${f(b.value)}</span></div>`).join('')}</div>`;
 
     const reportHTML = `<!doctype html>
 <html>
@@ -403,192 +517,51 @@ const printCashDrawerReport = () => {
 <meta charset="utf-8" />
 <title>Cash Drawer Report</title>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-
 <style>
-@page {
-    size: 80mm auto;
-    margin: 0;
-}
-
+@page { size: 80mm auto; margin: 0; }
 @media print {
-    body {
-        margin: 0;
-        padding: 0;
-        -webkit-print-color-adjust: exact !important;
-        width: 80mm;
-    }
-
-    * {
-        -webkit-print-color-adjust: exact !important;
-        color-adjust: exact !important;
-    }
+    body { margin: 0; padding: 0; -webkit-print-color-adjust: exact !important; width: 80mm; }
+    * { -webkit-print-color-adjust: exact !important; color-adjust: exact !important; }
 }
-
-body {
-    background: #fff;
-    font-size: 18px;
-    font-family: 'Courier New', monospace;
-    margin: 0;
-    padding: 10px 6px;
-    color: #000 !important;
-    width: 80mm;
-    box-sizing: border-box;
-    font-weight: 600;
-}
-
-h1 {
-    text-align: center;
-    margin: 0 0 8px 0;
-    font-size: 24px;
-    font-weight: 900;
-}
-
-h2 {
-    font-size: 18px;
-    font-weight: 800;
-    margin: 8px 0 4px 0;
-    border-bottom: 2px solid #000;
-    padding-bottom: 4px;
-}
-
-.header-row {
-    display: flex;
-    justify-content: space-between;
-    font-size: 16px;
-    margin: 4px 0;
-}
-
-.summary-box {
-    border: 1px solid #000;
-    padding: 4px 5px;
-    margin: 4px 0;
-    font-size: 14px;
-}
-
-.summary-row {
-    display: flex;
-    justify-content: space-between;
-    font-size: 14px;
-    padding: 3px 0;
-    font-weight: 700;
-}
-
-.footer {
-    text-align: center;
-    margin-top: 8px;
-    font-size: 13px;
-    padding-top: 4px;
-    border-top: 1px solid #000;
-}
+body { background: #fff; font-size: 18px; font-family: 'Courier New', monospace; margin: 0; padding: 10px 6px; color: #000 !important; width: 80mm; box-sizing: border-box; font-weight: 600; }
+h1 { text-align: center; margin: 0 0 8px 0; font-size: 24px; font-weight: 900; }
+h2 { font-size: 18px; font-weight: 800; margin: 8px 0 4px 0; border-bottom: 2px solid #000; padding-bottom: 4px; }
+.header-row { display: flex; justify-content: space-between; font-size: 16px; margin: 4px 0; }
+.summary-box { border: 1px solid #000; padding: 4px 5px; margin: 4px 0; font-size: 14px; }
+.summary-row { display: flex; justify-content: space-between; font-size: 14px; padding: 3px 0; font-weight: 700; }
+.negative { color: #000; }
+.footer { text-align: center; margin-top: 8px; font-size: 13px; padding-top: 4px; border-top: 1px solid #000; }
+table { width: 100%; border-collapse: collapse; font-size: 12px; }
+td { padding: 2px; }
 </style>
 </head>
-
 <body>
-
 <h1>CASH DRAWER REPORT</h1>
-
-<div class="header-row">
-    <span><b>From:</b> ${startDate.value || 'All'}</span>
-</div>
-
-<div class="header-row">
-    <span><b>To:</b> ${endDate.value || 'All'}</span>
-</div>
-
-<div class="header-row">
-    <span><b>Date:</b> ${new Date().toLocaleDateString()}</span>
-</div>
-
+<div class="header-row"><span><b>From:</b> ${startDate.value || 'All'}</span></div>
+<div class="header-row"><span><b>To:</b> ${endDate.value || 'All'}</span></div>
+<div class="header-row"><span><b>Date:</b> ${new Date().toLocaleDateString()}</span></div>
 <h2>SUMMARY</h2>
-
 <div class="summary-box">
-
-    <div class="summary-row">
-        <span>Total:</span>
-        <span>${props.statistics.total_drawers ?? 0}</span>
-    </div>
-
-    <div class="summary-row">
-        <span>Open:</span>
-        <span>${props.statistics.open_drawers ?? 0}</span>
-    </div>
-
-    <div class="summary-row">
-        <span>Closed:</span>
-        <span>${props.statistics.closed_drawers ?? 0}</span>
-    </div>
-
+    <div class="summary-row"><span>Total:</span><span>${props.statistics.total_drawers ?? 0}</span></div>
+    <div class="summary-row"><span>Open:</span><span>${props.statistics.open_drawers ?? 0}</span></div>
+    <div class="summary-row"><span>Closed:</span><span>${props.statistics.closed_drawers ?? 0}</span></div>
+    <div class="summary-row"><span>Pending Approval:</span><span>${props.statistics.pending_approval_count ?? 0}</span></div>
     <div style="border-top:1px solid #999; margin-top:2px;"></div>
-
-    <div class="summary-row">
-        <span>Opening:</span>
-        <span>${f(props.statistics.total_opening_balance)}</span>
-    </div>
-
-    <div class="summary-row">
-        <span>Closing:</span>
-        <span>${f(props.statistics.total_closing_balance)}</span>
-    </div>
-
-    <div class="summary-row">
-        <span>Expenses:</span>
-        <span>${f(props.statistics.total_expenses)}</span>
-    </div>
-
-    <div class="summary-row">
-        <span>Variance:</span>
-        <span>${f(props.statistics.total_variance)}</span>
-    </div>
-
+    <div class="summary-row"><span>Opening:</span><span>${f(props.statistics.total_opening_balance)}</span></div>
+    <div class="summary-row"><span>Closing:</span><span>${f(props.statistics.total_closing_balance)}</span></div>
+    <div class="summary-row"><span>Expenses:</span><span>${f(props.statistics.total_expenses)}</span></div>
+    <div class="summary-row"><span>Variance:</span><span>${f(props.statistics.total_variance)}</span></div>
 </div>
-
+${paymentHtml}
 ${expenseHtml}
-
-<div style="border:2px solid #000; padding:4px 5px; margin:4px 0; text-align:center; font-size:16px; font-weight:900;">
-Final Balance: ${f(Number(props.statistics.total_closing_balance) - Number(props.statistics.total_expenses))}
-</div>
-
 <div class="footer">
     <div>${new Date().toLocaleString()}</div>
     <div>${props.companyInfo?.name || 'Delicasy POS'}</div>
 </div>
-
 </body>
 </html>`;
 
-    const iframe = document.createElement('iframe');
-    iframe.style.position = 'fixed';
-    iframe.style.right = '-9999px';
-    iframe.style.bottom = '-9999px';
-    iframe.style.width = '0';
-    iframe.style.height = '0';
-    iframe.style.border = '0';
-    document.body.appendChild(iframe);
-
-    let isPrinted = false;
-
-    const printFrame = () => {
-      if (isPrinted || !iframe.contentWindow) return;
-      isPrinted = true;
-      iframe.contentWindow.focus();
-      iframe.contentWindow.print();
-      setTimeout(() => {
-        if (iframe.parentNode) {
-          iframe.parentNode.removeChild(iframe);
-        }
-      }, 500);
-    };
-
-    iframe.contentDocument.open();
-    iframe.contentDocument.write(reportHTML);
-    iframe.contentDocument.close();
-
-    if (iframe.contentDocument.readyState === 'loading') {
-      iframe.onload = printFrame;
-      setTimeout(printFrame, 300);
-    } else {
-      setTimeout(printFrame, 50);
-    }
+    printHtmlInIframe(reportHTML);
   } catch (err) {
     console.error('Cash drawer print error:', err);
     alert('Failed to print the report.');
